@@ -1,0 +1,53 @@
+#include <gtk/gtk.h>
+
+int main( int argc, char *argv[])
+{
+  gtk_init(&argc, &argv);
+  
+  GtkWidget *window;
+
+  GtkWidget *label;
+  GtkWidget *frame;
+  GtkWidget *bouton;
+  GtkWidget *list_tlv;
+  GtkWidget *view_tlv;
+  
+  int i = 0;
+  
+  frame		= gtk_table_new(1, 5, TRUE);
+  list_tlv	= gtk_table_new(5, 1, TRUE);
+  
+  for(; i < 5; i++){
+    label = gtk_label_new("test2");
+    gtk_table_attach_default(GTK_TABLE(list_tlv), , );
+  }
+
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+  gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+  gtk_window_set_title(GTK_WINDOW(window), "GtkTable");
+
+  gtk_container_set_border_width(GTK_CONTAINER(window), 5);
+  
+  
+
+  gtk_table_set_row_spacings(GTK_TABLE(frame), 2);
+  gtk_table_set_col_spacings(GTK_TABLE(frame), 2);
+  
+
+  gtk_table_attach_defaults(GTK_TABLE(frame), list_tlv, 0, 1, 0, 1 );
+  label = gtk_label_new("test2");
+  gtk_table_attach_defaults(GTK_TABLE(frame), label, 1, 5, 0, 1 );
+  
+  gtk_container_add(GTK_CONTAINER(window), frame);
+
+  g_signal_connect_swapped(G_OBJECT(window), "destroy",
+			   G_CALLBACK(gtk_main_quit), G_OBJECT(window));
+
+  gtk_widget_show_all(window);
+
+  gtk_main();
+  gtk_container_remove(G_OBJECT(frame));
+
+  return 0;
+}
