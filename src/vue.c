@@ -1,6 +1,8 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "test.h"
+#include "vue.h"
 
 typedef struct signal_bouton{
   int id_bouton;
@@ -8,17 +10,14 @@ typedef struct signal_bouton{
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6};
 
-gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message)
-{ 
+gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){ 
   //printf("id_bouton = %d\n", ((signal_bouton *)message)->id_bouton);
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
   return FALSE;
 }
 
-gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message)
-{ 
-  
+gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){ 
   return FALSE;
 }
 
@@ -133,8 +132,9 @@ void foot_init(GtkWidget * panel){
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&(id_bouton[4]));
 }
-int main(int argc, char* argv[])
+int init(int argc, char* argv[])
 {
+  printf("daz = %p\n", daz);
   if(argc != 2){
     return 1;
   }
