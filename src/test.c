@@ -20,18 +20,26 @@ void test(){
   
   //struct tlv *tlv = daz->tlv_debut; // 2 = text
   daz->tlv_debut->type_id = 2;
+  daz->tlv_debut->position = 10;
   daz->tlv_debut->suivant = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->type_id = 2;
-  daz->tlv_debut->suivant->
+  daz->tlv_debut->suivant->type_id = 3;
+  daz->tlv_debut->suivant->position = 20;
+  daz->tlv_debut->suivant->suivant = malloc(sizeof(tlv));
+  daz->tlv_debut->suivant->suivant->type_id = 6;
+  daz->tlv_debut->suivant->suivant->position = 56;
+  daz->tlv_debut->suivant->suivant->suivant = 0;
+}
 
-  //on libre la memoire de la struct dazibao
+void free_test(){
+  free(daz->tlv_debut->suivant->suivant);
+  free(daz->tlv_debut->suivant);
   free(daz->tlv_debut);
   free(daz);
-  
 }
 
 int main(int argc, char *argv[]){
   test();
-  //init(argc, argv);
+  init(argc, argv);
+  free_test();
   return 0;
 }

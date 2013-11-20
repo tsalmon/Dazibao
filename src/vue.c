@@ -47,19 +47,42 @@ void head_init(GtkWidget * panel){
 		     (gpointer)&(id_bouton[1]));
 }
 
-void body_init(GtkWidget * panel, int n){
+const char *label_button(int id){
+  switch(id){
+  case 2:
+    return "Text";
+  case 3:
+    return "PNG";
+  case 4:
+    return "JPEG";
+  case 5:
+    return "Compound";
+  case 6:
+    return "Date";
+  default:
+    return "????";
+  }
+  return "salut";
+}
+
+void body_init(GtkWidget * panel, int n){ 
+  struct tlv * curseur;
   GtkWidget* panel_tlv_all;
   GtkWidget* scrollbar;
   int i;
   int j;
-
+  
+  curseur = daz->tlv_debut;
   /* declaration des variables du corps */
   panel_tlv_all	= gtk_vbox_new(FALSE,0);      
   // on pose un scroll sur la liste des tlv
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
   /* affichage des TLV dans la liste panel_tlv_all*/
-  for(i = 0 ; i < n ; ++i){
+  for(i = 0 ; i < daz->nb_tlv ; ++i){
+    printf("valeur = %d\n", curseur->type_id);
+    /* on prend le 1er tlv */
+    
     GtkWidget * panel_tlv;
     GtkWidget* scrollbar_date;
     GtkWidget* dates;
@@ -72,7 +95,7 @@ void body_init(GtkWidget * panel, int n){
     //le panel du tlv
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     //bouton de tlv
-    button_tlv = gtk_button_new_with_label("machin");
+    button_tlv = gtk_button_new_with_label(label_button(curseur->type_id));
     //le scroll sur la liste de dates
     scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
@@ -94,6 +117,8 @@ void body_init(GtkWidget * panel, int n){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), scrollbar_date, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(panel_tlv_all), panel_tlv, FALSE, FALSE, 5);
+    //on passe a la prochaine tlv a afficher
+    curseur = curseur->suivant;
   }  
   
   //on configure le scroll
@@ -146,7 +171,8 @@ int init(int argc, char* argv[])
   /* config */
   gtk_init(&argc, &argv);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_default_size(GTK_WINDOW(window), 420, 600);
+  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+  gtk_window_set_default_size(GTK_WINDOW(window), 520, 700);
   gtk_window_set_title(GTK_WINDOW(window), "Dazibao");
   g_signal_connect(G_OBJECT(window),"destroy",G_CALLBACK(traitement_quitter),0);
   
