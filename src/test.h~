@@ -1,0 +1,18 @@
+#ifndef TEST_H
+#define TEST_H
+
+typedef struct tlv_list{
+  int type_id;
+  char *text;
+  float date;
+  struct tlv_list *suivant;
+  struct tlv_list *conteneur;
+}tlv_list;
+
+typedef struct dazibao{
+  struct tlv_list *tlv;
+  int nb_tlv;
+}dazibao;
+
+
+#endif
