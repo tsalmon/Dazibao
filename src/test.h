@@ -4,7 +4,7 @@
 typedef struct tlv{
   int type_id;
   long int position;
-  //struct tlv *conteneur;
+  struct tlv *conteneur;
   struct tlv *suivant;
 }tlv;
 

@@ -27,8 +27,9 @@ void test(){
   daz->tlv_debut->suivant->suivant = malloc(sizeof(tlv));
   daz->tlv_debut->suivant->suivant->type_id = 6;
   daz->tlv_debut->suivant->suivant->position = 56;
-  daz->tlv_debut->suivant->suivant->suivant = 0;
-}
+  daz->tlv_debut->suivant->suivant->conteneur = malloc(sizeof(tlv)); 
+  daz->tlv_debut->suivant->suivant->conteneur->type_id = 2; 
+  daz->tlv_debut->suivant->suivant->conteneur->position = 200;}
 
 void free_test(){
   free(daz->tlv_debut->suivant->suivant);

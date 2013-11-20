@@ -37,7 +37,7 @@ void head_init(GtkWidget * panel){
 
   //ajout de head panel dans le panel principal
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
-
+  
   //activation des signaux sur boutons
   gtk_signal_connect(GTK_OBJECT(ajouter), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
@@ -47,8 +47,9 @@ void head_init(GtkWidget * panel){
 		     (gpointer)&(id_bouton[1]));
 }
 
-const char *label_button(int id){
-  switch(id){
+const char *label_button(struct tlv* current_tlv){
+  printf("id = %d\n", current_tlv->type_id);
+  switch(current_tlv->type_id){
   case 2:
     return "Text";
   case 3:
@@ -58,11 +59,11 @@ const char *label_button(int id){
   case 5:
     return "Compound";
   case 6:
-    return "Date";
+    return label_button(current_tlv->conteneur);
   default:
     return "????";
   }
-  return "salut";
+  return "????";
 }
 
 void body_init(GtkWidget * panel, int n){ 
@@ -87,7 +88,6 @@ void body_init(GtkWidget * panel, int n){
     GtkWidget* scrollbar_date;
     GtkWidget* dates;
     GtkWidget* button_tlv;
-    char texte[10];
     
     /* definitions des elements de la liste */
     //une serie de dates sous forme de box
@@ -95,7 +95,7 @@ void body_init(GtkWidget * panel, int n){
     //le panel du tlv
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     //bouton de tlv
-    button_tlv = gtk_button_new_with_label(label_button(curseur->type_id));
+    button_tlv = gtk_button_new_with_label(label_button(curseur));
     //le scroll sur la liste de dates
     scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
@@ -104,14 +104,24 @@ void body_init(GtkWidget * panel, int n){
        dates);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
- 
-    /* on ajoute les dates au box */
-    for(j = 0; j < 5; j++){
-      GtkWidget* label_date; 
-      sprintf(texte, "date %d", j);
+
+    char texte[10];
+    GtkWidget* label_date; 
+    if(curseur->type_id == 6){
+      struct tlv *date = curseur->conteneur;
+      int j = 1;
+      /* on ajoute les dates au box */
+      while(date != NULL){
+	sprintf(texte, "date %d", j++);
+	label_date = gtk_label_new(texte);
+	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);   
+	date = date->conteneur;
+      } 
+    } else {
+      sprintf(texte, "-", j);
       label_date = gtk_label_new(texte);
       gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);   
-    } 
+    }
     
     /* insertion */
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), scrollbar_date, 0, 1, 0, 1);
