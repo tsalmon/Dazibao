@@ -3,13 +3,13 @@
 
 typedef struct tlv{
   int type_id;
-  long int position;
-  //struct tlv *conteneur;
-  struct tlv *suivant;
+  char *str;
+  float date;
+  struct tlv *conteneur;
 }tlv;
 
 typedef struct dazibao{
-  struct tlv *tlv_debut;
+  struct tlv *tlv_tab;
   int nb_tlv;
 }dazibao;
 
