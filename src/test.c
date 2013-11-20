@@ -28,8 +28,12 @@ void test(){
   daz->tlv_debut->suivant->suivant->type_id = 6;
   daz->tlv_debut->suivant->suivant->position = 56;
   daz->tlv_debut->suivant->suivant->conteneur = malloc(sizeof(tlv)); 
-  daz->tlv_debut->suivant->suivant->conteneur->type_id = 2; 
-  daz->tlv_debut->suivant->suivant->conteneur->position = 200;}
+  daz->tlv_debut->suivant->suivant->conteneur->type_id = 6; 
+  daz->tlv_debut->suivant->suivant->conteneur->position = 200;
+  daz->tlv_debut->suivant->suivant->conteneur->conteneur = malloc(sizeof(tlv));
+  daz->tlv_debut->suivant->suivant->conteneur->conteneur->type_id = 2;
+  
+}
 
 void free_test(){
   free(daz->tlv_debut->suivant->suivant);

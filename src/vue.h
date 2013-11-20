@@ -7,5 +7,6 @@ void head_init(GtkWidget * panel);
 void body_init(GtkWidget * panel, int n);
 void foot_init(GtkWidget * panel);
 int init(int argc, char* argv[]);
+
 #endif
 

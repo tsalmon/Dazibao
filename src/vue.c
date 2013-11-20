@@ -17,6 +17,14 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+gint traitement_tlv(GtkWidget *label, GdkEvent *event, gpointer message){ 
+  //printf("id_bouton = %d\n", ((signal_bouton *)message)->id_bouton);
+  struct tlv * tlv_b =  (struct tlv *)message;
+  printf("id bouton = %d\n", tlv_b->type_id);
+  return FALSE;
+}
+
+
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){ 
   return FALSE;
 }
@@ -48,7 +56,6 @@ void head_init(GtkWidget * panel){
 }
 
 const char *label_button(struct tlv* current_tlv){
-  printf("id = %d\n", current_tlv->type_id);
   switch(current_tlv->type_id){
   case 2:
     return "Text";
@@ -57,7 +64,7 @@ const char *label_button(struct tlv* current_tlv){
   case 4:
     return "JPEG";
   case 5:
-    return "Compound";
+    return "Repertoir";
   case 6:
     return label_button(current_tlv->conteneur);
   default:
@@ -71,7 +78,6 @@ void body_init(GtkWidget * panel, int n){
   GtkWidget* panel_tlv_all;
   GtkWidget* scrollbar;
   int i;
-  int j;
   
   curseur = daz->tlv_debut;
   /* declaration des variables du corps */
@@ -81,7 +87,7 @@ void body_init(GtkWidget * panel, int n){
   
   /* affichage des TLV dans la liste panel_tlv_all*/
   for(i = 0 ; i < daz->nb_tlv ; ++i){
-    printf("valeur = %d\n", curseur->type_id);
+    //printf("valeur = %d\n", curseur->type_id);
     /* on prend le 1er tlv */
     
     GtkWidget * panel_tlv;
@@ -118,7 +124,7 @@ void body_init(GtkWidget * panel, int n){
 	date = date->conteneur;
       } 
     } else {
-      sprintf(texte, "-", j);
+      sprintf(texte, "-");
       label_date = gtk_label_new(texte);
       gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);   
     }
@@ -128,6 +134,20 @@ void body_init(GtkWidget * panel, int n){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(panel_tlv_all), panel_tlv, FALSE, FALSE, 5);
     //on passe a la prochaine tlv a afficher
+
+    if(curseur->type_id != 6){
+      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
+			 (GtkSignalFunc)traitement_tlv, 
+			 (gpointer)(curseur));
+    } else {
+      struct tlv *date = curseur;
+      while(date->conteneur != NULL){
+	date = date->conteneur;
+      }
+      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
+			 (GtkSignalFunc)traitement_tlv, 
+			 (gpointer)(date));
+    }
     curseur = curseur->suivant;
   }  
   
@@ -167,8 +187,7 @@ void foot_init(GtkWidget * panel){
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&(id_bouton[4]));
 }
-int init(int argc, char* argv[])
-{
+int init(int argc, char* argv[]){
   printf("daz = %p\n", daz);
   if(argc != 2){
     return 1;
