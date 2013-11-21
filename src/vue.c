@@ -63,64 +63,6 @@ void afficher_text(int position_tlv){
   gtk_main();
 }
 
-
-/*
-void afficher_image(int position_tlv){
-  GtkWidget *fenetre;
-  GtkWidget *panel;
-  GtkWidget * scrollbar;
-  
-  int i = 0, size = 0;
-  const gchar *img_buff;
-  int fd; 
-  GtkWidget *image;
-  
-  if((fd= open("image.jpg", O_RDONLY)) == -1){
-    printf("impossible d'ouvrir le fichier\n");
-  }
-  
-  while((i = read(fd, &img_buff, 1)) > 0){
-    size++;
-  }
-  close(fd);
-  img_buff = malloc(sizeof(char) * size);
-  
-  if((fd= open("image.jpg", O_RDONLY)) == -1){
-    printf("impossible d'ouvrir le fichier\n");
-  }
-  size = 0;
-  while((i = read(fd, &img_buff, 1)) > 0){
-    img_buff[size++];
-  }
-  close(fd);
-  printf("size = %d\n", size);
-  
-  image = gtk_image_new_from_stock(img_buff, size);
-  
-  gtk_init(&i, NULL);
-  fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
-  gtk_window_set_title (GTK_WINDOW(fenetre), "Hello World !");
-  gtk_window_set_default_size(GTK_WINDOW(fenetre), 400, 400);
-  g_signal_connect(G_OBJECT(fenetre),"destroy",G_CALLBACK(gtk_main_quit),0); 
-  
-  scrollbar = gtk_scrolled_window_new(NULL, NULL);
-  panel = gtk_hbox_new(FALSE, 5);  
-  
-  gtk_container_add(GTK_CONTAINER(fenetre), panel);
-  
-  gtk_scrolled_window_add_with_viewport
-    (GTK_SCROLLED_WINDOW(scrollbar), panel);
-  gtk_scrolled_window_set_policy
-    (GTK_SCROLLED_WINDOW(scrollbar), 
-     GTK_POLICY_NEVER,
-     GTK_POLICY_ALWAYS);    
-  
-  gtk_box_pack_start(GTK_BOX(panel), image, FALSE, FALSE, 0);
-  gtk_widget_show_all(fenetre);
-  gtk_main();
-}
-*/
-
 void afficher_image(int position_tlv){
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *ecran = NULL;
@@ -128,12 +70,14 @@ void afficher_image(int position_tlv){
   SDL_Rect position;
 
   int fd, size=0, i=0;
+  int newWidth = 0, newHeight = 0;
   char *img_buff, buff;
   
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
   }
-  
+
+  //a refaire
   while((i = read(fd, &buff, 1)) > 0){
     size++;
   }
@@ -153,10 +97,9 @@ void afficher_image(int position_tlv){
   
   position.x = 0;
   position.y = 0;
-  SDL_WM_SetCaption("Charger des images avec la SDL", NULL);
-  ecran = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE);
+  SDL_WM_SetCaption("Dazibao", NULL);
+  ecran = SDL_SetVideoMode(400, 400, 32, SDL_HWSURFACE| SDL_RESIZABLE);
   SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
-  //image = IMG_Load("image.jpg");
   image = IMG_Load_RW(SDL_RWFromMem( img_buff, size), 1);
   if(image  == NULL){ //Si le chargement a raté.
     printf("echec image == NULL\n");
@@ -171,6 +114,14 @@ void afficher_image(int position_tlv){
       SDL_PollEvent(&evenement);
       switch(evenement.type)
         {
+	case SDL_VIDEORESIZE:
+	  newWidth = evenement.resize.w;
+	  newHeight = evenement.resize.h;
+	  SDL_FreeSurface(ecran);
+	  ecran = SDL_SetVideoMode(newWidth, newHeight, 32, SDL_HWSURFACE | SDL_RESIZABLE);
+	  SDL_BlitSurface(image, NULL, ecran, &position);
+	  SDL_Flip(ecran);
+	  break;
 	case SDL_QUIT:
 	  continuer = 0;
 	  break;
