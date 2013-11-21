@@ -57,11 +57,46 @@ void afficher_text(int position_tlv){
   gtk_main();
 }
 
+
+void afficher_image(int position_tlv){
+  GtkWidget *fenetre;
+  
+  GtkWidget *panel;
+  GtkWidget * scrollbar;
+  int i = 0;
+  
+  gtk_init(&i, NULL);
+  fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
+  gtk_window_set_title (GTK_WINDOW(fenetre), "Hello World !");
+  gtk_window_set_default_size(GTK_WINDOW(fenetre), 400, 400);
+  g_signal_connect(G_OBJECT(fenetre),"destroy",G_CALLBACK(gtk_main_quit),0); 
+  
+  scrollbar = gtk_scrolled_window_new(NULL, NULL);
+  panel = gtk_hbox_new(FALSE, 5);  
+  
+  
+  gtk_container_add(GTK_CONTAINER(fenetre), scrollbar);
+  gtk_scrolled_window_add_with_viewport
+    (GTK_SCROLLED_WINDOW(scrollbar), panel);
+  gtk_scrolled_window_set_policy
+    (GTK_SCROLLED_WINDOW(scrollbar), 
+     GTK_POLICY_NEVER,
+     GTK_POLICY_ALWAYS);    
+
+  gtk_box_pack_start(GTK_BOX(panel), image, FALSE, FALSE, 0);
+  gtk_widget_show_all(fenetre);
+  gtk_main();
+}
+
+
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
   case 2:
     afficher_text(recup->position);
+    break;
+  case 3: case 4:
+    afficher_image(recup->position);
     break;
   default:
     fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
