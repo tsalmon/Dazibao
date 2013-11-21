@@ -10,20 +10,64 @@ typedef struct signal_bouton{
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6};
 
-gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){ 
-  //printf("id_bouton = %d\n", ((signal_bouton *)message)->id_bouton);
+gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
   return FALSE;
 }
 
-gint traitement_tlv(GtkWidget *label, GdkEvent *event, gpointer message){ 
-  //printf("id_bouton = %d\n", ((signal_bouton *)message)->id_bouton);
-  struct tlv * tlv_b =  (struct tlv *)message;
-  printf("id bouton = %d\n", tlv_b->type_id);
-  return FALSE;
+void afficher_text(int position_tlv){
+  GtkWidget *fenetre;
+  GtkWidget *text;
+  GtkWidget *panel;
+  GtkWidget * scrollbar;
+  int i = 0;
+  
+  gtk_init(&i, NULL);
+  fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
+  gtk_window_set_title (GTK_WINDOW(fenetre), "Hello World !");
+  gtk_window_set_default_size(GTK_WINDOW(fenetre), 400, 400);
+  g_signal_connect(G_OBJECT(fenetre),"destroy",G_CALLBACK(gtk_main_quit),0); 
+  //gtk_window_set_resizable(GTK_WINDOW(fenetre), FALSE);        
+ 
+  scrollbar = gtk_scrolled_window_new(NULL, NULL);
+  panel = gtk_hbox_new(FALSE, 5);  
+  
+  text = gtk_label_new ("This is an example of a line-wrapped, filled label.  " 
+			"It should be taking "				
+			"up the entire              width allocated to it.  " 
+			"Here is a sentence to prove "			
+			"my point.  Here is another sentence. "	
+			"Here comes the sun, do de do de do.\n"	
+			"    This is a new paragraph.\n"		
+			"    This is another newer, longer, better " 
+			"paragraph.  It is coming to an end, " 
+			"unfortunately.");
+  
+  gtk_container_add(GTK_CONTAINER(fenetre), scrollbar);
+  gtk_scrolled_window_add_with_viewport
+    (GTK_SCROLLED_WINDOW(scrollbar), panel);
+  gtk_scrolled_window_set_policy
+    (GTK_SCROLLED_WINDOW(scrollbar), 
+     GTK_POLICY_NEVER,
+     GTK_POLICY_ALWAYS);    
+
+  gtk_box_pack_start(GTK_BOX(panel), text, FALSE, FALSE, 0);
+  gtk_widget_show_all(fenetre);
+  gtk_main();
 }
 
+gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
+  struct tlv *recup = (struct tlv*)message;
+  switch(recup->type_id){
+  case 2:
+    afficher_text(recup->position);
+    break;
+  default:
+    fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
+  }
+  return FALSE;
+}
 
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){ 
   return FALSE;
@@ -110,7 +154,6 @@ void body_init(GtkWidget * panel, int n){
        dates);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-
     char texte[10];
     GtkWidget* label_date; 
     if(curseur->type_id == 6){
@@ -187,8 +230,8 @@ void foot_init(GtkWidget * panel){
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&(id_bouton[4]));
 }
+
 int init(int argc, char* argv[]){
-  printf("daz = %p\n", daz);
   if(argc != 2){
     return 1;
   }
