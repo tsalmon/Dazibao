@@ -1,8 +1,12 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "test.h"
 #include "vue.h"
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 typedef struct signal_bouton{
   int id_bouton;
@@ -58,12 +62,38 @@ void afficher_text(int position_tlv){
 }
 
 
+/*
 void afficher_image(int position_tlv){
   GtkWidget *fenetre;
-  
   GtkWidget *panel;
   GtkWidget * scrollbar;
-  int i = 0;
+  
+  int i = 0, size = 0;
+  const gchar *img_buff;
+  int fd; 
+  GtkWidget *image;
+  
+  if((fd= open("image.jpg", O_RDONLY)) == -1){
+    printf("impossible d'ouvrir le fichier\n");
+  }
+  
+  while((i = read(fd, &img_buff, 1)) > 0){
+    size++;
+  }
+  close(fd);
+  img_buff = malloc(sizeof(char) * size);
+  
+  if((fd= open("image.jpg", O_RDONLY)) == -1){
+    printf("impossible d'ouvrir le fichier\n");
+  }
+  size = 0;
+  while((i = read(fd, &img_buff, 1)) > 0){
+    img_buff[size++];
+  }
+  close(fd);
+  printf("size = %d\n", size);
+  
+  image = gtk_image_new_from_stock(img_buff, size);
   
   gtk_init(&i, NULL);
   fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
@@ -74,20 +104,64 @@ void afficher_image(int position_tlv){
   scrollbar = gtk_scrolled_window_new(NULL, NULL);
   panel = gtk_hbox_new(FALSE, 5);  
   
+  gtk_container_add(GTK_CONTAINER(fenetre), panel);
   
-  gtk_container_add(GTK_CONTAINER(fenetre), scrollbar);
   gtk_scrolled_window_add_with_viewport
     (GTK_SCROLLED_WINDOW(scrollbar), panel);
   gtk_scrolled_window_set_policy
     (GTK_SCROLLED_WINDOW(scrollbar), 
      GTK_POLICY_NEVER,
      GTK_POLICY_ALWAYS);    
-
+  
   gtk_box_pack_start(GTK_BOX(panel), image, FALSE, FALSE, 0);
   gtk_widget_show_all(fenetre);
   gtk_main();
 }
+*/
 
+void afficher_image(int position_tlv){
+  GtkWidget *window, *sc_win;
+  GtkWidget *vbox;
+  GtkWidget *image;
+  int fd, size=0, i=0;
+  gchar *img_buff, buff;
+  
+  if((fd= open("image.jpg", O_RDONLY)) == -1){
+    printf("impossible d'ouvrir le fichier\n");
+  }
+  
+  while((i = read(fd, &buff, 1)) > 0){
+    size++;
+  }
+  close(fd);
+  img_buff = malloc(sizeof(char) * size);
+  
+  if((fd= open("image.jpg", O_RDONLY)) == -1){
+    printf("impossible d'ouvrir le fichier\n");
+  }
+  size = 0;
+  while((i = read(fd, &buff, 1)) > 0){
+    img_buff[size++] = buff;
+  }
+  close(fd);
+  
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  sc_win = gtk_scrolled_window_new(NULL, NULL);
+  image = gtk_image_new_from_stock(img_buff, size);
+  vbox = gtk_vbox_new(FALSE, 2);
+  
+  gtk_window_set_title(GTK_WINDOW(window), "GTK application");
+  gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sc_win), image);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sc_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  
+  gtk_box_pack_start(GTK_BOX(vbox), sc_win, TRUE, TRUE, 2);
+  gtk_container_add(GTK_CONTAINER(window), vbox);
+  
+  gtk_widget_show_all(window);
+  
+  gtk_main();
+}
 
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
   struct tlv *recup = (struct tlv*)message;
@@ -105,6 +179,7 @@ gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
 }
 
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){ 
+  gtk_main_quit();
   return FALSE;
 }
 
