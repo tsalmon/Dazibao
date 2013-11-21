@@ -1,4 +1,6 @@
 #include <gtk/gtk.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -120,11 +122,13 @@ void afficher_image(int position_tlv){
 */
 
 void afficher_image(int position_tlv){
-  GtkWidget *window, *sc_win;
-  GtkWidget *vbox;
-  GtkWidget *image;
+  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Surface *ecran = NULL;
+  SDL_Surface *image = NULL;
+  SDL_Rect position;
+
   int fd, size=0, i=0;
-  gchar *img_buff, buff;
+  char *img_buff, buff;
   
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
@@ -139,28 +143,50 @@ void afficher_image(int position_tlv){
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
   }
+  
   size = 0;
   while((i = read(fd, &buff, 1)) > 0){
     img_buff[size++] = buff;
+    //write(fd2, &buff, sizeof(buff));
   }
   close(fd);
   
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  sc_win = gtk_scrolled_window_new(NULL, NULL);
-  image = gtk_image_new_from_stock(img_buff, size);
-  vbox = gtk_vbox_new(FALSE, 2);
-  
-  gtk_window_set_title(GTK_WINDOW(window), "GTK application");
-  gtk_window_set_default_size(GTK_WINDOW(window), 400, 400);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(sc_win), image);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(sc_win), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  
-  gtk_box_pack_start(GTK_BOX(vbox), sc_win, TRUE, TRUE, 2);
-  gtk_container_add(GTK_CONTAINER(window), vbox);
-  
-  gtk_widget_show_all(window);
-  
-  gtk_main();
+  position.x = 0;
+  position.y = 0;
+  SDL_WM_SetCaption("Charger des images avec la SDL", NULL);
+  ecran = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE);
+  SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
+  //image = IMG_Load("image.jpg");
+  image = IMG_Load_RW(SDL_RWFromMem( img_buff, size), 1);
+  if(image  == NULL){ //Si le chargement a raté.
+    printf("echec image == NULL\n");
+    return;
+  }
+  SDL_BlitSurface(image, NULL, ecran, &position);
+  SDL_Flip(ecran);
+  int continuer = 1;
+  SDL_Event evenement;
+  while(continuer)
+    {
+      SDL_PollEvent(&evenement);
+      switch(evenement.type)
+        {
+	case SDL_QUIT:
+	  continuer = 0;
+	  break;
+	case SDL_KEYDOWN:
+	  switch(evenement.key.keysym.sym)
+            {
+	    case SDLK_ESCAPE:
+	      continuer = 0;
+	      break;
+	    default:
+	      break;
+            }
+	  break;
+        }
+    }
+  SDL_Quit();
 }
 
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 

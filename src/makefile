@@ -1,4 +1,4 @@
-LDFLAGS=-Wall `pkg-config --cflags --libs gtk+-2.0`
+LDFLAGS=-Wall `pkg-config --cflags --libs gtk+-2.0` `sdl-config --libs` -lSDLmain -lSDL -lSDL_image 
 CC=gcc
 FILE=vue
 
