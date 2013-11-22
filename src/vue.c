@@ -140,7 +140,10 @@ void afficher_image(int position_tlv){
   SDL_Quit();
 }
 
-void afficher_conteneur(int position_tlv){
+void afficher_conteneur(struct tlv * rep){
+  printf("repertoire\n");
+  body_init(panel, rep->conteneur, rep->nb_tlv);
+  gtk_widget_show_all(window);
   
 }
 
@@ -154,7 +157,7 @@ gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
     afficher_image(recup->position);
     break;
   case 5:
-    afficher_conteneur(recup->position);
+    afficher_conteneur(recup);
     break;
   default:
     fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
@@ -166,7 +169,6 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
   gtk_main_quit();
   return FALSE;
 }
-
 
 void head_init(GtkWidget * panel){
   GtkWidget *ajouter;
@@ -212,20 +214,20 @@ const char *label_button(struct tlv* current_tlv){
   return "????";
 }
 
-void body_init(GtkWidget * panel, int n){ 
+void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){ 
   struct tlv * curseur;
   GtkWidget* panel_tlv_all;
   GtkWidget* scrollbar;
   int i;
   
-  curseur = daz->tlv_debut;
+  curseur = tlv_debut;
   /* declaration des variables du corps */
   panel_tlv_all	= gtk_vbox_new(FALSE,0);      
   // on pose un scroll sur la liste des tlv
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
   /* affichage des TLV dans la liste panel_tlv_all*/
-  for(i = 0 ; i < daz->nb_tlv ; ++i){
+  for(i = 0 ; i < nb_tlv ; ++i){
     //printf("valeur = %d\n", curseur->type_id);
     /* on prend le 1er tlv */
     
@@ -331,9 +333,7 @@ int init(int argc, char* argv[]){
     return 1;
   }
 
-  GtkWidget* window;
-  GtkWidget* panel;
-  int n = atoi( argv[1]);
+  //int n = atoi( argv[1]);
   
   /* config */
   gtk_init(&argc, &argv);
@@ -349,7 +349,7 @@ int init(int argc, char* argv[]){
   //signal_btn = malloc(sizeof(signal_bouton) * 6);
   
   head_init(panel);  
-  body_init(panel, n);
+  body_init(panel, daz->tlv_debut, daz->nb_tlv);
   foot_init(panel);
   
   gtk_widget_show_all(window);

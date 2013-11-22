@@ -14,7 +14,7 @@ void test(){
   daz = malloc(sizeof(dazibao));  
   
   //initialisation memoire
-  daz->nb_tlv = 3;
+  daz->nb_tlv = 4;
   daz->tlv_debut = malloc(sizeof(tlv));
   //il y a maintenant 3 tlv
   
@@ -32,7 +32,13 @@ void test(){
   daz->tlv_debut->suivant->suivant->conteneur->position = 200;
   daz->tlv_debut->suivant->suivant->conteneur->conteneur = malloc(sizeof(tlv));
   daz->tlv_debut->suivant->suivant->conteneur->conteneur->type_id = 2;
-  
+  daz->tlv_debut->suivant->suivant->suivant = malloc(sizeof(tlv));
+  daz->tlv_debut->suivant->suivant->suivant->type_id = 5;
+  daz->tlv_debut->suivant->suivant->suivant->nb_tlv = 2;
+  daz->tlv_debut->suivant->suivant->suivant->conteneur = malloc(sizeof(tlv));
+  daz->tlv_debut->suivant->suivant->suivant->conteneur->type_id = 2;
+  daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant = malloc(sizeof(tlv));
+  daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant->type_id = 2;
 }
 
 void free_test(){
