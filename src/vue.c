@@ -140,6 +140,10 @@ void afficher_image(int position_tlv){
   SDL_Quit();
 }
 
+void afficher_conteneur(int position_tlv){
+  
+}
+
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
@@ -148,6 +152,9 @@ gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
     break;
   case 3: case 4:
     afficher_image(recup->position);
+    break;
+  case 5:
+    afficher_conteneur(recup->position);
     break;
   default:
     fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
@@ -159,6 +166,7 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
   gtk_main_quit();
   return FALSE;
 }
+
 
 void head_init(GtkWidget * panel){
   GtkWidget *ajouter;
