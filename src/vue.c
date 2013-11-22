@@ -143,8 +143,7 @@ void afficher_image(int position_tlv){
 void afficher_conteneur(struct tlv * rep){
   printf("repertoire\n");
   body_init(panel, rep->conteneur, rep->nb_tlv);
-  gtk_widget_show_all(window);
-  
+  gtk_widget_show_all(window);  
 }
 
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
@@ -313,8 +312,8 @@ void foot_init(GtkWidget * panel){
   GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
   
   home = gtk_button_new_with_label("Barrack");
+
   gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
-  
   back = gtk_button_new_with_label("Back");
   gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
   
