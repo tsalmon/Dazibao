@@ -57,6 +57,49 @@ gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+void makeImage ()
+{
+  
+  GtkWidget *dialog;
+  GtkWindow *window;
+  int user_edited_a_new_document = 0;
+  window = gtk_window_new(GTK_WINDOW_POPUP);
+  
+  dialog = gtk_file_chooser_dialog_new 
+    ("Save File",
+     window,
+     GTK_FILE_CHOOSER_ACTION_SAVE,
+     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+     NULL);
+  gtk_file_chooser_set_do_overwrite_confirmation 
+    (GTK_FILE_CHOOSER (dialog), TRUE);
+  if (user_edited_a_new_document)
+    {
+      gtk_file_chooser_set_current_folder
+	(GTK_FILE_CHOOSER (dialog), ".");
+      gtk_file_chooser_set_current_name 
+	(GTK_FILE_CHOOSER (dialog), "Untitled document");
+    } else {  
+    gtk_file_chooser_set_filename 
+      (GTK_FILE_CHOOSER (dialog), filename> _for_existing_document);
+  }
+  
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+      char *filename;
+      
+      filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+      save_to_file (filename);
+      g_free (filename);
+    }
+  
+  gtk_widget_destroy (dialog);
+  
+
+}
+
+
 void afficher_text(int position_tlv){
   GtkWidget *fenetre;
   GtkWidget *text;
