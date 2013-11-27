@@ -1,4 +1,4 @@
-#include <gtk/gtk.h>
+#include <gtk/gtk.h>  
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <stdio.h>
@@ -14,11 +14,47 @@ typedef struct signal_bouton{
   int id_bouton;
 }signal_bouton;
 
-int id_bouton[] = {0, 1, 2, 3, 4, 5, 6};
+int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
+  switch(*i){
+  case 0:
+    makeText();
+    break;
+  case 1:
+    printf("image\n");
+    break;
+  case 2:
+    printf("date\n");
+    break;
+  case 3:
+    printf("rep\n");
+    break;
+  default:
+    printf("non reconnu");
+  }
+  return FALSE;
+}
+
+gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
+  GtkTextIter i1, it;
+  int k, i;
+  gchar *text;
+
+  gtk_text_buffer_get_iter_at_mark
+    (buffer, &it, gtk_text_buffer_get_insert(buffer));
+
+  k = gtk_text_iter_get_line(&it);
+  gtk_text_buffer_get_iter_at_line(buffer, &it, k);
+  gtk_text_buffer_get_end_iter(buffer, &i1);
+  text = gtk_text_buffer_get_text(buffer, &it, &i1, FALSE);
+  for(i=0; text[i];i++);
+  text[i]=0;
+  printf("%s\n", text);
+  //g_free_text(text);
   return FALSE;
 }
 
@@ -39,7 +75,7 @@ void afficher_text(int position_tlv){
   scrollbar = gtk_scrolled_window_new(NULL, NULL);
   panel = gtk_hbox_new(FALSE, 5);  
   
-  text = gtk_label_new ("This is an example of a line-wrapped, filled label.  " 
+  text = gtk_label_new ("This is an example of a line-wrapped, filled label. "
 			"It should be taking "				
 			"up the entire              width allocated to it.  " 
 			"Here is a sentence to prove "			
@@ -118,7 +154,8 @@ void afficher_image(int position_tlv){
 	  newWidth = evenement.resize.w;
 	  newHeight = evenement.resize.h;
 	  SDL_FreeSurface(ecran);
-	  ecran = SDL_SetVideoMode(newWidth, newHeight, 32, SDL_HWSURFACE | SDL_RESIZABLE);
+	  ecran = SDL_SetVideoMode
+	    (newWidth, newHeight, 32, SDL_HWSURFACE | SDL_RESIZABLE);
 	  SDL_BlitSurface(image, NULL, ecran, &position);
 	  SDL_Flip(ecran);
 	  break;
@@ -169,30 +206,81 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+void makeText(){
+  GtkWidget *window, *view, *vbox;
+  GtkWidget *ok, *text_panel;
+  GtkTextBuffer *buffer;
+  GtkWidget* scrollbar;
+
+  ok = gtk_button_new_with_label("ok");
+  scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
+  /* begin config */
+  gtk_init(NULL, NULL);
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+  gtk_window_set_default_size(GTK_WINDOW(window), 250, 200);
+  gtk_window_set_title(GTK_WINDOW(window), "TextView");
+  gtk_container_set_border_width(GTK_CONTAINER(window), 5);
+  GTK_WINDOW(window)->allow_shrink = TRUE;
+  /* define var */
+  vbox = gtk_vbox_new(FALSE, 0);
+  text_panel = gtk_vbox_new(FALSE, 0);
+  view = gtk_text_view_new();
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);
+  
+  gtk_scrolled_window_add_with_viewport
+    (GTK_SCROLLED_WINDOW(scrollbar), vbox);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar),
+				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+  gtk_box_pack_start(GTK_BOX(text_panel), ok, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(text_panel), scrollbar, TRUE, TRUE, 0);
+  /* config text*/
+  gtk_text_buffer_create_tag(buffer, "gap","pixels_above_lines", 30, NULL);
+  gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
+  gtk_text_buffer_create_tag(buffer, "blue_fg", "foreground", "blue", NULL); 
+  gtk_text_buffer_create_tag(buffer, "gray_bg", "background", "gray", NULL); 
+  gtk_text_buffer_create_tag
+    (buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+  gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+
+  gtk_container_add(GTK_CONTAINER(window), text_panel);
+  g_signal_connect_swapped
+    (G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
+  gtk_signal_connect(GTK_OBJECT(ok), "clicked", 
+		     (GtkSignalFunc)add, 
+		     (gpointer)(view));
+  
+  gtk_widget_show_all(window);
+  gtk_main();
+
+}
+
 void head_init(GtkWidget * panel){
-  GtkWidget *ajouter;
-  GtkWidget *contracter;
-  GtkWidget * head_panel;
+  GtkWidget *home;
+  GtkWidget *back;
+  GtkWidget *concat;
+  GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
+  
+  home = gtk_button_new_with_label("home");
+  back = gtk_button_new_with_label("Back");
+  concat = gtk_button_new_with_label("concat");
 
-  //defintions
-  head_panel	= gtk_hbox_new(FALSE,0);
-  ajouter	= gtk_button_new_with_label("Ajouter");
-  contracter	= gtk_button_new_with_label("Contracter");
-
-  //ajout des boutons au panel head_panel
-  gtk_box_pack_start(GTK_BOX(head_panel), ajouter, FALSE, FALSE, 0);  
-  gtk_box_pack_start(GTK_BOX(head_panel), contracter, FALSE, FALSE, 0);  
-
-  //ajout de head panel dans le panel principal
+  gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(head_panel), concat, FALSE, FALSE, 0);  
+  
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
   
-  //activation des signaux sur boutons
-  gtk_signal_connect(GTK_OBJECT(ajouter), "clicked", 
+  gtk_signal_connect(GTK_OBJECT(home), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
-		     (gpointer)&(id_bouton[0]));
-  gtk_signal_connect(GTK_OBJECT(contracter), "clicked", 
+		     (gpointer)&(id_bouton[4]));
+  gtk_signal_connect(GTK_OBJECT(back), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
-		     (gpointer)&(id_bouton[1]));
+		     (gpointer)&(id_bouton[5]));
+  gtk_signal_connect(GTK_OBJECT(concat), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[6]));
 }
 
 const char *label_button(struct tlv* current_tlv){
@@ -273,7 +361,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(panel_tlv_all), panel_tlv, FALSE, FALSE, 5);
     //on passe a la prochaine tlv a afficher
-
+    
     if(curseur->type_id != 6){
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)traitement_tlv, 
@@ -303,37 +391,48 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){
   gtk_box_pack_start(GTK_BOX(panel_tlv_all), more, FALSE, FALSE, 5);   
   gtk_signal_connect(GTK_OBJECT(more), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
-		     (gpointer)&(id_bouton[2]));
+		     (gpointer)&(id_bouton[7]));
 }
 
 void foot_init(GtkWidget * panel){
-  GtkWidget *home;
-  GtkWidget *back;
-  GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
+  GtkWidget *texte;
+  GtkWidget *image;
+  GtkWidget *date;
+  GtkWidget *rep;
+  GtkWidget *foot_panel;
   
-  home = gtk_button_new_with_label("Barrack");
+  //defintions
+  foot_panel	= gtk_hbox_new(FALSE,0);
+  texte		= gtk_button_new_with_label("Text");
+  image		= gtk_button_new_with_label("Image");
+  date		= gtk_button_new_with_label("Date");
+  rep		= gtk_button_new_with_label("Content");
 
-  gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
-  back = gtk_button_new_with_label("Back");
-  gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
+  //ajout des boutons au panel head_panel
+  gtk_box_pack_start(GTK_BOX(foot_panel), texte  , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), image  , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), date   , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), rep    , FALSE, FALSE, 0);  
+
+  //ajout de head panel dans le panel principal
+  gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
   
-  gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 9, 10);
-  
-  gtk_signal_connect(GTK_OBJECT(home), "clicked", 
+  //activation des signaux sur boutons
+  gtk_signal_connect(GTK_OBJECT(texte), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[0]));
+  gtk_signal_connect(GTK_OBJECT(image), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[1]));
+  gtk_signal_connect(GTK_OBJECT(date), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[2]));
+  gtk_signal_connect(GTK_OBJECT(rep), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&(id_bouton[3]));
-  gtk_signal_connect(GTK_OBJECT(back), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
-		     (gpointer)&(id_bouton[4]));
 }
 
 int init(int argc, char* argv[]){
-  if(argc != 2){
-    return 1;
-  }
-
-  //int n = atoi( argv[1]);
-  
   /* config */
   gtk_init(&argc, &argv);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
