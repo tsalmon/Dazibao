@@ -23,8 +23,8 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   case 0:
     makeText();
     break;
-  case 1:
-    printf("image\n");
+  case 1: 
+    makeImage();
     break;
   case 2:
     printf("date\n");
@@ -57,46 +57,32 @@ gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
-void makeImage ()
-{
-  
+char* makeImage (){
   GtkWidget *dialog;
   GtkWindow *window;
-  int user_edited_a_new_document = 0;
-  window = gtk_window_new(GTK_WINDOW_POPUP);
   
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   dialog = gtk_file_chooser_dialog_new 
     ("Save File",
      window,
-     GTK_FILE_CHOOSER_ACTION_SAVE,
-     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+     GTK_FILE_CHOOSER_ACTION_OPEN,
+     GTK_STOCK_CANCEL,
+     GTK_RESPONSE_CANCEL,
+     GTK_STOCK_OPEN,
+     GTK_RESPONSE_ACCEPT,
      NULL);
   gtk_file_chooser_set_do_overwrite_confirmation 
     (GTK_FILE_CHOOSER (dialog), TRUE);
-  if (user_edited_a_new_document)
-    {
-      gtk_file_chooser_set_current_folder
-	(GTK_FILE_CHOOSER (dialog), ".");
-      gtk_file_chooser_set_current_name 
-	(GTK_FILE_CHOOSER (dialog), "Untitled document");
-    } else {  
-    gtk_file_chooser_set_filename 
-      (GTK_FILE_CHOOSER (dialog), filename> _for_existing_document);
+  
+  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+    char *filename;
+    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    printf("%s\n", filename);
+    gtk_widget_destroy (dialog);
+    return filename;
+  } else {
+    return NULL;
   }
-  
-  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
-    {
-      char *filename;
-      
-      filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      save_to_file (filename);
-      g_free (filename);
-    }
-  
-  gtk_widget_destroy (dialog);
-  
-
 }
 
 
