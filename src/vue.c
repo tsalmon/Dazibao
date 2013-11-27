@@ -54,7 +54,6 @@ gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   for(i=0; text[i];i++);
   text[i]=0;
   printf("%s\n", text);
-  //g_free_text(text);
   return FALSE;
 }
 
