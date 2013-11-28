@@ -12,6 +12,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv);
 void foot_init(GtkWidget * panel);
 int init(int argc, char* argv[]);
 void makeText();
+void makeDate();
 char *makeImage();
 GtkWidget* panel;
 GtkWidget* window;

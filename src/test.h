@@ -15,5 +15,5 @@ typedef struct dazibao{
 }dazibao;
 
 struct dazibao *daz;
-
+struct tlv *tlv_actuel;
 #endif
