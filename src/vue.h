@@ -15,6 +15,7 @@ void makeText();
 void makeDate();
 char *makeImage();
 GtkWidget* panel;
+GtkWidget* body_panel;
 GtkWidget* window;
 
 #endif
