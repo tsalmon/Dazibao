@@ -63,8 +63,11 @@ void makeDate(){
   struct tlv * curseur;
   GtkWidget* scrollbar;
   int i;
-  printf("tlv_actuel = type %d\n", tlv_actuel->type_id);
-  curseur = tlv_actuel->conteneur;
+  if(tlv_actuel->type_id > 4){
+    curseur = tlv_actuel->conteneur;
+  } else {
+    curseur = tlv_actuel;  
+  }
   /* declaration des variables du corps */
   body_panel	= gtk_vbox_new(FALSE,0);      
   /* on pose un scroll sur la liste des tlv*/
