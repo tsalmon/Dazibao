@@ -3,6 +3,7 @@
 #include <gtk/gtk.h>
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
 gint add(GtkWidget *label, GdkEvent *event, gpointer message);
+void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
 void afficher_text(int position_tlv);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message);

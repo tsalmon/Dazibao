@@ -59,6 +59,47 @@ gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
+  struct tlv *getTLV = (struct tlv *) message;
+  //dans le cas ou la tlv est une date, on recupere le dernier
+  while(getTLV->type_id == 6){
+    getTLV = getTLV->conteneur;
+  }
+  GtkWidget* window_addDate;
+  GtkWidget* box;
+  GtkWidget *scrollbar;
+  int i;
+  
+  gtk_init(NULL, NULL);
+  window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window_addDate), 320, 200);
+  gtk_window_set_title(GTK_WINDOW(window_addDate), "GtkScrolledWindow_AddDate");
+  g_signal_connect(G_OBJECT(window_addDate),"destroy",G_CALLBACK(gtk_main_quit),0);
+ 
+  scrollbar = gtk_scrolled_window_new(NULL, NULL);
+  gtk_container_add(GTK_CONTAINER(window_addDate),scrollbar);
+  
+  box=gtk_vbox_new(FALSE,5);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbar), box);
+  
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+ 
+  while(getTLV->type_id == 6){
+      GtkWidget *label;
+      char texte[10];
+      sprintf(texte, "%d", i);
+ 
+      label = gtk_label_new(texte);
+ 
+      gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 5); // 5 = espacement
+      getTLV = getTLV->conteneur;
+    }
+ 
+  gtk_widget_show_all(window_addDate);
+ 
+  gtk_main();
+}
+
 void makeDate(){
   struct tlv * curseur;
   GtkWidget* scrollbar;
@@ -80,68 +121,36 @@ void makeDate(){
     /* on prend le 1er tlv */
     
     GtkWidget * panel_tlv;
-    GtkWidget* scrollbar_date;
-    GtkWidget* dates;
+    //GtkWidget* dates;
     GtkWidget* button_tlv;
     
     /* definitions des elements de la liste */
     //une serie de dates sous forme de box
-    dates = gtk_vbox_new(FALSE,0);
+    //dates = gtk_vbox_new(FALSE,0);
     //le panel du tlv
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     //bouton de tlv
     button_tlv = gtk_button_new_with_label(label_button(curseur));
     //le scroll sur la liste de dates
-    scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
-    gtk_scrolled_window_add_with_viewport
-      (GTK_SCROLLED_WINDOW(scrollbar_date),
-       dates);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
-				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     
-    /*
     char texte[10];
-    GtkWidget* label_date; 
-    if(curseur->type_id == 6){
-      struct tlv *date = curseur->conteneur;
-      int j = 1;
-      // on ajoute les dates au box 
-      while(date != NULL){
-	sprintf(texte, "date %d", j++);
-	label_date = gtk_label_new(texte);
-	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);   
-	date = date->conteneur;
-      } 
-    } else {
-      sprintf(texte, "-");
-      label_date = gtk_label_new(texte);
-      gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);   
-    }
-    */
+    GtkWidget* btn_date; 
+    sprintf(texte, "+");
+    btn_date = gtk_button_new_with_label(texte);
+    ///gtk_box_pack_start(GTK_BOX(dates), btn_date, FALSE, FALSE, 5);   
     /* insertion */
-    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), scrollbar_date, 0, 1, 0, 1);
+    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), btn_date, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
     //on passe a la prochaine tlv a afficher
     
-    if(curseur->type_id != 6){
-      //gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
-      //(GtkSignalFunc)traitement_tlv, 
-      //(gpointer)(curseur));
-    } else {
-      /*struct tlv *date = curseur;
-      while(date->conteneur != NULL){
-	date = date->conteneur;
-      }
-      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
-			 (GtkSignalFunc)traitement_tlv, 
-			 (gpointer)(date));
-      */
-    }
+    gtk_signal_connect(GTK_OBJECT(btn_date), "clicked", 
+		       (GtkSignalFunc)addDateTLV, 
+		       (gpointer)(curseur));
     curseur = curseur->suivant;
   }  
-
+  
   //on configure le scroll
   gtk_scrolled_window_add_with_viewport
     (GTK_SCROLLED_WINDOW(scrollbar), body_panel);
@@ -159,12 +168,12 @@ void makeDate(){
 
 char* makeImage (){
   GtkWidget *dialog;
-  GtkWindow *window;
+  GtkWindow *windowImage;
   
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  windowImage = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   dialog = gtk_file_chooser_dialog_new 
     ("Save File",
-     window,
+     windowImage,
      GTK_FILE_CHOOSER_ACTION_OPEN,
      GTK_STOCK_CANCEL,
      GTK_RESPONSE_CANCEL,
@@ -429,7 +438,7 @@ const char *label_button(struct tlv* current_tlv){
   return "????";
 }
 
-void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){ 
+void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){
   struct tlv * curseur;
   //GtkWidget* body_panel;
   GtkWidget* scrollbar;

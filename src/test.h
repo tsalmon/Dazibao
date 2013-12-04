@@ -1,10 +1,16 @@
 #ifndef TEST_H
 #define TEST_H
 
+typedef struct value{
+  int date;
+  char *str;
+}value;
+
 typedef struct tlv{
   int type_id;
   int nb_tlv;
   long int position;
+  struct value *tlv_val;
   struct tlv *conteneur;
   struct tlv *suivant;
 }tlv;
