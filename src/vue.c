@@ -138,7 +138,8 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
       p_combo[j] = gtk_combo_box_new_with_model (GTK_TREE_MODEL (p_model));
       p_cell = gtk_cell_renderer_text_new ();
       gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
-      gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 0, NULL );
+      gtk_cell_layout_set_attributes
+	(GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 0, NULL );
       p_cell = gtk_cell_renderer_text_new ();
       gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
       gtk_cell_layout_set_attributes 
@@ -171,8 +172,8 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
 	gtk_list_store_set (p_model, & iter, 0, 12, 1, " Decembre", -1);
       } else {
  	for(i = 1; i < 32; i++){
-	  gtk_list_store_append (p_model, & iter);
-	  gtk_list_store_set (p_model, & iter, 0, 1, 1, "", i);
+	  gtk_list_store_append (p_model, & iter);	  
+	  gtk_list_store_set (p_model, & iter, 0, i, 1, NULL, -1);
 	}
       }
     }
@@ -271,12 +272,11 @@ void makeDate(){
 
 char* makeImage (){
   GtkWidget *dialog;
-  GtkWindow *windowImage;
-  
+  GtkWidget *windowImage;  
   windowImage = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   dialog = gtk_file_chooser_dialog_new 
     ("Save File",
-     windowImage,
+     GTK_WINDOW(windowImage),
      GTK_FILE_CHOOSER_ACTION_OPEN,
      GTK_STOCK_CANCEL,
      GTK_RESPONSE_CANCEL,
