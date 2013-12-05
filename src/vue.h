@@ -2,15 +2,6 @@
 #define VUE_H
 #include <gtk/gtk.h>
 
-typedef struct{
-  int Y;
-  int M;
-  int D;
-  int s;
-  int m;
-  int h;
-} dataDate;
-
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
 gint add(GtkWidget *label, GdkEvent *event, gpointer message);
@@ -30,6 +21,6 @@ char *makeImage();
 GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* window;
-
+GtkWidget * p_combo[6];  
 #endif
 

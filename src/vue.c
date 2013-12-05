@@ -11,18 +11,20 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-typedef struct signal_bouton{
-  int id_bouton;
-}signal_bouton;
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
-  GtkWidget * dataDate[6] = (GtkWidget *)message;
-  printf("envoit\n");
+  GtkEntry * en = GTK_ENTRY(p_combo[0]);
+  GtkTextIter start, end;
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(en);
+  //gchar *text;
+  
+  gtk_text_buffer_get_bounds (buffer, &start, &end);
+  
+  //text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
   return FALSE;  
 }
-
 
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
@@ -111,7 +113,6 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     }
   } else {
     GtkWidget * p_win  = NULL;
-    GtkWidget * p_combo[6];
     time_t secondes;
     GtkWidget *table = gtk_table_new(7, 2, TRUE);
     char setText[4]; 
@@ -210,7 +211,7 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
 
     gtk_signal_connect(GTK_OBJECT(button), "clicked", 
 		       G_CALLBACK(newTLVDate), 
-		       p_combo);
+		       (gpointer)&p_combo);
     gtk_widget_show_all (p_win);
     gtk_main ();
   }
