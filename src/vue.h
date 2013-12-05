@@ -1,6 +1,17 @@
 #ifndef VUE_H
 #define VUE_H
 #include <gtk/gtk.h>
+
+typedef struct{
+  int Y;
+  int M;
+  int D;
+  int s;
+  int m;
+  int h;
+} dataDate;
+
+gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
 gint add(GtkWidget *label, GdkEvent *event, gpointer message);
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
@@ -15,6 +26,7 @@ int init(int argc, char* argv[]);
 void makeText();
 void makeDate();
 char *makeImage();
+
 GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* window;

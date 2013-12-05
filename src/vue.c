@@ -17,6 +17,13 @@ typedef struct signal_bouton{
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
+gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
+  GtkWidget * dataDate[6] = (GtkWidget *)message;
+  printf("envoit\n");
+  return FALSE;  
+}
+
+
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
@@ -67,16 +74,17 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
   struct tlv *getTLV = (struct tlv *) message;
   //dans le cas ou la tlv est une date, on recupere le dernier
-  GtkWidget* window_addDate;
   GtkWidget* box;
   GtkWidget *scrollbar;
   GtkWidget *label[6];
   GtkWidget *btn_date;
   int i = 0;
-  gtk_init(NULL, NULL);
-  window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   printf("date = %d\n", (int)(getTLV->position));
   if(getTLV->type_id == 6){
+    GtkWidget* window_addDate;
+    gtk_init(NULL, NULL);
+    window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    
     gtk_window_set_default_size(GTK_WINDOW(window_addDate), 320, 200);
     gtk_window_set_title(GTK_WINDOW(window_addDate), "GtkScrolledWindow_AddDate");
     g_signal_connect(G_OBJECT(window_addDate),"destroy",G_CALLBACK(gtk_main_quit),0);
@@ -105,9 +113,9 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     GtkWidget * p_win  = NULL;
     GtkWidget * p_combo[6];
     time_t secondes;
-    GtkWidget *table = gtk_table_new(6, 2, TRUE);
-    //GtkWidget *button;
-    //char str[15];
+    GtkWidget *table = gtk_table_new(7, 2, TRUE);
+    char setText[4]; 
+    GtkWidget *button;
     int i = 0, j = 0;//k = 0;
     struct tm instant;
     
@@ -124,6 +132,8 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     label[3] = gtk_label_new("Seconde");
     label[4] = gtk_label_new("Minute");
     label[5] = gtk_label_new("Heure");
+    
+    button = gtk_button_new_with_label("OK");
     
     time(&secondes);
     instant=*localtime(&secondes);      
@@ -180,7 +190,6 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     for( i = 3; i < 6; i++){
       p_combo[i] = gtk_entry_new_with_max_length(2);
     }
-    char setText[4]; 
     
     sprintf(setText, "%d", instant.tm_year + 1900);
     gtk_entry_set_text(GTK_ENTRY(p_combo[0]), (gchar *)setText);
@@ -196,12 +205,17 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
       gtk_table_attach_defaults(GTK_TABLE(table), label[i], 0, 1, i, i+1 );  
       gtk_table_attach_defaults(GTK_TABLE(table), p_combo[i], 1, 2, i, i+1 );  
     }
+    gtk_table_attach_defaults(GTK_TABLE(table), button, 0, 1, 6, 7 );  
     g_signal_connect (G_OBJECT (p_win), "destroy", G_CALLBACK (gtk_main_quit), NULL);
+
+    gtk_signal_connect(GTK_OBJECT(button), "clicked", 
+		       G_CALLBACK(newTLVDate), 
+		       p_combo);
     gtk_widget_show_all (p_win);
     gtk_main ();
   }
-  gtk_widget_show_all(window_addDate);
-  gtk_main();  
+  //gtk_widget_show_all(window_addDate);
+  //gtk_main();  
 }
 
 void makeDate(){
@@ -351,7 +365,7 @@ void afficher_image(int position_tlv){
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
   }
-
+  
   //a refaire
   while((i = read(fd, &buff, 1)) > 0){
     size++;
@@ -685,9 +699,6 @@ int init(int argc, char* argv[]){
   
   panel = gtk_table_new(10, 1, TRUE);  
   gtk_container_add(GTK_CONTAINER(window),panel);
-  
-  //signal_btn = malloc(sizeof(signal_bouton) * 6);
-  
   head_init(panel);  
   tlv_actuel = daz->tlv_debut;
   tlv_actuel->nb_tlv = daz->nb_tlv;
