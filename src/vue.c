@@ -225,6 +225,11 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     
     sprintf(setText, "%d", instant.tm_year + 1900);
     gtk_entry_set_text(GTK_ENTRY(p_combo[0]), (gchar *)setText);
+
+    gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[1]), instant.tm_mon);
+
+    gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[2]), instant.tm_mday - 1);     
+
     sprintf(setText, "%d", instant.tm_hour);
     gtk_entry_set_text(GTK_ENTRY(p_combo[3]), (gchar *)setText);
     sprintf(setText, "%d", instant.tm_min);
