@@ -2,6 +2,13 @@
 #define VUE_H
 #include <gtk/gtk.h>
 
+typedef struct {
+  gint     index;
+  gchar *  p_text;
+} combo_data_st;
+
+
+static combo_data_st get_active_data (GtkComboBox * p_combo);
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
 gint add(GtkWidget *label, GdkEvent *event, gpointer message);
@@ -17,6 +24,7 @@ int init(int argc, char* argv[]);
 void makeText();
 void makeDate();
 char *makeImage();
+
 
 GtkWidget* panel;
 GtkWidget* body_panel;

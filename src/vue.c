@@ -16,14 +16,45 @@ int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
-  GtkTextIter start, end;
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_ENTRY(data[0]));
-  gchar *text;  
-  gtk_text_buffer_get_bounds (buffer, &start, &end);
-  text = gtk_text_buffer_get_text (buffer, &start, &end, FALSE);
-  printf("%s\n", text);  
-  return FALSE;  
+  GtkEntry *entry;
+  GtkComboBox * p_combo  = (GtkComboBox * )data[1];
+  combo_data_st p_st;
+  int i = 3 ;
+  //year
+  entry = GTK_ENTRY(data[0]);
+  printf("%s\n", gtk_entry_get_text(entry));
+  //month
+  p_st = get_active_data (p_combo);
+  printf ("Element courant : %d%s\n", p_st.index, p_st.p_text);
+  //day
+  p_st = get_active_data ((GtkComboBox * )data[2]);
+  printf ("Element courant : %d\n", p_st.index);
+  char *s[3] = {"seconde", "minute", "heure"};
+  for( i = 3; i < 6; i++){
+    printf("%s : %s\n",s[i-3], gtk_entry_get_text(GTK_ENTRY(data[i])));
+  }
+  return FALSE;
 }
+
+/* Fonction qui recupere les donnees de l'element courant affiche  */
+static combo_data_st get_active_data (GtkComboBox * p_combo){
+  GtkTreeModel   *  p_model = NULL;
+  GtkTreeIter       iter;
+  combo_data_st     p_st;
+  
+  /* On recupere le modele qu'on a cree. */
+  p_model = gtk_combo_box_get_model (p_combo);
+  /* On recupere le GtkTreeIter de l'element courant. */
+  if (gtk_combo_box_get_active_iter (p_combo, & iter)){
+    /*
+     * On recupere les donnees de l'element courant a savoir
+     * un entier et une chaine de caracteres.
+     */
+    gtk_tree_model_get (p_model, & iter, 0, & p_st.index, 1, & p_st.p_text, -1);
+  } 
+  return p_st;
+}
+
 
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
