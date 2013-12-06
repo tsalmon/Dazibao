@@ -14,25 +14,43 @@
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
+/*
+int nb_jours_mois(){
+    }*/
+
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
   GtkEntry *entry;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
-  int i = 3 ;
+  int i = 3, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  long unsigned int timestamp = 0;
+  printf("timestamp = %lu\n", timestamp);
   //year
   entry = GTK_ENTRY(data[0]);
-  printf("%s\n", gtk_entry_get_text(entry));
-  //month
-  p_st = get_active_data (p_combo);
-  printf ("Element courant : %d%s\n", p_st.index, p_st.p_text);
+  printf("%s\n", gtk_entry_get_text(entry)); // remove
+  timestamp = (1970 - atoi(gtk_entry_get_text(entry))) * 31556926;
+  printf("timestamp = %lu\n", timestamp);
+  //month 
+  //for(i = 0; i <  
+  p_st = get_active_data (p_combo);  
+  printf ("mois : %d\n", p_st.index);
+  printf("timestamp = %lu\n", timestamp);
+  timestamp += mois[p_st.index] * 86400;
   //day
   p_st = get_active_data ((GtkComboBox * )data[2]);
-  printf ("Element courant : %d\n", p_st.index);
+  printf ("jour : %d\n", p_st.index);
+  printf("timestamp = %lu\n", timestamp);
+  timestamp += p_st.index * 86400;
   char *s[3] = {"seconde", "minute", "heure"};
-  for( i = 3; i < 6; i++){
+  for( i = 3; i < 6; i++){ //remove
     printf("%s : %s\n",s[i-3], gtk_entry_get_text(GTK_ENTRY(data[i])));
   }
+  timestamp += 3600 * atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
+  timestamp += 60 * atoi(gtk_entry_get_text(GTK_ENTRY(data[4])));
+  timestamp += atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
+
+  printf("timestamp = %lu\n", timestamp);
   return FALSE;
 }
 
@@ -73,11 +91,16 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
     break;
   case 3:
     printf("rep\n");
+    makeRep();
     break;
   default:
     printf("non reconnu");
   }
   return FALSE;
+}
+
+void makeRep(){
+  
 }
 
 gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
