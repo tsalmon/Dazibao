@@ -25,29 +25,32 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   combo_data_st p_st;
   int i = 3, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long unsigned int timestamp = 0;
-  printf("timestamp = %lu\n", timestamp);
+
+  for(i = 0; i < 12; i++){
+    printf("%d - %d\n", i, mois[i]);
+  }
+
   //year
   entry = GTK_ENTRY(data[0]);
   printf("%s\n", gtk_entry_get_text(entry)); // remove
-  timestamp = (1970 - atoi(gtk_entry_get_text(entry))) * 31556926;
+  timestamp = (atoi(gtk_entry_get_text(entry)) - 1970) * 31556926;
   printf("timestamp = %lu\n", timestamp);
-  //month 
-  //for(i = 0; i <  
+  //month
   p_st = get_active_data (p_combo);  
   printf ("mois : %d\n", p_st.index);
+  timestamp += mois[p_st.index - 1 ] * 86400;
   printf("timestamp = %lu\n", timestamp);
-  timestamp += mois[p_st.index] * 86400;
   //day
   p_st = get_active_data ((GtkComboBox * )data[2]);
   printf ("jour : %d\n", p_st.index);
+  timestamp += (p_st.index - 1) * 86400;
   printf("timestamp = %lu\n", timestamp);
-  timestamp += p_st.index * 86400;
   char *s[3] = {"seconde", "minute", "heure"};
   for( i = 3; i < 6; i++){ //remove
     printf("%s : %s\n",s[i-3], gtk_entry_get_text(GTK_ENTRY(data[i])));
   }
   timestamp += 3600 * atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
-  timestamp += 60 * atoi(gtk_entry_get_text(GTK_ENTRY(data[4])));
+  timestamp += 60 * (atoi(gtk_entry_get_text(GTK_ENTRY(data[4]))));
   timestamp += atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
 
   printf("timestamp = %lu\n", timestamp);
@@ -250,14 +253,13 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     gtk_entry_set_text(GTK_ENTRY(p_combo[0]), (gchar *)setText);
 
     gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[1]), instant.tm_mon);
-
     gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[2]), instant.tm_mday - 1);     
 
-    sprintf(setText, "%d", instant.tm_hour);
+    sprintf(setText, "%d", instant.tm_sec);
     gtk_entry_set_text(GTK_ENTRY(p_combo[3]), (gchar *)setText);
     sprintf(setText, "%d", instant.tm_min);
     gtk_entry_set_text(GTK_ENTRY(p_combo[4]), (gchar *)setText);
-    sprintf(setText, "%d", instant.tm_sec);
+    sprintf(setText, "%d", instant.tm_hour);
     gtk_entry_set_text(GTK_ENTRY(p_combo[5]), (gchar *)setText);
     gtk_container_add(GTK_CONTAINER(p_win), table);
     
