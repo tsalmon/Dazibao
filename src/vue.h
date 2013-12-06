@@ -21,6 +21,5 @@ char *makeImage();
 GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* window;
-GtkWidget * p_combo[6];  
 #endif
 
