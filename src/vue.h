@@ -7,6 +7,8 @@ typedef struct {
   gchar *  p_text;
 } combo_data_st;
 
+int nbDateBissextile(int d1, int d2);
+int isBix(int date);
 
 static combo_data_st get_active_data (GtkComboBox * p_combo);
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);

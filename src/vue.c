@@ -12,18 +12,39 @@
 #include <fcntl.h>
 
 
+int nbDateBissextile(int d1, int d2){
+  int i = 0, j = 0;
+  for(j = d1; j < d2; j++){
+    if (isBix(j))
+      i++;
+  }
+  return i;
+}
+
+int isBix(int d){
+  if(d % 400 == 0)
+    return 1;
+  if(d % 100 == 0)
+    return 0;
+  return d % 4 == 0;
+} 
+
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
 /*
-int nb_jours_mois(){
-    }*/
+  int 
+  nb_jours_mois()
+  {
+  
+  }
+*/
 
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
   GtkEntry *entry;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
-  int i = 3, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  int i = 3, aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long unsigned int timestamp = 0;
 
   for(i = 0; i < 12; i++){
@@ -31,15 +52,22 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   }
 
   //year
+  
   entry = GTK_ENTRY(data[0]);
+  aux = atoi(gtk_entry_get_text(entry));
   printf("%s\n", gtk_entry_get_text(entry)); // remove
-  timestamp = (atoi(gtk_entry_get_text(entry)) - 1970) * 31556926;
+  timestamp = (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
   printf("timestamp = %lu\n", timestamp);
   //month
   p_st = get_active_data (p_combo);  
   printf ("mois : %d\n", p_st.index);
-  timestamp += mois[p_st.index - 1 ] * 86400;
+  timestamp += mois[p_st.index - 1] * 86400;
   printf("timestamp = %lu\n", timestamp);
+  
+  //if the year is a leap year
+  if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
+    timestamp += 86400 ;
+  
   //day
   p_st = get_active_data ((GtkComboBox * )data[2]);
   printf ("jour : %d\n", p_st.index);
@@ -49,10 +77,17 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   for( i = 3; i < 6; i++){ //remove
     printf("%s : %s\n",s[i-3], gtk_entry_get_text(GTK_ENTRY(data[i])));
   }
-  timestamp += 3600 * atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
-  timestamp += 60 * (atoi(gtk_entry_get_text(GTK_ENTRY(data[4]))));
-  timestamp += atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
-
+  
+  aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
+  timestamp += 3600 * aux;
+  
+  aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[4])));
+  timestamp += 60 * aux;
+  
+  aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
+  timestamp += aux;
+  
+  
   printf("timestamp = %lu\n", timestamp);
   return FALSE;
 }
