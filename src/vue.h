@@ -10,6 +10,7 @@ typedef struct {
 int nbDateBissextile(int d1, int d2);
 int isBix(int date);
 
+void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message);
 static combo_data_st get_active_data (GtkComboBox * p_combo);
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
@@ -33,5 +34,7 @@ GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* foot_panel;
 GtkWidget* window;
+int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+
 #endif
 
