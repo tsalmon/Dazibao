@@ -33,7 +33,7 @@ int bandeau(){
  * Note: on ne gere pas les eventuels erreurs (ex: si le texte est plus petit ou plus grand que ce qui est indique dans length)
  */
 void Text(char **str){
-  char buff, length[3]; 
+  unsigned char buff, length[3]; 
   int i = 0, size = 0, k = 0;
   
   if((i = read(fd, &length, sizeof(length))) > 0){
@@ -48,18 +48,66 @@ void Text(char **str){
   free(*str);
 }
 
+void Jpeg(char **str){
+  unsigned char length[3], buff;  
+  int i = 0, k = 0, size = 0;
+ 
+  int image = open("image.jpg", O_CREAT| O_WRONLY, S_IRUSR| S_IWUSR);
+
+  if((i = read(fd, &length, sizeof(length))) > 0){
+    size = length[0]*256*256 + length[1]*256 + length[2];
+    printf("%d %d %d\n", length[0], length[1], length[2]);
+  } else{ return ; }
+  
+  while(k < size && (i = read(fd, &buff, 1)) > 0){
+    k++;
+    write(image, &buff, sizeof(buff));
+  }
+  close(image);
+  
+  printf("size  = %d\n", size);
+}
+
+void Png(char **str){
+  unsigned char length[3], buff;  
+  int i = 0, k = 0, size = 0;
+ 
+  int image = open("image.png", O_CREAT| O_WRONLY, S_IRUSR| S_IWUSR);
+  
+  if((i = read(fd, &length, sizeof(length))) > 0){
+    size = length[0]*256*256 + length[1]*256 + length[2];
+    printf("%d %d %d\n", length[0], length[1], length[2]);
+  } else{ return ; }
+  
+  while(k < size && (i = read(fd, &buff, 1)) > 0){
+    k++;
+    write(image, &buff, sizeof(buff));
+  }
+  close(image);
+  
+  printf("size  = %d\n", size);
+}
+
 int lecture(){
   int i = 0;
   char buff;
   char *text;
+  int taille = 0;
   while((i = read(fd, &buff, 1)) > 0){
+    taille++;
+    /*
     switch(buff){
     case 2: Text(&text); printf("%s\n", text); break;
+    case 4: Jpeg(&text); break;
     default:
+      printf("buff = %d\n", buff);
       return 0;
-    }
+      }
+    */
+    
   }  
-  free(text);
+  printf("%d\n", taille);
+  //free(text);
 }
 
 int main(int argc, char *argv[]){
