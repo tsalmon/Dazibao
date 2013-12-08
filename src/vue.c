@@ -31,38 +31,20 @@ int isBix(int d){
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
-/*
-  int 
-  nb_jours_mois()
-  {
-  
-  }
-*/
-
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
-  GtkEntry *entry;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
-  int i = 3, aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  int aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long unsigned int timestamp = 0;
 
-  for(i = 0; i < 12; i++){
-    printf("%d - %d\n", i, mois[i]);
-  }
-
   //year
+  aux		= atoi(gtk_entry_get_text(GTK_ENTRY(data[0])));
+  timestamp	= (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
   
-  entry = GTK_ENTRY(data[0]);
-  aux = atoi(gtk_entry_get_text(entry));
-  printf("%s\n", gtk_entry_get_text(entry)); // remove
-  timestamp = (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
-  printf("timestamp = %lu\n", timestamp);
   //month
   p_st = get_active_data (p_combo);  
-  printf ("mois : %d\n", p_st.index);
   timestamp += mois[p_st.index - 1] * 86400;
-  printf("timestamp = %lu\n", timestamp);
   
   //if the year is a leap year
   if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
@@ -70,25 +52,18 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   
   //day
   p_st = get_active_data ((GtkComboBox * )data[2]);
-  printf ("jour : %d\n", p_st.index);
   timestamp += (p_st.index - 1) * 86400;
-  printf("timestamp = %lu\n", timestamp);
-  char *s[3] = {"seconde", "minute", "heure"};
-  for( i = 3; i < 6; i++){ //remove
-    printf("%s : %s\n",s[i-3], gtk_entry_get_text(GTK_ENTRY(data[i])));
-  }
-  
+  //hours
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
   timestamp += 3600 * aux;
-  
+  //minutes
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[4])));
   timestamp += 60 * aux;
-  
+  //seconds
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
   timestamp += aux;
   
-  
-  printf("timestamp = %lu\n", timestamp);
+  printf("timestamp a produire = %lu\n", timestamp);
   return FALSE;
 }
 
@@ -128,8 +103,11 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
     gtk_widget_show_all(window);
     break;
   case 3:
+    gtk_widget_destroy(body_panel);
+    gtk_widget_destroy(foot_panel);
     printf("rep\n");
     makeRep();
+    gtk_widget_show_all(window);
     break;
   default:
     printf("non reconnu");
@@ -137,8 +115,112 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
-void makeRep(){
+GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
+{
+  GtkWidget *check;
   
+  /* --- Get the check button --- */
+  check = gtk_check_button_new_with_label (szLabel);
+  
+  /* --- Pack the checkbox into the vertical box (box). --- */
+  gtk_box_pack_start (GTK_BOX (box), check, FALSE, FALSE, 10);
+
+  /* --- Show the widget --- */
+  gtk_widget_show (check);
+
+  return (check);
+}
+
+void makeRep(){
+  struct tlv * curseur;
+  GtkWidget* scrollbar;
+  int i;
+  if(tlv_actuel->type_id > 4){
+    curseur = tlv_actuel->conteneur;
+  } else {
+    curseur = tlv_actuel;  
+  }
+  /* declaration des variables du corps */
+  body_panel	= gtk_vbox_new(FALSE,0);      
+  /* on pose un scroll sur la liste des tlv*/
+  scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
+  
+  /* affichage des TLV dans la liste body_panel*/
+  for(i = 0 ; i < tlv_actuel->nb_tlv && curseur != 0 ; ++i){
+    GtkWidget * panel_tlv;
+    GtkWidget *check; 
+    GtkWidget *vbox; 
+    GtkWidget* button_tlv;
+    
+    vbox = gtk_vbox_new(FALSE,0);
+    panel_tlv = gtk_table_new(1, 5, TRUE);  
+    button_tlv = gtk_button_new_with_label(label_button(curseur));
+    check = CreateCheckBox (vbox, NULL);
+    /* insertion */
+    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), vbox, 0, 1, 0, 1);
+    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
+    gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
+
+    /*  */
+
+    //on passe a la prochaine tlv a afficher
+    curseur = curseur->suivant;
+  }  
+  
+  //on configure le scroll
+  gtk_scrolled_window_add_with_viewport
+    (GTK_SCROLLED_WINDOW(scrollbar), body_panel);
+  gtk_scrolled_window_set_policy
+    (GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);  
+  //on ajout la liste 'scrolle' dans le milieu de la page (8/10e de la fen)
+  gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);
+  GtkWidget *more;
+  more = gtk_button_new_with_label("MOAR");
+  gtk_box_pack_start(GTK_BOX(body_panel), more, FALSE, FALSE, 5);   
+  gtk_signal_connect(GTK_OBJECT(more), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[7]));  
+  /* ----------------------FOOT------------------------*/
+
+  GtkWidget *texte;
+  GtkWidget *image;
+  GtkWidget *date;
+  GtkWidget *rep_ok;
+  GtkWidget *rep_cancel;
+  //GtkWidget *foot_panel;
+  
+  //defintions
+  foot_panel	= gtk_hbox_new(FALSE,0);
+  texte		= gtk_button_new_with_label("Text");
+  image		= gtk_button_new_with_label("Image");
+  date		= gtk_button_new_with_label("Date");
+  rep_ok	= gtk_button_new_with_label("OK");
+  rep_cancel	= gtk_button_new_with_label("Annuler");
+
+  //ajout des boutons au panel head_panel
+  gtk_box_pack_start(GTK_BOX(foot_panel), texte  , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), image  , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), date   , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), rep    , FALSE, FALSE, 0);  
+
+  //ajout de head panel dans le panel principal
+  gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
+  
+  //activation des signaux sur boutons
+  gtk_signal_connect(GTK_OBJECT(texte), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[0]));
+  gtk_signal_connect(GTK_OBJECT(image), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[1]));
+  gtk_signal_connect(GTK_OBJECT(date), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[2]));
+  gtk_signal_connect(GTK_OBJECT(rep),
+		     "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&(id_bouton[3]));
+
 }
 
 gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
@@ -750,7 +832,7 @@ void foot_init(GtkWidget * panel){
   GtkWidget *image;
   GtkWidget *date;
   GtkWidget *rep;
-  GtkWidget *foot_panel;
+  //GtkWidget *foot_panel;
   
   //defintions
   foot_panel	= gtk_hbox_new(FALSE,0);

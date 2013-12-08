@@ -26,11 +26,12 @@ int init(int argc, char* argv[]);
 void makeText();
 void makeDate();
 void makeRep();
+GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel);
 char *makeImage();
-
 
 GtkWidget* panel;
 GtkWidget* body_panel;
+GtkWidget* foot_panel;
 GtkWidget* window;
 #endif
 
