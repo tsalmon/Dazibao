@@ -73,21 +73,21 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
     guint i = 0;
     for(i = 0; i < size; i++){ // on parcours le body_panel
       aux = (GtkWidget *) g_list_nth_data (children, i);
-      if(GTK_IS_LABEL(aux)){
-	printf("label = %s\n", gtk_label_get_text(GTK_LABEL(aux)));
-      } else if(GTK_IS_CHECK_BUTTON(aux)){
-	gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux));
-	printf("check_button = %c\n", (b == FALSE) ? 'F' : 'T');
-      } else if(GTK_IS_BUTTON(aux)){
-	printf("button\n");
-      } else{
-	printf("autre\n");
-      }
+      if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+	GList *children_table =   gtk_container_get_children(GTK_CONTAINER(aux));
+	GtkWidget *aux_table;
+	aux_table = (GtkWidget *) g_list_nth_data (children_table, i);    
+	if(GTK_IS_CHECK_BUTTON(aux_table)){
+	  printf("bueno \n");
+	} else {
+	  printf("pas bon\n");
+	}
+      } 
     }
   } else {
-    printf("pas bon\n");
+    printf("FATAL ERROR\n");
+    exit(1);
   } 
-  
 }
 
 
@@ -113,15 +113,17 @@ void makeRep(){
   /* affichage des TLV dans la liste body_panel*/
   for(i = 0 ; i < tlv_actuel->nb_tlv && curseur != 0 ; ++i){
     GtkWidget * panel_tlv;
-    GtkWidget *vbox; 
-    //GtkWidget *check; 
+    //GtkWidget *vbox; 
+    GtkWidget *check; 
     GtkWidget* button_tlv;
-    vbox = gtk_vbox_new(FALSE,0);
-    CreateCheckBox (vbox, NULL);
+
+    check = gtk_check_button_new();
+    //gtk_box_pack_start (GTK_BOX (box), check, FALSE, FALSE, 10);
+    
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     button_tlv = gtk_button_new_with_label(label_button(curseur));
     /* insertion */
-    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), vbox, 0, 1, 0, 1);
+    gtk_table_attach_defaults(GTK_TABLE(panel_tlv), check, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
 
