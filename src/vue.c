@@ -32,7 +32,7 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
     makeRep();
     gtk_widget_show_all(window);
     break;
-  case 4: //Repertoire: Ok
+  case 4: 
     break;
   case 5: //Repertoire: Non
     gtk_widget_destroy(body_panel);
@@ -76,13 +76,21 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
       if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
 	GList *children_table =   gtk_container_get_children(GTK_CONTAINER(aux));
 	GtkWidget *aux_table;
-	aux_table = (GtkWidget *) g_list_nth_data (children_table, i);    
+	int size_tab = g_list_length(children);
+	aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
 	if(GTK_IS_CHECK_BUTTON(aux_table)){
-	  printf("bueno \n");
+	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
+	  printf("check_button %c\n",  (b == FALSE) ? 'F' : 'T');
+	} else if(GTK_IS_BUTTON(aux_table)){
+	  printf("button %s\n", gtk_button_get_label(GTK_BUTTON(aux_table)));
+	} else if(GTK_IS_LABEL(aux_table)){	
+	  printf("button %s\n", gtk_label_get_text(GTK_LABEL(aux_table)));  
+	} else if(GTK_IS_VBOX(aux_table)){	
+	  printf("box\n");	  
 	} else {
-	  printf("pas bon\n");
+	  printf("pas bon %d\n", size_tab);
 	}
-      } 
+      }
     }
   } else {
     printf("FATAL ERROR\n");
@@ -113,7 +121,6 @@ void makeRep(){
   /* affichage des TLV dans la liste body_panel*/
   for(i = 0 ; i < tlv_actuel->nb_tlv && curseur != 0 ; ++i){
     GtkWidget * panel_tlv;
-    //GtkWidget *vbox; 
     GtkWidget *check; 
     GtkWidget* button_tlv;
 
@@ -126,8 +133,6 @@ void makeRep(){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), check, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
-
-    /*  */
 
     //on passe a la prochaine tlv a afficher
     curseur = curseur->suivant;
