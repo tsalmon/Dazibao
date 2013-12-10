@@ -61,8 +61,33 @@ void jpeg(int f) { // TLV JPEG
 		write(STDIN_FILENO, msg_read_error, strlen(msg_read_error));
 	} else {
 		size = length[0]*256*256 + length[1]*256 + length[2];
-		//printf("TAILLE IMAGE: %d\n",size); // A SUPPRIMER
 		if(( fd1 = open("./image.jpeg", O_CREAT | O_WRONLY, S_IRUSR| S_IWUSR)) <= 0 ) {
+			write(STDIN_FILENO, msg_create_file, strlen(msg_create_file));
+		} 
+		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
+			write(fd1, &buff, 1);
+			j++;
+		}
+		close(fd1);
+	}
+}
+
+void png(int f) { // TLV PNG
+
+	int fd1;
+	int fr;
+	int j = 0;
+	int size = 0;
+	unsigned char buff;
+	unsigned char length[3];
+	char *msg_read_error  = "Erreur de lecture\n";
+	char *msg_create_file = "Erreur creation du fichier image\n";
+
+	if(( fr = read(f, &length, sizeof(length))) < 0) {
+		write(STDIN_FILENO, msg_read_error, strlen(msg_read_error));
+	} else {
+		size = length[0]*256*256 + length[1]*256 + length[2];
+		if(( fd1 = open("./image.png", O_CREAT | O_WRONLY, S_IRUSR| S_IWUSR)) <= 0 ) {
 			write(STDIN_FILENO, msg_create_file, strlen(msg_create_file));
 		} 
 		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
@@ -235,7 +260,7 @@ void readTLV(int fd, char str) { // Lecture des TLV
     break;
   case 3:
     write(STDIN_FILENO, "PNG: ", 5);
-    //padN(fd);
+    png(fd);
 	  write(STDIN_FILENO, "\n", 1);
     break;
   case 4:
@@ -255,6 +280,7 @@ void readTLV(int fd, char str) { // Lecture des TLV
     break;
   default:
     write(STDIN_FILENO, "Default \n", 9);
+		padN(fd); // Ignore le TLV inconnu comme PADN sauf que la fonction connait le TLV
     break;
   }
 
