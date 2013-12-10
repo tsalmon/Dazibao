@@ -46,7 +46,6 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   }
   return FALSE;
 }
-
 GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
 {
   GtkWidget *check;
@@ -57,14 +56,6 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
 }
 
 void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
-  /*
-    gtk_widget_destroy(body_panel);
-    gtk_widget_destroy(foot_panel);
-    body_init(panel, daz->tlv_debut, daz->nb_tlv);
-    foot_init(panel);
-    gtk_widget_show_all(window);
-  */
-  
   GtkWidget *rec = (GtkWidget *) message;
   if(GTK_IS_CONTAINER(rec)){
     GList *children =   gtk_container_get_children(GTK_CONTAINER(rec));
@@ -97,7 +88,6 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
     exit(1);
   } 
 }
-
 
 void makeRep(){
   struct tlv * curseur;
@@ -133,10 +123,10 @@ void makeRep(){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), check, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
-
+    
     //on passe a la prochaine tlv a afficher
     curseur = curseur->suivant;
-  }  
+  }
   more = gtk_button_new_with_label("MOAR");
   
   //on configure le scroll
@@ -188,7 +178,6 @@ int isBix(int d){
     return 0;
   return d % 4 == 0;
 } 
-
 
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
@@ -244,7 +233,6 @@ static combo_data_st get_active_data (GtkComboBox * p_combo){
   } 
   return p_st;
 }
-
 
 gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
@@ -421,6 +409,24 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
 }
 
 void makeDate(){
+  GList *children =   gtk_container_get_children(GTK_CONTAINER(body_panel));
+  int size = g_list_length(children);
+  GtkWidget *aux;
+  guint i = 0;
+  for(i = 0; i < size; i++){ // on parcours le body_panel
+    aux = (GtkWidget *) g_list_nth_data (children, i);
+    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+      GList *children_table =   gtk_container_get_children(GTK_CONTAINER(aux));
+      GtkWidget *aux_table;
+      int size_tab = g_list_length(children);
+      aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
+      
+    }
+  }
+}
+
+/*
+  void makeDate(){ 
   struct tlv * curseur;
   GtkWidget* scrollbar;
   int i;
@@ -429,22 +435,22 @@ void makeDate(){
   } else {
     curseur = tlv_actuel;  
   }
-  /* declaration des variables du corps */
+  // declaration des variables du corps 
   body_panel	= gtk_vbox_new(FALSE,0);      
-  /* on pose un scroll sur la liste des tlv*/
+  // on pose un scroll sur la liste des tlv
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
-  /* affichage des TLV dans la liste body_panel*/
+  // affichage des TLV dans la liste body_panel
   for(i = 0 ; i < tlv_actuel->nb_tlv && curseur != 0 ; ++i){
     
     //printf("valeur = %d\n", curseur->type_id);
-    /* on prend le 1er tlv */
+    // on prend le 1er tlv 
     
     GtkWidget * panel_tlv;
     //GtkWidget* dates;
     GtkWidget* button_tlv;
     
-    /* definitions des elements de la liste */
+    // definitions des elements de la liste 
     //une serie de dates sous forme de box
     //dates = gtk_vbox_new(FALSE,0);
     //le panel du tlv
@@ -452,14 +458,14 @@ void makeDate(){
     //bouton de tlv
     button_tlv = gtk_button_new_with_label(label_button(curseur));
     //le scroll sur la liste de dates
-    /* on pose un scroll sur le box des dates */
+    // on pose un scroll sur le box des dates 
     
     char texte[10];
     GtkWidget* btn_date; 
     sprintf(texte, "+");
     btn_date = gtk_button_new_with_label(texte);
     ///gtk_box_pack_start(GTK_BOX(dates), btn_date, FALSE, FALSE, 5);   
-    /* insertion */
+    // insertion 
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), btn_date, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
@@ -484,7 +490,9 @@ void makeDate(){
   gtk_signal_connect(GTK_OBJECT(more), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&(id_bouton[7]));
+  
 }
+*/
 
 char* makeImage (){
   GtkWidget *dialog;
