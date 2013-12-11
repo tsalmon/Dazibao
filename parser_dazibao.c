@@ -222,6 +222,7 @@ void readDazibao(char *argv) { // Lire le dazibao
 
 	if(flock(fd, LOCK_SH) < 0) {
 		write(STDIN_FILENO, msg_error_lock, strlen(msg_error_lock));
+		exit(EXIT_FAILURE);
 	} else {
 		write(STDIN_FILENO, msg_lock, strlen(msg_lock));
 	}
@@ -258,7 +259,7 @@ void readDazibao(char *argv) { // Lire le dazibao
 	// Déverrouillage fichier
 
 	if(flock(fd, LOCK_UN) < 0) {
-		write(STDIN_FILENO, msg_error_unlock, strlen(msg_error_unlock)); 
+		write(STDIN_FILENO, msg_error_unlock, strlen(msg_error_unlock));
 	} else {
 		write(STDIN_FILENO, msg_unlock, strlen(msg_unlock));
 	}
