@@ -1,0 +1,11 @@
+vue
+a.out
+.*
+*.o
+*~
+#*
+*#
+.pdf
+*.dzb
+*.jpg
+*.png
