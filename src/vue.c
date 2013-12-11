@@ -408,9 +408,14 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
   //gtk_main();  
 }
 
+/* on remplace les dates par un bouton d'ajout de dates 
+   et on lui assigne un signal, puis on remplace le foot
+   par un bouton cancel afin d'annuler la commande 
+*/
 void makeDate(){  
+  //BODY SESSION
   struct tlv * curseur;
-  GList *children =   gtk_container_get_children(GTK_CONTAINER(body_panel));
+  GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
   int size = g_list_length(children);
   GtkWidget *aux;
   GtkWidget *aux_table;
@@ -440,7 +445,18 @@ void makeDate(){
       curseur = curseur->suivant;    
     }
   }
+  // FOOT SESSION
+  GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
+  gtk_widget_destroy(foot_panel); // on vire tous les boutons  
+  foot_panel	= gtk_hbox_new(FALSE,0);
+  gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
+  gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
+		     (GtkSignalFunc)traitement_bouton, 
+		     (gpointer)&id_bouton[5]);
+  gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
+  gtk_widget_show_all(foot_panel);
 }
+
 char* makeImage (){
   GtkWidget *dialog;
   GtkWidget *windowImage;  
