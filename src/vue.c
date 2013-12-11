@@ -5,11 +5,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#include "test.h"
 #include "vue.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
+
+int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
@@ -21,8 +22,7 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   case 1: //Add: image
     makeImage();
     break;
-    case 2: //Add: date
-      //gtk_widget_destroy(body_panel);
+  case 2: //Add: date
     makeDate();
     gtk_widget_show_all(window);
     break;
@@ -37,7 +37,7 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   case 5: //Repertoire: Non
     gtk_widget_destroy(body_panel);
     gtk_widget_destroy(foot_panel);
-    body_init(panel, daz->tlv_debut, daz->nb_tlv);
+    body_init(panel, daz->tlv_debut);
     foot_init(panel);
     gtk_widget_show_all(window);
     break;
@@ -90,11 +90,13 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
 }
 
 void makeRep(){
+  
+  /*
   struct tlv * curseur;
   GtkWidget* scrollbar;
   GtkWidget *more;
   int i;
-  /* --FOOT-- */
+  // --FOOT-- 
   GtkWidget *rep_ok;
   GtkWidget *rep_cancel;
 
@@ -103,13 +105,13 @@ void makeRep(){
   } else {
     curseur = tlv_actuel;  
   }
-  /* declaration des variables du corps */
+  // declaration des variables du corps 
   body_panel	= gtk_vbox_new(FALSE,0);      
-  /* on pose un scroll sur la liste des tlv*/
+  // on pose un scroll sur la liste des tlv
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
-  /* affichage des TLV dans la liste body_panel*/
-  for(i = 0 ; i < tlv_actuel->nb_tlv && curseur != 0 ; ++i){
+  // affichage des TLV dans la liste body_panel
+  for(i = 0 ;  curseur != 0 ; ++i){
     GtkWidget * panel_tlv;
     GtkWidget *check; 
     GtkWidget* button_tlv;
@@ -119,7 +121,7 @@ void makeRep(){
     
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     button_tlv = gtk_button_new_with_label(label_button(curseur));
-    /* insertion */
+    // insertion 
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), check, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
@@ -138,8 +140,7 @@ void makeRep(){
   gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);
   gtk_box_pack_start(GTK_BOX(body_panel), more, FALSE, FALSE, 5);   
 
-
-  /* ---------- FOOT ----------------- */  
+  // ---------- FOOT ----------------- 
   //defintions
   foot_panel	= gtk_hbox_new(FALSE,0);
   rep_ok	= gtk_button_new_with_label("OK");
@@ -160,6 +161,7 @@ void makeRep(){
   gtk_signal_connect(GTK_OBJECT(rep_cancel), "clicked", 
 		     (GtkSignalFunc)traitement_bouton, 
 		     (gpointer)&id_bouton[5]);
+  */
 }
 
 int nbDateBissextile(int d1, int d2){
@@ -216,7 +218,7 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
 }
 
 /* Fonction qui recupere les donnees de l'element courant affiche  */
-static combo_data_st get_active_data (GtkComboBox * p_combo){
+combo_data_st get_active_data (GtkComboBox * p_combo){
   GtkTreeModel   *  p_model = NULL;
   GtkTreeIter       iter;
   combo_data_st     p_st;
@@ -606,7 +608,7 @@ void afficher_image(int position_tlv){
 void afficher_conteneur(struct tlv * rep){
   printf("repertoire\n");
   tlv_actuel = rep;
-  body_init(panel, rep->conteneur, rep->nb_tlv);
+  body_init(panel, rep->conteneur);
   gtk_widget_show_all(window);  
 }
 
@@ -728,7 +730,7 @@ const char *label_button(struct tlv* current_tlv){
   return "????";
 }
 
-void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){
+void body_init(GtkWidget * panel, struct tlv *tlv_debut){
   struct tlv * curseur;
   //GtkWidget* body_panel;
   GtkWidget* scrollbar;
@@ -741,7 +743,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut, int nb_tlv){
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
   /* affichage des TLV dans la liste body_panel*/
-  for(i = 0 ; i < nb_tlv ; ++i){
+  for(i = 0 ; curseur != NULL ; ++i){
     //printf("valeur = %d\n", curseur->type_id);
     /* on prend le 1er tlv */
     
@@ -860,9 +862,9 @@ void foot_init(GtkWidget * panel){
 		     (gpointer)&(id_bouton[3]));
 }
 
-int init(int argc, char* argv[]){
+int init(){
   /* config */
-  gtk_init(&argc, &argv);
+  gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
@@ -874,11 +876,11 @@ int init(int argc, char* argv[]){
   gtk_container_add(GTK_CONTAINER(window),panel);
   head_init(panel);  
   tlv_actuel = daz->tlv_debut;
-  tlv_actuel->nb_tlv = daz->nb_tlv;
-  body_init(panel, daz->tlv_debut, daz->nb_tlv);
+  body_init(panel, daz->tlv_debut);
   foot_init(panel);
   
   gtk_widget_show_all(window);
   gtk_main();
   return 0;
 } 
+

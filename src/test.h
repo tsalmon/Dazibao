@@ -1,10 +1,16 @@
 #ifndef TEST_H
 #define TEST_H
 
+typedef struct {
+  gint     index;
+  gchar *  p_text;
+} combo_data_st;
+
 typedef struct value{
   int date;
   char *str;
 }value;
+
 
 typedef struct tlv{
   int type_id;
@@ -22,4 +28,8 @@ typedef struct dazibao{
 
 struct dazibao *daz;
 struct tlv *tlv_actuel;
+int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+
+void test();
+void free_test();
 #endif

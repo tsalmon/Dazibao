@@ -2,14 +2,14 @@ LDFLAGS=-Wall `pkg-config --cflags --libs gtk+-2.0` `sdl-config --libs` -lSDLmai
 CC=gcc
 FILE=vue
 
-main: $(FILE).o	test.o
-	$(CC) -g  -o $(FILE) test.o $(FILE).o $(LDFLAGS)
+dazibao: $(FILE).o test.o
+	$(CC) -g -o $(FILE) test.o $(FILE).o $(LDFLAGS)
 
-test.o: test.c
-	$(CC) -g test.c -c $(LDFLAGS)
+test.o: test.c $(FILE).h
+	$(CC) -g -o test.o -c test.c   -c $(LDFLAGS)
 
 $(FILE).o: $(FILE).c
-	$(CC) -g $(FILE).c -c $(LDFLAGS)
+	$(CC) -g -o $(FILE).o -c $(FILE).c $(LDFLAGS)
 
 clean:
 	rm *.o

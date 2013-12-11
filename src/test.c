@@ -5,15 +5,27 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "test.h"
+#include <time.h>
 #include "vue.h"
 
-//struct dazibao *daz;
-
-void test(){
-  daz = malloc(sizeof(dazibao));  
+void test(){  
+  struct tlv *aux;
+  int i = 0;
   
+  daz = malloc(sizeof(dazibao));  
+  daz->tlv_debut = malloc(sizeof(tlv));
+  aux = daz->tlv_debut;
+  for(i = 0; i < 10; i++){
+    aux->suivant = malloc(sizeof(tlv));
+    aux->type_id = 2;
+    aux = aux->suivant;
+  }
+  aux->type_id = 2;
+  
+  //free(aux);
+  /*
   //initialisation memoire
+  daz = malloc(sizeof(dazibao));  
   daz->nb_tlv = 4;
   daz->tlv_debut = malloc(sizeof(tlv));
   //il y a maintenant 3 tlv
@@ -39,16 +51,20 @@ void test(){
   daz->tlv_debut->suivant->suivant->suivant->conteneur->type_id = 2;
   daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant = malloc(sizeof(tlv));
   daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant->type_id = 2;
+  */
 }
+
 
 void free_test(){
-  free(daz->tlv_debut->suivant->suivant);
-  free(daz->tlv_debut->suivant);
-  free(daz->tlv_debut);
-  free(daz);
+  //free(daz->tlv_debut->suivant->suivant);
+  //free(daz->tlv_debut->suivant);
+  //free(daz->tlv_debut);
+  //free(daz);
 }
 
+
 int main(int argc, char *argv[]){
+  srand(time(NULL));
   test();
   init(argc, argv);
   free_test();
