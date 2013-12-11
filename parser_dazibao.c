@@ -211,7 +211,7 @@ void readDazibao(char *argv) { // Lire le dazibao
   
   // Ouverture du fichier
 
-  if(( fd = open("./exemple.dzb", O_RDONLY)) < 0 ) {
+  if(( fd = open(argv, O_RDONLY)) < 0 ) {
     write(STDIN_FILENO, msg_error, strlen(msg_error));
     exit(EXIT_FAILURE);
   } else {
