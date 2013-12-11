@@ -6,8 +6,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/file.h>
 
 void readTLV(int fd, char str); // Définition préalable
+
+struct tlv{ // Structure TLV
+	int type;
+	int size;
+	int *start;
+};
 
 void padN(int f) { // TLV PadN
   
@@ -196,6 +203,11 @@ void readDazibao(char *argv) { // Lire le dazibao
 	char *msg_error_size  = "Erreur taille fichier\n";
   char *msg_read_error  = "Erreur de lecture\n";
   char *msg_value_error = "Fichier non supporte\n";
+
+	char *msg_error_lock   = "Erreur lock\n";
+	char *msg_lock         = "Verrou acquis\n";
+	char *msg_error_unlock = "Erreur unlock\n";
+	char *msg_unlock       = "Verrou supprime\n";
   
   // Ouverture du fichier
 
@@ -205,6 +217,14 @@ void readDazibao(char *argv) { // Lire le dazibao
   } else {
     write(STDIN_FILENO, msg_open, strlen(msg_open));
   }
+
+	// Verrou sur le fichier
+
+	if(flock(fd, LOCK_SH) < 0) {
+		write(STDIN_FILENO, msg_error_lock, strlen(msg_error_lock));
+	} else {
+		write(STDIN_FILENO, msg_lock, strlen(msg_lock));
+	}
 
 	// Taille du fichier passé en paramètre	
 
@@ -235,6 +255,14 @@ void readDazibao(char *argv) { // Lire le dazibao
 		readTLV(fd, str);
 	}
 
+	// Déverrouillage fichier
+
+	if(flock(fd, LOCK_UN) < 0) {
+		write(STDIN_FILENO, msg_error_unlock, strlen(msg_error_unlock)); 
+	} else {
+		write(STDIN_FILENO, msg_unlock, strlen(msg_unlock));
+	}
+	
 	// Fermeture du fichier
 	
 	write(STDIN_FILENO, msg_close, strlen(msg_close));
