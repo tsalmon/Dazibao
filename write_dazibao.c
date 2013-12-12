@@ -14,48 +14,76 @@ char* convertIntSizeToCharSize(int size) { // Convertie la taille en int sur 3 o
 
 	char *length = (char *) malloc (3);
 	
-	length[0] = size / 256;
+	length[0] = size / 256; // Premier octect
 	size = size % 256;
-	length[1] = size / 256;
+	length[1] = size / 256; // Deuxième  octet
 	size = size % 256;
-	length[2] = size;
+	length[2] = size;       // Troisième octet
 
 	return length;
 
 }
 
-void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
+void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 	int fw;
-	int i = 0;
-	int j = 0;
 	int type = typeTlv;
-	//char *type = "2";
-	char *length = convertIntSizeToCharSize(strlen(arg));
 	char *msg_error_write = "Erreur ecriture\n";
 
-	if((fw = write(f, &type, sizeof(char))) == -1) { // Ecris le type de TLV
+	if((fw = write(f, &type, sizeof(char))) == -1) {
 		write(STDIN_FILENO, msg_error_write, strlen(msg_error_write));
 	}
 
-	while(i < 3) { // Ecris la taille du contenu
+}
+
+void writeLength(int f, char *arg) { // Ecris la taille du contenu
+
+	int fw;
+	int i = 0;
+	char *length = convertIntSizeToCharSize(strlen(arg));
+	char *msg_error_write = "Erreur ecriture\n";
+
+	while(i < 3) { // Seulement 3 octects sont écris
 		if((fw = write(f, &length[i], sizeof(char))) == -1) {
 			write(STDIN_FILENO, msg_error_write, strlen(msg_error_write));
 		}
 		i++;
 	}
 
-	free(length); // Libère la mémoire
+	free(length); // Libère la mémoire allouée
 
-	while( j < strlen(arg)) { // Ecris le texte
+}
+
+void writeData(int f, char *arg) { // Ecris les données
+
+	int fw;
+	int j = 0;
+	char *msg_error_write = "Erreur ecriture\n";
+
+	while( j < strlen(arg)) {
 		if((fw = write(f, &arg[j], sizeof(char))) == -1) {
 			write(STDIN_FILENO, msg_error_write, strlen(msg_error_write));
 		}
 		j++;
-	}	
+	}
 
 }
 
+void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
+
+	writeType(f, typeTlv); // Type TLV 
+	writeLength(f, arg);   // Taille TLV
+	writeData(f, arg);     // Données TLV
+
+}
+
+/*void addImage(int f, int typeTlv, char *arg) { // Ajouter une image
+
+	writeType(f, typeTlv);
+	writeLength(f, arg);
+	
+
+}*/
 
 void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
