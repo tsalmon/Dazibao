@@ -11,9 +11,9 @@
 
 char *testTexte = "Est-ce aussi simple d'ajouter une TLV texte?";
 
-char* convertIntSizeToCharSize(int size) { // Convertie la taille en int sur 3 octets
+unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille en int sur 3 octets
 
-	char *length = (char *) malloc (3);
+	unsigned char *length = (unsigned char *) malloc (3);
 	
 	length[0] = size / 256; // Premier octect
 	size = size % 256;
@@ -41,7 +41,7 @@ void writeLength(int f, char *arg) { // Ecris la taille du contenu
 
 	int fw;
 	int i = 0;
-	char *length = convertIntSizeToCharSize(strlen(arg));
+	unsigned char *length = convertIntSizeToCharSize(strlen(arg));
 	char *msg_error_write = "Erreur ecriture\n";
 
 	while(i < 3) { // Seulement 3 octects sont écris
@@ -99,7 +99,7 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
 	int fdin;
  	char *src;
 	int i = 0;
-	char *length = convertIntSizeToCharSize(sizeFile(arg));
+	unsigned char *length = convertIntSizeToCharSize(sizeFile(arg));
 	char *msg_error = "Erreur ouverture\n";
 	char *msg_lseek = "Erreur lseek\n";
 	char *msg_mmap  = "Erreur mmap\n";
@@ -127,7 +127,9 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
    write(STDIN_FILENO, msg_mmap, strlen(msg_mmap));
 	}
 
-	write(f, src, sizeFile(arg)); // Ecris l'image dans le dazibao
+	printf("TAILLE IMAGE: %d", sizeFile(arg));
+	int taille = sizeFile(arg);
+	write(f, src, taille); // Ecris l'image dans le dazibao
 
 }
 
@@ -169,6 +171,7 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
 	//addText(fd, 2, testTexte);
 	addPicture(fd,4,"./flower.jpeg");
+	//addText(fd, 2, testTexte);
 
 	// Déverrouillage fichier
 
