@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/file.h>
+#include <sys/mman.h>
 
 char *testTexte = "Est-ce aussi simple d'ajouter une TLV texte?";
 
@@ -77,13 +78,58 @@ void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
 
 }
 
-/*void addImage(int f, int typeTlv, char *arg) { // Ajouter une image
+int sizeFile(char *file) { // Obtenir la taille d'une image
 
-	writeType(f, typeTlv);
-	writeLength(f, arg);
+	int fs;
+	struct stat fileStat;
+	char *msg_error_size  = "Erreur taille fichier\n";
 	
+	if(( fs = stat(file, &fileStat)) != 0 ) {
+		write(STDIN_FILENO, msg_error_size, strlen(msg_error_size));
+		exit(EXIT_FAILURE);
+	}
 
-}*/
+	return fileStat.st_size;
+	
+}
+
+void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
+
+	int fw;
+	int fdin;
+ 	char *src;
+	int i = 0;
+	char *length = convertIntSizeToCharSize(sizeFile(arg));
+	char *msg_error = "Erreur ouverture\n";
+	char *msg_lseek = "Erreur lseek\n";
+	char *msg_mmap  = "Erreur mmap\n";
+
+	writeType(f, typeTlv); // Type TLV
+
+	while(i < 3) { // Seulement 3 octects sont écris
+		if((fw = write(f, &length[i], sizeof(char))) == -1) {
+			write(STDIN_FILENO, msg_error, strlen(msg_error));
+		}
+		i++;
+	}
+
+	free(length); // Libère la mémoire
+
+	if ((fdin = open ("./flower.jpeg", O_RDONLY)) < 0) { // Ouverture du fichier à copier
+   write(STDIN_FILENO, msg_error, strlen(msg_error));
+	}
+
+	if (lseek (f, 0, SEEK_END) == -1) { // Déplacement du curseur en fin de dazibao
+   write(STDIN_FILENO, msg_lseek, strlen(msg_lseek));
+	}
+
+	if ((src = mmap (0, sizeFile(arg), PROT_READ, MAP_PRIVATE, fdin, 0)) == (caddr_t) -1) { // Charge en mémoire l'image
+   write(STDIN_FILENO, msg_mmap, strlen(msg_mmap));
+	}
+
+	write(f, src, sizeFile(arg)); // Ecris l'image dans le dazibao
+
+}
 
 void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
@@ -121,7 +167,8 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
 	// Ajout d'une TLV
 
-	addText(fd, 2, testTexte);	
+	//addText(fd, 2, testTexte);
+	addPicture(fd,4,"./flower.jpeg");
 
 	// Déverrouillage fichier
 
