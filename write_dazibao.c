@@ -37,11 +37,11 @@ void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 }
 
-void writeLength(int f, char *arg) { // Ecris la taille du contenu
+void writeLength(int f, int arg) { // Ecris la taille du contenu
 
 	int fw;
 	int i = 0;
-	unsigned char *length = convertIntSizeToCharSize(strlen(arg));
+	unsigned char *length = convertIntSizeToCharSize(arg);
 	char *msg_error_write = "Erreur ecriture\n";
 
 	while(i < 3) { // Seulement 3 octects sont écris
@@ -72,9 +72,34 @@ void writeData(int f, char *arg) { // Ecris les données
 
 void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
 
-	writeType(f, typeTlv); // Type TLV 
-	writeLength(f, arg);   // Taille TLV
-	writeData(f, arg);     // Données TLV
+	writeType(f, typeTlv);       // Type TLV 
+	writeLength(f, strlen(arg)); // Taille TLV
+	writeData(f, arg);          // Données TLV
+
+}
+
+void addPad1(int f, int typeTlv) { // Ajouter une TLV Pad1
+
+	writeType(f, typeTlv);
+
+}
+
+void addPadN(int f, int typeTlv, int size) { // Ajouter une TLV PadN
+	
+	int i = 0;
+
+	writeType(f, typeTlv); // Type TLV
+	writeLength(f, size);  // Taille TLV
+	
+	/*char *c = "a";
+	while(i < size) {
+		write(f, (char *)&c, sizeof(c));	   // Données TLV
+		i++;
+	}*/
+	while(i < size) {
+		writeData(f,"0"); // Données TLV 
+		i++;
+	}
 
 }
 
@@ -103,6 +128,7 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
 	char *msg_error = "Erreur ouverture\n";
 	char *msg_lseek = "Erreur lseek\n";
 	char *msg_mmap  = "Erreur mmap\n";
+	char *msg_erwr  = "Erreur ecriture\n";
 
 	writeType(f, typeTlv); // Type TLV
 
@@ -127,9 +153,10 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
    write(STDIN_FILENO, msg_mmap, strlen(msg_mmap));
 	}
 
-	printf("TAILLE IMAGE: %d", sizeFile(arg));
-	int taille = sizeFile(arg);
-	write(f, src, taille); // Ecris l'image dans le dazibao
+	//printf("TAILLE IMAGE: %d", sizeFile(arg));
+	if ((fw = write(f, src, sizeFile(arg))) != 0) { // Ecris l'image dans le dazibao // <
+		write(STDIN_FILENO, msg_erwr, strlen(msg_erwr));	
+	}
 
 }
 
@@ -169,9 +196,11 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
 	// Ajout d'une TLV
 
+	addText(fd, 2, testTexte);
+	//addPicture(fd,4,"./flower.jpeg");
 	//addText(fd, 2, testTexte);
-	addPicture(fd,4,"./flower.jpeg");
-	//addText(fd, 2, testTexte);
+	addPadN(fd,1,30);
+	addPad1(fd, 0);
 
 	// Déverrouillage fichier
 
