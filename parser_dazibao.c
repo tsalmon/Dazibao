@@ -45,7 +45,7 @@ void text(int f) { // TLV TEXTE
     write(STDIN_FILENO, msg_read_error, strlen(msg_read_error));
   } else {
 		size = length[0]*256*256 + length[1]*256 + length[2];
-    while((j < size) && (fr = read(f, &buff, 1)) >= 0) { 
+    while((j < size) && (fr = read(f, &buff, 1)) > 0) { 
       write(STDIN_FILENO, &buff, 1);
 			j++;
     }
@@ -64,14 +64,15 @@ void jpeg(int f) { // TLV JPEG
 	char *msg_read_error  = "Erreur de lecture\n";
 	char *msg_create_file = "Erreur creation du fichier image\n";
 
-	if(( fr = read(f, &length, sizeof(length))) < 0) {
+	if(( fr = read(f, &length, 3)) < 0) {
 		write(STDIN_FILENO, msg_read_error, strlen(msg_read_error));
 	} else {
 		size = length[0]*256*256 + length[1]*256 + length[2];
+		remove("./image.jpeg");
 		if(( fd1 = open("./image.jpeg", O_CREAT | O_WRONLY, S_IRUSR| S_IWUSR)) <= 0 ) {
 			write(STDIN_FILENO, msg_create_file, strlen(msg_create_file));
 		} 
-		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
+		while((j < size) && (fr = read(f, &buff, 1)) > 0) {
 			write(fd1, &buff, 1);
 			j++;
 		}
@@ -97,7 +98,7 @@ void png(int f) { // TLV PNG
 		if(( fd1 = open("./image.png", O_CREAT | O_WRONLY, S_IRUSR| S_IWUSR)) <= 0 ) {
 			write(STDIN_FILENO, msg_create_file, strlen(msg_create_file));
 		} 
-		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
+		while((j < size) && (fr = read(f, &buff, 1)) > 0) {
 			write(fd1, &buff, 1);
 			j++;
 		}
@@ -148,7 +149,7 @@ void dated(int f) { // TLV DATED
 			write(STDIN_FILENO, &buffDate, strlen(buffDate));
 		}
 		int sizeParcourue = 0;
-		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
+		while((j < size) && (fr = read(f, &buff, 1)) > 0) {
 			write(STDIN_FILENO, "\n\t*", 3);
 			if(( fr = read(f, &length, sizeof(length))) >= 0) {
 				sizeParcourue = length[0]*256*256 + length[1]*256 + length[2];
@@ -177,7 +178,7 @@ void compound(int f) { // TLV COMPOUND
 		size = length[0]*256*256 + length[1]*256 + length[2];
 		while((j < size) && (fr = read(f, &buff, 1)) >= 0) {
 			write(STDIN_FILENO, "\n\t*", 3);
-			if(( fr = read(f, &length, sizeof(length))) >= 0) {
+			if(( fr = read(f, &length, sizeof(length))) > 0) {
 				sizeParcourue = length[0]*256*256 + length[1]*256 + length[2];
 			}
 			lseek(f, -sizeof(length), SEEK_CUR);
