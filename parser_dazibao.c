@@ -280,23 +280,18 @@ void readTLV(int fd, char str) { // Lecture des TLV
     break;
   default:
     write(STDIN_FILENO, "Default \n", 9);
-		padN(fd); // Ignore le TLV inconnu comme PADN sauf que la fonction connait le TLV
+    padN(fd); // Ignore le TLV inconnu comme PADN sauf que la fonction connait le TLV
     break;
   }
 
 }
 
 int main(int argc, char *argv[]) {
-
-	char *msg_error_arg = "Erreur argument";
-
-	if( argc != 2 ) {
-		write(STDIN_FILENO, msg_error_arg, strlen(msg_error_arg));
-		exit(EXIT_FAILURE);
-	}
-
-  readDazibao(argv[1]);
-
-  return(0);
-
+  char *msg_error_arg = "Erreur argument";  
+  if( argc != 2 ) {
+    write(STDIN_FILENO, msg_error_arg, strlen(msg_error_arg));
+    exit(EXIT_FAILURE);
+  }  
+  readDazibao(argv[1]);  
+  return(0);  
 }
