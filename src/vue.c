@@ -12,6 +12,11 @@
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
+/*
+  call by: head_init, body_init, foot_init
+  Cette fonction gere les boutons d'ajout de TLV (quand on clique sur les boutons du bas de l'ui),
+  ainsi que les boutons du haut de l'ui (Home, back & compacter)
+*/
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
@@ -46,6 +51,11 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   }
   return FALSE;
 }
+
+/*
+  (fonction obsolete, non utilise)
+  Utiliser pour l'affichage qui permet d'ajouter une tlv de type conteneur
+*/
 GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
 {
   GtkWidget *check;
@@ -55,6 +65,12 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
   return (check);
 }
 
+/*
+  call by: makeRep
+  Apres avoir cliquer sur le bouton Content, puis sur le bouton ok, 
+  cette fonction permet de savoir quelles sont les tlv qui ont été selectionnées
+  par l'utilisateur (cad celles qu'il a coché)
+*/
 void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget *rec = (GtkWidget *) message;
   if(GTK_IS_CONTAINER(rec)){
@@ -69,7 +85,7 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
 	GList *children_table =   gtk_container_get_children(GTK_CONTAINER(aux));
 	GtkWidget *aux_table;
 	//int size_tab = g_list_length(children);
-	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);    
+ 	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);    
 	if(GTK_IS_CHECK_BUTTON(aux_table)){
 	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
 	  printf("check_button %c\n",  (b == FALSE) ? 'F' : 'T');
@@ -82,7 +98,9 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
   } 
 }
 
-
+/*
+  fonction obsolete, remplacé par makeRep
+*/
 void makeBody(){
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
@@ -132,6 +150,13 @@ void makeBody(){
 
 }
 
+/*
+  Call by: traitement_bouton
+  Apres avoir clique sur le bouton Content: 
+  On va remplacer toutes les cases de dates des TLV par une case a cocher afin 
+  de permettre a l'utilisateur de selectionner une tlv pour l'ajouter a un 
+  conteneur
+*/
 void makeRep(){
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
@@ -179,15 +204,23 @@ void makeRep(){
   gtk_widget_show_all(foot_panel);  
 }
 
-int nbDateBissextile(int d1, int d2){
+/*
+  Callby: newTLVDate
+  permet de compter le nombres de dates bissextiles entre 2 années
+  (je n'ai pas trouvé d'autre moyen)
+*/
+int nbDateBissextile(int annee_1, int annee_2){
   int i = 0, j = 0;
-  for(j = d1; j < d2; j++){
+  for(j = annee_1; j < annee_2; j++){
     if (isBix(j))
       i++;
   }
   return i;
 }
 
+/*
+  call by: nbDateBissextile
+*/
 int isBix(int d){
   if(d % 400 == 0)
     return 1;
@@ -196,13 +229,17 @@ int isBix(int d){
   return d % 4 == 0;
 } 
 
+/*
+  call by: addDateTLV
+  recupère les valeurs et calcul le timestamp associé
+*/
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
   int aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long unsigned int timestamp = 0;
-
+  
   //year
   aux		= atoi(gtk_entry_get_text(GTK_ENTRY(data[0])));
   timestamp	= (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
@@ -210,7 +247,7 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   //month
   p_st = get_active_data (p_combo);  
   timestamp += mois[p_st.index - 1] * 86400;
-  
+ 
   //if the year is a leap year
   if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
     timestamp += 86400 ;
@@ -232,7 +269,10 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
-/* Fonction qui recupere les donnees de l'element courant affiche  */
+/* 
+   call_by: newTLVDate
+   Fonction qui recupere les donnees de l'element courant affiche  
+*/
 combo_data_st get_active_data (GtkComboBox * p_combo){
   GtkTreeModel   *  p_model = NULL;
   GtkTreeIter       iter;
@@ -251,7 +291,12 @@ combo_data_st get_active_data (GtkComboBox * p_combo){
   return p_st;
 }
 
-gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
+/*
+  call by: makeText
+  permet de recuperer le texte saisie par l'utilisateur afin de l'ajouter
+  dans une TLV de type text
+*/
+gint addText(GtkWidget *widget, GdkEvent *event, gpointer message){
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
   GtkTextIter i1, it;
   int k, i;
@@ -270,10 +315,21 @@ gint add(GtkWidget *widget, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+/*
+  
+*/
 gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+/*
+  call by: makeDate
+  Permet de creer une sous-fenetre ou l'on permet de remplir 6 champs de dates:
+  Année, mois, jour, seconde, minute et heure
+  Par défaut, les valeurs sont la date au moment ou l'utilisateur a cliqué sur
+  le bouton d'ajout
+  Apres avoir sur le bouton de confirmation, on appel la fonction newTLVDate
+*/
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
   struct tlv *getTLV = (struct tlv *) message;
   //dans le cas ou la tlv est une date, on recupere le dernier
@@ -421,13 +477,13 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     gtk_widget_show_all (p_win);
     gtk_main ();
   }
-  //gtk_widget_show_all(window_addDate);
-  //gtk_main();  
 }
 
-/* on remplace les dates par un bouton d'ajout de dates 
-   et on lui assigne un signal, puis on remplace le foot
-   par un bouton cancel afin d'annuler la commande 
+/*
+  call by: traitement_boutons
+  on remplace les dates par un bouton d'ajout de dates 
+  Si on clique dessus on appel la fonction addDateTLV qui permet d'entrer une
+  nouvelle date
 */
 void makeDate(){  
   //BODY SESSION
@@ -474,6 +530,11 @@ void makeDate(){
   gtk_widget_show_all(foot_panel);
 }
 
+/*
+  call_by: traitement_bouton
+  Permet de selectionner une image a partir d'une fenetre de parcours de 
+  fichiers
+*/
 char* makeImage (){
   GtkWidget *dialog;
   GtkWidget *windowImage;  
@@ -501,6 +562,10 @@ char* makeImage (){
   }
 }
 
+/*
+  Cette fonction ne devrait pas etre ici car ne concerne pas directement l'ui,
+  je m'en sert seulement pour tester l'affichage de textes
+ */
 int insertSpace(char str[]){
   int cur = 0;
   int i = 0;
@@ -528,7 +593,11 @@ int insertSpace(char str[]){
   return nb_lignes;
 }
 
-
+/*
+  call_by: traitement_tlv
+  permet de lire une tlv de type texte
+  Le texte s'affiche sur des lignes de ~80 chars
+*/
 void afficher_text(int position_tlv){
   char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
   
@@ -626,6 +695,11 @@ void afficher_text(int position_tlv){
 */
 }
 
+/*
+  call_by: traitement_tlv
+  permet d'ouvrir dans une fenetre - SDL - une image a partir de son pixbuff
+  TODO: remplacer SDL par GTK2+
+*/
 void afficher_image(int position_tlv){
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *ecran = NULL;
@@ -704,6 +778,11 @@ void afficher_image(int position_tlv){
   SDL_Quit();
 }
 
+/*
+  call_by: traitment_tlv
+  remplacer le contenu du corps de l'ui par les TLV du rep sur lequel
+  l'utilisateur a cliqué
+*/
 void afficher_conteneur(struct tlv * rep){
   printf("repertoire\n");
   tlv_actuel = rep;
@@ -711,6 +790,12 @@ void afficher_conteneur(struct tlv * rep){
   gtk_widget_show_all(window);  
 }
 
+/*
+  call by: body_init:
+  Se declenche quand l'utilisateur a cliqué sur une TLV.
+  En fonction de son id, cette fonction utilise la fonction d'affichage
+  appropriée
+*/
 gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
@@ -729,11 +814,21 @@ gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
   return FALSE;
 }
 
+/*
+  call by: init
+  Signal pour fermer l'ui (quand on clique sur la croix)
+*/
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){ 
   gtk_main_quit();
   return FALSE;
 }
 
+/*
+  call by: traitement_bouton
+  Crée une fenetre qui contient un espace pour écrire du texte et un bouton
+  pour l'envoyer, si l'utilisateur clique sur le bouton, alors on appel la
+  fonction addText
+*/
 void makeText(){
   GtkWidget *window, *view, *vbox;
   GtkWidget *ok, *text_panel;
@@ -776,7 +871,7 @@ void makeText(){
   g_signal_connect_swapped
     (G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
   gtk_signal_connect(GTK_OBJECT(ok), "clicked", 
-		     (GtkSignalFunc)add, 
+		     (GtkSignalFunc)addText, 
 		     (gpointer)(view));
   
   gtk_widget_show_all(window);
@@ -784,6 +879,10 @@ void makeText(){
 
 }
 
+/*
+  Call by: init
+  initialise le menu du haut de l'ui
+*/
 void head_init(GtkWidget * panel){
   GtkWidget *home;
   GtkWidget *back;
@@ -811,6 +910,14 @@ void head_init(GtkWidget * panel){
 		     (gpointer)&(id_bouton[6]));
 }
 
+/*
+  call by: body_init
+  sous-fonction utilisée par body_init afin de donner un "titre"
+  en fonction de l'id de la TLV
+  Si une TLV est une date, on prend la tlv contenu, 
+  tant que c'est le cas, on continue de prendre ce qu'elle contient 
+  jusqu'a ce qu'on arrive sur autre chose qu'une date
+*/
 const char *label_button(struct tlv* current_tlv){
   switch(current_tlv->type_id){
   case 2:
@@ -829,6 +936,13 @@ const char *label_button(struct tlv* current_tlv){
   return "????";
 }
 
+/*
+  call by: init
+  Initialise le corps de l'ui, on affiche les TLV qui sont a la bases du dazibao,
+  Les séries de TLV dates sont inscrites dans une cases avec un scroll:
+  Si on a quelque chose comme date_1(date_2(...(date_n(TLV_autre_qu_une_date))))
+  on aura comme case : (une case qui contient toutes les dates, last_TLV)  
+*/
 void body_init(GtkWidget * panel, struct tlv *tlv_debut){
   struct tlv * curseur;
   //GtkWidget* body_panel;
@@ -922,6 +1036,10 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut){
 		     (gpointer)&(id_bouton[7]));
 }
 
+/*
+  call_by: init
+  Initialise le menu du bas de l'ui
+*/
 void foot_init(GtkWidget * panel){
   GtkWidget *texte;
   GtkWidget *image;
@@ -961,6 +1079,9 @@ void foot_init(GtkWidget * panel){
 		     (gpointer)&(id_bouton[3]));
 }
 
+/*
+  initialise l'affichage du dazibao
+*/
 int init(){
   /* config */
   gtk_init(NULL, NULL);

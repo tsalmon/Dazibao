@@ -43,7 +43,7 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message);
  combo_data_st get_active_data (GtkComboBox * p_combo);
 gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
 gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
-gint add(GtkWidget *label, GdkEvent *event, gpointer message);
+gint addText(GtkWidget *label, GdkEvent *event, gpointer message);
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
 void afficher_text(int position_tlv);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
