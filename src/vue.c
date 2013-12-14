@@ -501,7 +501,99 @@ char* makeImage (){
   }
 }
 
+int insertSpace(char str[]){
+  int cur = 0;
+  int i = 0;
+  int nb_lignes = 1;
+  while(str[cur] != '\0'){
+    //putchar(str[cur]);
+    if(str[cur] == '\n'){
+      nb_lignes++;
+      //printf(">>>\\N(%d)<<<", i);
+      i = 0;
+    }
+    if(i == 80){
+      while(str[cur--] != ' '){
+      }
+      //printf("{{{\\N(%d)}}}", i);
+      str[cur] = '\n'; 
+      nb_lignes++;
+      cur++;
+      i = 0;
+    } else {
+      i++;
+      cur++;
+    }
+  } 
+  return nb_lignes;
+}
+
+
 void afficher_text(int position_tlv){
+  char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
+  
+  int nb = 0;
+  int i = 0, j = 0, k = 0;
+  char *str_lines[80];
+  
+  nb = insertSpace(str);
+  printf("\nnb = %d\n", nb);
+  //str_lines = malloc(sizeof(char *) * nb);
+  for(i = 0; i < nb; i++){
+    str_lines[i]= malloc(sizeof(char) * 80);
+    for(j = 0; j < 80; j++){
+      str_lines[i][j] = 0;
+    }
+  }
+
+
+  for(i = 0; i < nb; i++){
+    for(j = 0; j < 80 && str[k] != '\n' && str[k] != '\0'; j++){
+      str_lines[i][j] = str[k++];
+    }    
+    if(str[k] == '\n'){      
+      k++;
+    }
+    printf("%s\n", str_lines[i]);
+  }    
+  
+  GtkWidget* window = NULL;
+  GtkWidget* box;
+  GtkWidget** pLabel = NULL;  
+  GtkWidget* scrollbar = NULL;
+  
+  pLabel = malloc(sizeof(GtkWidget *) * nb);
+
+  gtk_init(NULL, NULL);
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_default_size(GTK_WINDOW(window), 420, 200);
+  gtk_window_set_title(GTK_WINDOW(window), "GtkScrolledWindow");
+  g_signal_connect(G_OBJECT(window),"destroy",G_CALLBACK(gtk_main_quit),0);
+ 
+  scrollbar = gtk_scrolled_window_new(NULL, NULL);
+  gtk_container_add(GTK_CONTAINER(window),scrollbar);
+  
+  box=gtk_vbox_new(FALSE,5);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbar), box);
+  
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+  
+  for(i = 0; i < nb; i++){
+    pLabel[i] = gtk_label_new(str_lines[i]);
+    gtk_box_pack_start(GTK_BOX(box), pLabel[i], FALSE, FALSE, 5); // 5 = espacement
+  }
+  
+  gtk_widget_show_all(window); 
+  gtk_main();
+
+  /*
+  for(i = 0; i < nb; i++){
+    free(str_lines[i]);
+  }
+  free(str_lines);
+  */
+
+/*
   GtkWidget *fenetre;
   GtkWidget *text;
   GtkWidget *panel;
@@ -531,6 +623,7 @@ void afficher_text(int position_tlv){
   gtk_box_pack_start(GTK_BOX(panel), text, FALSE, FALSE, 0);
   gtk_widget_show_all(fenetre);
   gtk_main();
+*/
 }
 
 void afficher_image(int position_tlv){
