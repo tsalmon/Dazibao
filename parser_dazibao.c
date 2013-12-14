@@ -20,7 +20,7 @@ void padN(int f) { // TLV PadN
   
   int fr;
 	int size = 0;
-  char length[3];
+  unsigned char length[3];
   char *msg_read_error = "Erreur de lecture\n";
     
   if(( fr = read(f, &length, sizeof(length))) < 0) {
@@ -64,7 +64,7 @@ void jpeg(int f) { // TLV JPEG
 	char *msg_read_error  = "Erreur de lecture\n";
 	char *msg_create_file = "Erreur creation du fichier image\n";
 
-	if(( fr = read(f, &length, 3)) < 0) {
+	if(( fr = read(f, &length, sizeof(length))) < 0) {
 		write(STDIN_FILENO, msg_read_error, strlen(msg_read_error));
 	} else {
 		size = length[0]*256*256 + length[1]*256 + length[2];
@@ -253,7 +253,7 @@ void readDazibao(char *argv) { // Lire le dazibao
 
 	// Lecture des TLV
 
-	while((( fr = read(fd, &str, 1)) >= 0 ) && ( lseek(fd, 0, SEEK_CUR) != fileStat.st_size) ) {
+	while((( fr = read(fd, &str, 1)) > 0 ) ){//&& ( lseek(fd, 0, SEEK_CUR) != fileStat.st_size) ) {
 		readTLV(fd, str);
 	}
 
