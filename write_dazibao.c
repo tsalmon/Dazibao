@@ -37,7 +37,7 @@ void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 }
 
-void writeLength(int f, int arg) { // Ecris la taille du contenu
+void writeLength(int f, int arg) { // Ecrit la taille du contenu
 
 	int fw;
 	int i = 0;
@@ -55,7 +55,7 @@ void writeLength(int f, int arg) { // Ecris la taille du contenu
 
 }
 
-void writeData(int f, char *arg) { // Ecris les données
+void writeData(int f, char *arg) { // Ecrit les données
 
 	int fw;
 	int j = 0;

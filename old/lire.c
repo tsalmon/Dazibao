@@ -95,7 +95,7 @@ int lecture(){
   int taille = 0;
   while((i = read(fd, &buff, 1)) > 0){
     taille++;
-    /*
+    
     switch(buff){
     case 2: Text(&text); printf("%s\n", text); break;
     case 4: Jpeg(&text); break;
@@ -103,10 +103,9 @@ int lecture(){
       printf("buff = %d\n", buff);
       return 0;
       }
-    */
-    
+        
   }  
-  printf("%d\n", taille);
+  printf("-> %d\n", taille);
   //free(text);
 }
 
