@@ -13,12 +13,29 @@ char *testTexte = "Est-ce aussi simple d'ajouter une TLV texte?";
 
 unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille en int sur 3 octets
 
+	int nombre = size;
 	unsigned char *length = (unsigned char *) malloc (3);
+	char *msg_error_size = "Erreur taille: TLV trop grande\n";
+
+	if( nombre > 16843008 ) {
+		write(STDIN_FILENO, msg_error_size, strlen(msg_error_size));
+	}
+
+	if( nombre > 65792 ) {  
+		length[0] = size / 256; // Premier octect
+		size = size % 256;
+	}
+	else {
+		length[0] = 0;
+	}
+
+	if( nombre > 256 ) {
+		length[1] = size / 256; // Deuxième octet
+		size = size % 256;
+	} else {
+		length[1] = 0; 
+	}
 	
-	length[0] = size / 256; // Premier octect
-	size = size % 256;
-	length[1] = size / 256; // Deuxième  octet
-	size = size % 256;
 	length[2] = size;       // Troisième octet
 
 	return length;
@@ -29,7 +46,7 @@ void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 	int fw;
 	int type = typeTlv;
-	char *msg_error_write = "Erreur ecriture\n";
+	char *msg_error_write = "Erreur ecriture type\n";
 
 	if((fw = write(f, &type, sizeof(char))) == -1) {
 		write(STDIN_FILENO, msg_error_write, strlen(msg_error_write));
@@ -42,7 +59,7 @@ void writeLength(int f, int arg) { // Ecris la taille du contenu
 	int fw;
 	int i = 0;
 	unsigned char *length = convertIntSizeToCharSize(arg);
-	char *msg_error_write = "Erreur ecriture\n";
+	char *msg_error_write = "Erreur ecriture length\n";
 
 	while(i < 3) { // Seulement 3 octects sont écris
 		if((fw = write(f, &length[i], sizeof(char))) == -1) {
@@ -59,7 +76,7 @@ void writeData(int f, char *arg) { // Ecris les données
 
 	int fw;
 	int j = 0;
-	char *msg_error_write = "Erreur ecriture\n";
+	char *msg_error_write = "Erreur ecriture data\n";
 
 	while( j < strlen(arg)) {
 		if((fw = write(f, &arg[j], sizeof(char))) == -1) {
@@ -67,14 +84,6 @@ void writeData(int f, char *arg) { // Ecris les données
 		}
 		j++;
 	}
-
-}
-
-void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
-
-	writeType(f, typeTlv);       // Type TLV 
-	writeLength(f, strlen(arg)); // Taille TLV
-	writeData(f, arg);          // Données TLV
 
 }
 
@@ -103,6 +112,14 @@ void addPadN(int f, int typeTlv, int size) { // Ajouter une TLV PadN
 
 }
 
+void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
+
+	writeType(f, typeTlv);       // Type TLV
+	writeLength(f, strlen(arg)); // Taille TLV
+	writeData(f, arg);           // Données TLV
+
+}
+
 int sizeFile(char *file) { // Obtenir la taille d'une image
 
 	int fs;
@@ -118,28 +135,30 @@ int sizeFile(char *file) { // Obtenir la taille d'une image
 	
 }
 
-void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
+void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image PNG ou JPEG
 
 	int fw;
 	int fdin;
  	char *src;
-	int i = 0;
-	unsigned char *length = convertIntSizeToCharSize(sizeFile(arg));
+	//int i = 0;
+	//unsigned char *length = convertIntSizeToCharSize(sizeFile(arg));
 	char *msg_error = "Erreur ouverture\n";
 	char *msg_lseek = "Erreur lseek\n";
 	char *msg_mmap  = "Erreur mmap\n";
-	char *msg_erwr  = "Erreur ecriture\n";
+	char *msg_erwr  = "Erreur ecriture image\n";
 
 	writeType(f, typeTlv); // Type TLV
 
-	while(i < 3) { // Seulement 3 octects sont écris
+	/*while(i < 3) { // Seulement 3 octects sont écris
 		if((fw = write(f, &length[i], sizeof(char))) == -1) {
 			write(STDIN_FILENO, msg_error, strlen(msg_error));
 		}
 		i++;
-	}
+	}*/
 
-	free(length); // Libère la mémoire
+	writeLength(f, sizeFile(arg)); // Taille TLV
+
+	//free(length); // Libère la mémoire
 
 	if ((fdin = open ("./flower.jpeg", O_RDONLY)) < 0) { // Ouverture du fichier à copier
    write(STDIN_FILENO, msg_error, strlen(msg_error));
@@ -153,12 +172,30 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image
    write(STDIN_FILENO, msg_mmap, strlen(msg_mmap));
 	}
 
-	//printf("TAILLE IMAGE: %d", sizeFile(arg));
-	if ((fw = write(f, src, sizeFile(arg))) != 0) { // Ecris l'image dans le dazibao // <
+	if ((fw = write(f, src, sizeFile(arg))) == -1) { // Ecris l'image dans le dazibao
 		write(STDIN_FILENO, msg_erwr, strlen(msg_erwr));	
 	}
 
 }
+
+/*void addCompound(int f, int typeTlv) {
+
+	int getPos;
+	int diff;
+
+	writeType(f, typeTlv); // Type TLV
+
+	getPos = (int)lseek(f, 0, SEEK_CUR); // Position de la taille du Compound
+	lseek(f, 3, SEEK_SET);
+
+	writeData(f, ...);
+
+	diff = lseek(f, 0, SEEK_CUR) - getPos;
+	lseek(f, -getPos, SEEK_SET);
+	
+	writeLength(f, diff-3); // Taille TLV	
+
+}*/
 
 void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
@@ -197,10 +234,12 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 	// Ajout d'une TLV
 
 	addText(fd, 2, testTexte);
+	addPicture(fd,4,"./flower.jpeg");
+	addText(fd, 2, testTexte);
 	//addPicture(fd,4,"./flower.jpeg");
+	//addPadN(fd,1,30);
+	//addPad1(fd, 0);
 	//addText(fd, 2, testTexte);
-	addPadN(fd,1,30);
-	addPad1(fd, 0);
 
 	// Déverrouillage fichier
 
