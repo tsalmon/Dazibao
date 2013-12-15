@@ -10,31 +10,45 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
+/*
+  Conventions de nommage des fonctions de ce fichier:
+  add: on envoit des donnees saisie par l'utilisateur a l'ecrivain du dazibao
+  fen: on produit une sous fenetre
+  make: saisir des données
+  view: lire une/des données
+  body: on modifie corps de la fenetre
+  init: initialisation de la page
+  gere: gestion des boutons
+  Toutes les fonctions commencent par "vue_" afin de préciser de quel fichier elles proviennent
+  
+  vue_fen_make_Text() : produire une sous fenetre qui permet de saisir du texte 
+*/
+
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 /*
-  call by: head_init, body_init, foot_init
+  call by: vue_init_head, vue_init_body, vue_init_foot
   Cette fonction gere les boutons d'ajout de TLV (quand on clique sur les boutons du bas de l'ui),
   ainsi que les boutons du haut de l'ui (Home, back & compacter)
 */
-gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
+gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
   printf("id bouton = %d\n", *i);
   switch(*i){
   case 0: //Add: texte
-    makeText();
+    vue_fen_make_Text();
     break;
   case 1: //Add: image
-    makeImage();
+    vue_fen_make_Image();
     break;
   case 2: //Add: date
-    makeDate();
+    vue_body_Date();
     gtk_widget_show_all(window);
     break;
   case 3: //Add: Repertoire 
     //gtk_widget_destroy(body_panel);
     //gtk_widget_destroy(foot_panel);
-    makeRep();
+    vue_body_rep();
     gtk_widget_show_all(window);
     break;
   case 4: 
@@ -42,8 +56,8 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   case 5: //Repertoire: Non
     gtk_widget_destroy(body_panel);
     gtk_widget_destroy(foot_panel);
-    body_init(panel, daz->tlv_debut);
-    foot_init(panel);
+    vue_init_body(panel, daz->tlv_debut);
+    vue_init_foot(panel);
     gtk_widget_show_all(window);
     break;
   default:
@@ -51,13 +65,11 @@ gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message){
   }
   return FALSE;
 }
-
 /*
   (fonction obsolete, non utilise)
   Utiliser pour l'affichage qui permet d'ajouter une tlv de type conteneur
 */
-GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
-{
+GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel){
   GtkWidget *check;
   check = gtk_check_button_new_with_label (szLabel);
   gtk_box_pack_start (GTK_BOX (box), check, FALSE, FALSE, 10);
@@ -66,12 +78,12 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel)
 }
 
 /*
-  call by: makeRep
+  call by: vue_body_rep
   Apres avoir cliquer sur le bouton Content, puis sur le bouton ok, 
   cette fonction permet de savoir quelles sont les tlv qui ont été selectionnées
-  par l'utilisateur (cad celles qu'il a coché)
+  par l'utilisateur (ie. celles qu'il a coché)
 */
-void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
+void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget *rec = (GtkWidget *) message;
   if(GTK_IS_CONTAINER(rec)){
     GList *children =   gtk_container_get_children(GTK_CONTAINER(rec));
@@ -99,7 +111,7 @@ void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message){
 }
 
 /*
-  fonction obsolete, remplacé par makeRep
+  fonction obsolete, remplacé par vue_body_rep
 */
 void makeBody(){
   struct tlv * curseur;
@@ -137,10 +149,10 @@ void makeBody(){
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_ok , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
   gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&id_bouton[5]);
   gtk_signal_connect(GTK_OBJECT(btn_ok), "clicked", 
-		     (GtkSignalFunc)addRepOk, 
+		     (GtkSignalFunc)vue_add_rep, 
 		     (gpointer)body_panel);
 
 
@@ -151,13 +163,13 @@ void makeBody(){
 }
 
 /*
-  Call by: traitement_bouton
+  Call by: vue_gere_menu
   Apres avoir clique sur le bouton Content: 
   On va remplacer toutes les cases de dates des TLV par une case a cocher afin 
   de permettre a l'utilisateur de selectionner une tlv pour l'ajouter a un 
   conteneur
 */
-void makeRep(){
+void vue_body_rep(){
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
   int size = g_list_length(children);
@@ -193,10 +205,10 @@ void makeRep(){
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_ok , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
   gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&id_bouton[5]);
   gtk_signal_connect(GTK_OBJECT(btn_ok), "clicked", 
-		     (GtkSignalFunc)addRepOk, 
+		     (GtkSignalFunc)vue_add_rep, 
 		     (gpointer)body_panel);
 
 
@@ -221,19 +233,19 @@ int nbDateBissextile(int annee_1, int annee_2){
 /*
   call by: nbDateBissextile
 */
-int isBix(int d){
-  if(d % 400 == 0)
+int isBix(int annee){
+  if(annee % 400 == 0)
     return 1;
-  if(d % 100 == 0)
+  if(annee % 100 == 0)
     return 0;
-  return d % 4 == 0;
+  return annee % 4 == 0;
 } 
 
 /*
   call by: addDateTLV
   recupère les valeurs et calcul le timestamp associé
 */
-gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
+gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
@@ -270,7 +282,7 @@ gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message){
 }
 
 /* 
-   call_by: newTLVDate
+   call_by: vue_add_date
    Fonction qui recupere les donnees de l'element courant affiche  
 */
 combo_data_st get_active_data (GtkComboBox * p_combo){
@@ -292,11 +304,11 @@ combo_data_st get_active_data (GtkComboBox * p_combo){
 }
 
 /*
-  call by: makeText
+  call by: vue_fen_make_Text
   permet de recuperer le texte saisie par l'utilisateur afin de l'ajouter
   dans une TLV de type text
 */
-gint addText(GtkWidget *widget, GdkEvent *event, gpointer message){
+gint vue_add_Text(GtkWidget *widget, GdkEvent *event, gpointer message){
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
   GtkTextIter i1, it;
   int k, i;
@@ -323,12 +335,12 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
 }
 
 /*
-  call by: makeDate
+  call by: vue_body_Date
   Permet de creer une sous-fenetre ou l'on permet de remplir 6 champs de dates:
   Année, mois, jour, seconde, minute et heure
   Par défaut, les valeurs sont la date au moment ou l'utilisateur a cliqué sur
   le bouton d'ajout
-  Apres avoir sur le bouton de confirmation, on appel la fonction newTLVDate
+  Apres avoir sur le bouton de confirmation, on appel la fonction vue_add_date
 */
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
   struct tlv *getTLV = (struct tlv *) message;
@@ -472,7 +484,7 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     g_signal_connect (G_OBJECT (p_win), "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_signal_connect(GTK_OBJECT(button), "clicked", 
-		       G_CALLBACK(newTLVDate), 
+		       G_CALLBACK(vue_add_date), 
 		       (gpointer)p_combo);
     gtk_widget_show_all (p_win);
     gtk_main ();
@@ -480,12 +492,12 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
 }
 
 /*
-  call by: traitement_boutons
+  call by: vue_gere_menus
   on remplace les dates par un bouton d'ajout de dates 
   Si on clique dessus on appel la fonction addDateTLV qui permet d'entrer une
   nouvelle date
 */
-void makeDate(){  
+void vue_body_Date(){
   //BODY SESSION
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
@@ -524,18 +536,18 @@ void makeDate(){
   foot_panel	= gtk_hbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
   gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&id_bouton[5]);
   gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
   gtk_widget_show_all(foot_panel);
 }
 
 /*
-  call_by: traitement_bouton
+  call_by: vue_gere_menu
   Permet de selectionner une image a partir d'une fenetre de parcours de 
   fichiers
 */
-char* makeImage (){
+char* vue_fen_make_Image (){
   GtkWidget *dialog;
   GtkWidget *windowImage;  
   windowImage = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -560,6 +572,62 @@ char* makeImage (){
   } else {
     return NULL;
   }
+}
+
+/*
+  call by: vue_gere_menu
+  Crée une fenetre qui contient un espace pour écrire du texte et un bouton
+  pour l'envoyer, si l'utilisateur clique sur le bouton, alors on appel la
+  fonction vue_add_Text
+*/
+void vue_fen_make_Text(){
+  GtkWidget *window, *view, *vbox;
+  GtkWidget *ok, *text_panel;
+  GtkTextBuffer *buffer;
+  GtkWidget* scrollbar;
+
+  ok = gtk_button_new_with_label("ok");
+  scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
+  /* begin config */
+  gtk_init(NULL, NULL);
+  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+  gtk_window_set_default_size(GTK_WINDOW(window), 250, 200);
+  gtk_window_set_title(GTK_WINDOW(window), "TextView");
+  gtk_container_set_border_width(GTK_CONTAINER(window), 5);
+  GTK_WINDOW(window)->allow_shrink = TRUE;
+  /* define var */
+  vbox = gtk_vbox_new(FALSE, 0);
+  text_panel = gtk_vbox_new(FALSE, 0);
+  view = gtk_text_view_new();
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);
+  
+  gtk_scrolled_window_add_with_viewport
+    (GTK_SCROLLED_WINDOW(scrollbar), vbox);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar),
+				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+  gtk_box_pack_start(GTK_BOX(text_panel), ok, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(text_panel), scrollbar, TRUE, TRUE, 0);
+  /* config text*/
+  gtk_text_buffer_create_tag(buffer, "gap","pixels_above_lines", 30, NULL);
+  gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
+  gtk_text_buffer_create_tag(buffer, "blue_fg", "foreground", "blue", NULL); 
+  gtk_text_buffer_create_tag(buffer, "gray_bg", "background", "gray", NULL); 
+  gtk_text_buffer_create_tag
+    (buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+  gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+
+  gtk_container_add(GTK_CONTAINER(window), text_panel);
+  g_signal_connect_swapped
+    (G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
+  gtk_signal_connect(GTK_OBJECT(ok), "clicked", 
+		     (GtkSignalFunc)vue_add_Text, 
+		     (gpointer)(view));
+  
+  gtk_widget_show_all(window);
+  gtk_main();
+
 }
 
 /*
@@ -594,11 +662,11 @@ int insertSpace(char str[]){
 }
 
 /*
-  call_by: traitement_tlv
+  call_by: vue_gere_tlv
   permet de lire une tlv de type texte
   Le texte s'affiche sur des lignes de ~80 chars
 */
-void afficher_text(int position_tlv){
+void vue_fen_view_Text(int position_tlv){
   char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
   
   int nb = 0;
@@ -696,11 +764,11 @@ void afficher_text(int position_tlv){
 }
 
 /*
-  call_by: traitement_tlv
+  call_by: vue_gere_tlv
   permet d'ouvrir dans une fenetre - SDL - une image a partir de son pixbuff
   TODO: remplacer SDL par GTK2+
 */
-void afficher_image(int position_tlv){
+void vue_fen_view_Image(int position_tlv){
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
@@ -783,30 +851,30 @@ void afficher_image(int position_tlv){
   remplacer le contenu du corps de l'ui par les TLV du rep sur lequel
   l'utilisateur a cliqué
 */
-void afficher_conteneur(struct tlv * rep){
+void vue_view_rep(struct tlv * rep){
   printf("repertoire\n");
   tlv_actuel = rep;
-  body_init(panel, rep->conteneur);
+  vue_init_body(panel, rep->conteneur);
   gtk_widget_show_all(window);  
 }
 
 /*
-  call by: body_init:
+  call by: vue_init_body:
   Se declenche quand l'utilisateur a cliqué sur une TLV.
   En fonction de son id, cette fonction utilise la fonction d'affichage
   appropriée
 */
-gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
+gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
   case 2:
-    afficher_text(recup->position);
+    vue_fen_view_Text(recup->position);
     break;
   case 3: case 4:
-    afficher_image(recup->position);
+    vue_fen_view_Image(recup->position);
     break;
   case 5:
-    afficher_conteneur(recup);
+    vue_view_rep(recup);
     break;
   default:
     fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
@@ -824,66 +892,10 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
 }
 
 /*
-  call by: traitement_bouton
-  Crée une fenetre qui contient un espace pour écrire du texte et un bouton
-  pour l'envoyer, si l'utilisateur clique sur le bouton, alors on appel la
-  fonction addText
-*/
-void makeText(){
-  GtkWidget *window, *view, *vbox;
-  GtkWidget *ok, *text_panel;
-  GtkTextBuffer *buffer;
-  GtkWidget* scrollbar;
-
-  ok = gtk_button_new_with_label("ok");
-  scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
-  /* begin config */
-  gtk_init(NULL, NULL);
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-  gtk_window_set_default_size(GTK_WINDOW(window), 250, 200);
-  gtk_window_set_title(GTK_WINDOW(window), "TextView");
-  gtk_container_set_border_width(GTK_CONTAINER(window), 5);
-  GTK_WINDOW(window)->allow_shrink = TRUE;
-  /* define var */
-  vbox = gtk_vbox_new(FALSE, 0);
-  text_panel = gtk_vbox_new(FALSE, 0);
-  view = gtk_text_view_new();
-  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);
-  
-  gtk_scrolled_window_add_with_viewport
-    (GTK_SCROLLED_WINDOW(scrollbar), vbox);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar),
-				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-  gtk_box_pack_start(GTK_BOX(text_panel), ok, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(text_panel), scrollbar, TRUE, TRUE, 0);
-  /* config text*/
-  gtk_text_buffer_create_tag(buffer, "gap","pixels_above_lines", 30, NULL);
-  gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
-  gtk_text_buffer_create_tag(buffer, "blue_fg", "foreground", "blue", NULL); 
-  gtk_text_buffer_create_tag(buffer, "gray_bg", "background", "gray", NULL); 
-  gtk_text_buffer_create_tag
-    (buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
-  gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
-
-  gtk_container_add(GTK_CONTAINER(window), text_panel);
-  g_signal_connect_swapped
-    (G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
-  gtk_signal_connect(GTK_OBJECT(ok), "clicked", 
-		     (GtkSignalFunc)addText, 
-		     (gpointer)(view));
-  
-  gtk_widget_show_all(window);
-  gtk_main();
-
-}
-
-/*
   Call by: init
   initialise le menu du haut de l'ui
 */
-void head_init(GtkWidget * panel){
+void vue_init_head(GtkWidget * panel){
   GtkWidget *home;
   GtkWidget *back;
   GtkWidget *concat;
@@ -900,19 +912,19 @@ void head_init(GtkWidget * panel){
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
   
   gtk_signal_connect(GTK_OBJECT(home), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[4]));
   gtk_signal_connect(GTK_OBJECT(back), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[5]));
   gtk_signal_connect(GTK_OBJECT(concat), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[6]));
 }
 
 /*
-  call by: body_init
-  sous-fonction utilisée par body_init afin de donner un "titre"
+  call by: vue_init_body
+  sous-fonction utilisée par vue_init_body afin de donner un "titre"
   en fonction de l'id de la TLV
   Si une TLV est une date, on prend la tlv contenu, 
   tant que c'est le cas, on continue de prendre ce qu'elle contient 
@@ -943,7 +955,7 @@ const char *label_button(struct tlv* current_tlv){
   Si on a quelque chose comme date_1(date_2(...(date_n(TLV_autre_qu_une_date))))
   on aura comme case : (une case qui contient toutes les dates, last_TLV)  
 */
-void body_init(GtkWidget * panel, struct tlv *tlv_debut){
+void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
   struct tlv * curseur;
   //GtkWidget* body_panel;
   GtkWidget* scrollbar;
@@ -1006,7 +1018,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut){
     
     if(curseur->type_id != 6){
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
-			 (GtkSignalFunc)traitement_tlv, 
+			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
     } else {
       struct tlv *date = curseur;
@@ -1014,7 +1026,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut){
 	date = date->conteneur;
       }
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
-			 (GtkSignalFunc)traitement_tlv, 
+			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(date));
     }
     curseur = curseur->suivant;
@@ -1032,7 +1044,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut){
   more = gtk_button_new_with_label("MOAR");
   gtk_box_pack_start(GTK_BOX(body_panel), more, FALSE, FALSE, 5);   
   gtk_signal_connect(GTK_OBJECT(more), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[7]));
 }
 
@@ -1040,7 +1052,7 @@ void body_init(GtkWidget * panel, struct tlv *tlv_debut){
   call_by: init
   Initialise le menu du bas de l'ui
 */
-void foot_init(GtkWidget * panel){
+void vue_init_foot(GtkWidget * panel){
   GtkWidget *texte;
   GtkWidget *image;
   GtkWidget *date;
@@ -1065,25 +1077,24 @@ void foot_init(GtkWidget * panel){
   
   //activation des signaux sur boutons
   gtk_signal_connect(GTK_OBJECT(texte), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[0]));
   gtk_signal_connect(GTK_OBJECT(image), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[1]));
   gtk_signal_connect(GTK_OBJECT(date), "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[2]));
   gtk_signal_connect(GTK_OBJECT(rep),
 		     "clicked", 
-		     (GtkSignalFunc)traitement_bouton, 
+		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[3]));
 }
 
 /*
   initialise l'affichage du dazibao
 */
-int init(){
-  /* config */
+int vue_init(){
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -1094,13 +1105,12 @@ int init(){
   
   panel = gtk_table_new(10, 1, TRUE);  
   gtk_container_add(GTK_CONTAINER(window),panel);
-  head_init(panel);  
   tlv_actuel = daz->tlv_debut;
-  body_init(panel, daz->tlv_debut);
-  foot_init(panel);
+  vue_init_head(panel);  
+  vue_init_body(panel, daz->tlv_debut);
+  vue_init_foot(panel);
   
   gtk_widget_show_all(window);
   gtk_main();
   return 0;
 } 
-

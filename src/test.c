@@ -66,7 +66,7 @@ void free_test(){
 int main(int argc, char *argv[]){
   srand(time(NULL));
   test();
-  init(argc, argv);
+  vue_init(argc, argv);
   free_test();
   return 0;
 }

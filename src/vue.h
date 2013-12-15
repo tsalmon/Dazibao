@@ -39,26 +39,35 @@ void free_test();
 int nbDateBissextile(int d1, int d2);
 int isBix(int date);
 
-void addRepOk(GtkWidget *label, GdkEvent *event, gpointer message);
- combo_data_st get_active_data (GtkComboBox * p_combo);
-gint newTLVDate(GtkWidget *label, GdkEvent *event, gpointer message);
-gint traitement_bouton(GtkWidget *label, GdkEvent *event, gpointer message);
-gint addText(GtkWidget *label, GdkEvent *event, gpointer message);
+combo_data_st get_active_data (GtkComboBox * p_combo);
+gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message);
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
-void afficher_text(int position_tlv);
+void vue_fen_view_Text(int position_tlv);
+void vue_fen_view_Image(int position_tlv);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
-gint traitement_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message);
-void head_init(GtkWidget * panel);
+gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message);
 const char *label_button(struct tlv* current_tlv);
-void body_init(GtkWidget * panel, struct tlv *tlv_debut);
-void foot_init(GtkWidget * panel);
-int init();
+
 // add TLV
-void makeText();
-void makeDate();
-void makeRep();
-char *makeImage();
+void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
+gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message);
+gint vue_add_Text(GtkWidget *label, GdkEvent *event, gpointer message);
+
+//fenetre de saisie
+void vue_fen_make_Text();
+void vue_view_rep(struct tlv *rep);
+void vue_body_Date();
+void vue_fen_make_Date();
+void vue_body_rep();
+char *vue_fen_make_Image();
 GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel);
+
+// creation de l'ui
+void vue_init_foot(GtkWidget * panel);
+void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut);
+void vue_init_head(GtkWidget * panel);
+int  vue_init();
+
 
 GtkWidget* panel;
 GtkWidget* body_panel;
