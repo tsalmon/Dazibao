@@ -16,7 +16,7 @@ struct tlv { // Structure d'une TLV
 	int type;
 	char *arg;	
 	int length;
-	struct tlv *tableau;
+	struct tlv *arrayListTlv;
 	
 };
 
@@ -297,7 +297,7 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
 	struct tlv tlv1 = { .type = 4, .arg = "./flower.jpeg", .length = sizeFile(tlv1.arg) };
 	//struct tlv tlv2 = { .type = 2, .arg = testTexte, .length = strlen(testTexte) };
-	//struct tlv tlv3 = { .type = 5, .tableau = tab, .visited = 0};
+	//struct tlv tlv3 = { .type = 5, .arrayListTlv = tab, .visited = 0};
 	//struct tlv tlv4 = { .type = 2, .arg = testTexte, .length = strlen(testTexte), .visited = 0 };
 	tab[0] = tlv1;
 	//tab[1] = tlv2;
