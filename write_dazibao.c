@@ -51,6 +51,21 @@ unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille d'un 
 
 }
 
+int typePicture(char *arg) {
+
+	char *strJpeg = ".jpeg";
+	char *strPng  = ".png";
+
+	if( strstr(arg, strJpeg) != NULL ) {
+		return (4);
+	} else if ( strstr(arg, strPng) != NULL ) {
+		return (3);
+	}
+
+	return (-1);
+
+}
+
 int sizeFile(char *file) { // Obtenir la taille d'une image
 
 	int fs;
@@ -134,17 +149,17 @@ void writeDate(int f) { // Ecris la date sur 4 octets
 	
 }
 
-void addPad1(int f, int typeTlv) { // Ajouter une TLV Pad1
+void addPad1(int f) { // Ajouter une TLV Pad1
 
-	writeType(f, typeTlv);
+	writeType(f, 0);
 
 }
 
-void addPadN(int f, int typeTlv, int size) { // Ajouter une TLV PadN
+void addPadN(int f, int size) { // Ajouter une TLV PadN
 	
 	int i = 0;
 
-	writeType(f, typeTlv); // Type TLV
+	writeType(f, 1); // Type TLV
 	writeLength(f, size);  // Taille TLV
 	
 	while(i < size) {
@@ -154,25 +169,31 @@ void addPadN(int f, int typeTlv, int size) { // Ajouter une TLV PadN
 
 }
 
-void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
+void addText(int f, char *arg) { // Ajouter une TLV texte
 
-	writeType(f, typeTlv);       // Type TLV
+	writeType(f, 2);       // Type TLV
 	writeLength(f, strlen(arg)); // Taille TLV
 	writeData(f, arg);           // Données TLV
 
 }
 
-void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image PNG ou JPEG
+void addPicture(int f, char *arg) { // Ajouter une image PNG ou JPEG
 
 	int fw;
 	int fdin;
  	char *src;
-	char *msg_error = "Erreur ouverture\n";
-	char *msg_lseek = "Erreur lseek\n";
-	char *msg_mmap  = "Erreur mmap\n";
-	char *msg_erwr  = "Erreur ecriture image\n";
+	char *msg_error  = "Erreur ouverture\n";
+	char *msg_lseek  = "Erreur lseek\n";
+	char *msg_mmap   = "Erreur mmap\n";
+	char *msg_erwr   = "Erreur ecriture image\n";
+	char *msg_ertype = "Erreur type image\n";
 
-	writeType(f, typeTlv); // Type TLV
+	if( typePicture(arg) != -1) { // Teste si l'argument a bien une extension compatible image
+		writeType(f, typePicture(arg)); // Type TLV
+	} else {
+		write(STDIN_FILENO, msg_ertype, strlen(msg_ertype));
+		exit(1);
+	}
 
 	writeLength(f, sizeFile(arg)); // Taille TLV
 
@@ -214,16 +235,16 @@ void addBloc(int f, int typeTlv, struct tlv *arrayTlv, int posTab, int countTlv)
 
 		switch (arrayTlv[i].type) {
 		case 0:
-			addPad1(f, arrayTlv[i].type);   														// Pad1
+			addPad1(f);   														                  // Pad1
 			break;
 		case 1:
-			addPadN(f, arrayTlv[i].type, arrayTlv[i].length);       		// PadN
+			addPadN(f, arrayTlv[i].length);       		                  // PadN
 			break;
 		case 2:
-			addText(f, arrayTlv[i].type, arrayTlv[i].arg);        			// Texte
+			addText(f, arrayTlv[i].arg);        			                  // Texte
 			break;
 		case 3 ... 4:
-			addPicture(f,arrayTlv[i].type, arrayTlv[i].arg);      			// Image PNG et JPEG
+			addPicture(f, arrayTlv[i].arg);      			                  // Image PNG et JPEG
 			break;
 		case 5 ... 6:
 			addBloc(f, arrayTlv[i].type, arrayTlv, posTab, countTlv);   // Compound et Dated
