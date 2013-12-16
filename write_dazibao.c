@@ -11,7 +11,16 @@
 
 char *testTexte = "Est-ce aussi simple d'ajouter une TLV texte?";
 
-unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille en int sur 3 octets
+struct tlv { // Structure d'une TLV
+
+	int type;
+	char *arg;	
+	int length;
+	struct tlv *tableau;
+	
+};
+
+unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille d'un int sur 3 octets
 
 	int nombre = size;
 	unsigned char *length = (unsigned char *) malloc (3);
@@ -42,6 +51,21 @@ unsigned char* convertIntSizeToCharSize(int size) { // Convertie la taille en in
 
 }
 
+int sizeFile(char *file) { // Obtenir la taille d'une image
+
+	int fs;
+	struct stat fileStat;
+	char *msg_error_size  = "Erreur taille fichier\n";
+	
+	if(( fs = stat(file, &fileStat)) != 0 ) {
+		write(STDIN_FILENO, msg_error_size, strlen(msg_error_size));
+		exit(EXIT_FAILURE);
+	}
+
+	return fileStat.st_size;
+	
+}
+
 void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 	int fw;
@@ -54,7 +78,7 @@ void writeType(int f, int typeTlv) { // Ecris le type de TLV
 
 }
 
-void writeLength(int f, int arg) { // Ecrit la taille du contenu
+void writeLength(int f, int arg) { // Ecris la taille du contenu
 
 	int fw;
 	int i = 0;
@@ -72,7 +96,7 @@ void writeLength(int f, int arg) { // Ecrit la taille du contenu
 
 }
 
-void writeData(int f, char *arg) { // Ecrit les données
+void writeData(int f, char *arg) { // Ecris les données
 
 	int fw;
 	int j = 0;
@@ -85,6 +109,29 @@ void writeData(int f, char *arg) { // Ecrit les données
 		j++;
 	}
 
+}
+
+void writeDate(int f) { // Ecris la date sur 4 octets
+
+	int currentDate;
+	int value;
+	time_t t;
+
+	time(&t);             // Récupère la date courante
+	currentDate = (int)t; // Convertie en int la date courante
+
+	value = (currentDate >> 24) & 0xFF; // Premier octet
+	write(f, &value, 1);
+
+	value = (currentDate >> 16) & 0xFF; // Deuxième octet
+	write(f, &value, 1);
+
+	value = (currentDate >> 8) & 0xFF;  // Troisième octet
+	write(f, &value, 1);
+
+	value = currentDate & 0xFF;         // Quatrième octet
+	write(f, &value, 1);
+	
 }
 
 void addPad1(int f, int typeTlv) { // Ajouter une TLV Pad1
@@ -100,11 +147,6 @@ void addPadN(int f, int typeTlv, int size) { // Ajouter une TLV PadN
 	writeType(f, typeTlv); // Type TLV
 	writeLength(f, size);  // Taille TLV
 	
-	/*char *c = "a";
-	while(i < size) {
-		write(f, (char *)&c, sizeof(c));	   // Données TLV
-		i++;
-	}*/
 	while(i < size) {
 		writeData(f,"0"); // Données TLV 
 		i++;
@@ -120,28 +162,11 @@ void addText(int f, int typeTlv, char *arg) { // Ajouter une TLV texte
 
 }
 
-int sizeFile(char *file) { // Obtenir la taille d'une image
-
-	int fs;
-	struct stat fileStat;
-	char *msg_error_size  = "Erreur taille fichier\n";
-	
-	if(( fs = stat(file, &fileStat)) != 0 ) {
-		write(STDIN_FILENO, msg_error_size, strlen(msg_error_size));
-		exit(EXIT_FAILURE);
-	}
-
-	return fileStat.st_size;
-	
-}
-
 void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image PNG ou JPEG
 
 	int fw;
 	int fdin;
  	char *src;
-	//int i = 0;
-	//unsigned char *length = convertIntSizeToCharSize(sizeFile(arg));
 	char *msg_error = "Erreur ouverture\n";
 	char *msg_lseek = "Erreur lseek\n";
 	char *msg_mmap  = "Erreur mmap\n";
@@ -149,18 +174,9 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image PNG ou JPE
 
 	writeType(f, typeTlv); // Type TLV
 
-	/*while(i < 3) { // Seulement 3 octects sont écris
-		if((fw = write(f, &length[i], sizeof(char))) == -1) {
-			write(STDIN_FILENO, msg_error, strlen(msg_error));
-		}
-		i++;
-	}*/
-
 	writeLength(f, sizeFile(arg)); // Taille TLV
 
-	//free(length); // Libère la mémoire
-
-	if ((fdin = open ("./flower.jpeg", O_RDONLY)) < 0) { // Ouverture du fichier à copier
+	if ((fdin = open (arg, O_RDONLY)) < 0) { // Ouverture du fichier à copier
    write(STDIN_FILENO, msg_error, strlen(msg_error));
 	}
 
@@ -178,24 +194,59 @@ void addPicture(int f, int typeTlv, char *arg) { // Ajouter une image PNG ou JPE
 
 }
 
-/*void addCompound(int f, int typeTlv) {
+void addBloc(int f, int typeTlv, struct tlv *arrayTlv, int posTab, int countTlv) { // Ajouter une TLV Compund ou Dated
 
 	int getPos;
 	int diff;
+	int i;
+	char *msg_error_add = "TLV inconnue\n";
 
 	writeType(f, typeTlv); // Type TLV
 
-	getPos = (int)lseek(f, 0, SEEK_CUR); // Position de la taille du Compound
-	lseek(f, 3, SEEK_SET);
+	getPos = (int)lseek(f, 0, SEEK_CUR); // Position du premier octet de la taille à écrire
+	lseek(f, getPos+3, SEEK_SET);
 
-	writeData(f, ...);
+	if( typeTlv == 6 ) {
+		writeDate(f);
+	}
 
-	diff = lseek(f, 0, SEEK_CUR) - getPos;
-	lseek(f, -getPos, SEEK_SET);
+	for(i = posTab; i < countTlv; i++) { // Parcours le tableau des TLV à ajouter
+
+		switch (arrayTlv[i].type) {
+		case 0:
+			addPad1(f, arrayTlv[i].type);   														// Pad1
+			break;
+		case 1:
+			addPadN(f, arrayTlv[i].type, arrayTlv[i].length);       		// PadN
+			break;
+		case 2:
+			addText(f, arrayTlv[i].type, arrayTlv[i].arg);        			// Texte
+			break;
+		case 3 ... 4:
+			addPicture(f,arrayTlv[i].type, arrayTlv[i].arg);      			// Image PNG et JPEG
+			break;
+		case 5 ... 6:
+			addBloc(f, arrayTlv[i].type, arrayTlv, posTab, countTlv);   // Compound et Dated
+			break;
+		default:
+			write(STDIN_FILENO, msg_error_add, strlen(msg_error_add));	// Exception
+			break;
+		}
+
+	}
+
+	diff = (int)lseek(f, 0, SEEK_CUR) - (getPos + 3); /* Taille du contenu du bloc qui
+																									   * est égale à la position courante
+                                                     * moins le position courante avant
+                                                     * l'écriture des données moins 3 
+                                                     * pour la taille de l'entête TLV du bloc */
+	lseek(f, getPos, SEEK_SET);
+
+	writeLength(f, diff); // Taille TLV
 	
-	writeLength(f, diff-3); // Taille TLV	
+	lseek(f, 0, SEEK_END);
 
-}*/
+}
 
 void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
@@ -233,13 +284,29 @@ void addToDazibao(char *argv) { // Ecrire dans un dazibao
 
 	// Ajout d'une TLV
 
-	addText(fd, 2, testTexte);
-	addPicture(fd,4,"./flower.jpeg");
-	addText(fd, 2, testTexte);
+	//addText(fd, 2, testTexte);
+	//addPicture(fd,4,"./flower.jpeg");
+	//addText(fd, 2, testTexte);
 	//addPicture(fd,4,"./flower.jpeg");
 	//addPadN(fd,1,30);
 	//addPad1(fd, 0);
 	//addText(fd, 2, testTexte);
+
+	int countTlv  = 1; // Nombre de TLV à ajouter
+	struct tlv *tab = malloc (countTlv * sizeof (struct tlv)); // Tableau de TLV
+
+	struct tlv tlv1 = { .type = 4, .arg = "./flower.jpeg", .length = sizeFile(tlv1.arg) };
+	//struct tlv tlv2 = { .type = 2, .arg = testTexte, .length = strlen(testTexte) };
+	//struct tlv tlv3 = { .type = 5, .tableau = tab, .visited = 0};
+	//struct tlv tlv4 = { .type = 2, .arg = testTexte, .length = strlen(testTexte), .visited = 0 };
+	tab[0] = tlv1;
+	//tab[1] = tlv2;
+	//tab[2] = tlv3;
+	//tab[3] = tlv4;
+
+	addBloc(fd, 6, tab, 0, countTlv);
+
+	free(tab); // Libère la mémoire du tableau de TLV
 
 	// Déverrouillage fichier
 
