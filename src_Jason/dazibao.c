@@ -16,30 +16,14 @@ int main(int argc, char **argv) {
 	dazibao.file_path = argv[1];
 	dazibao.tlv_count = 0;
 	
-	Dazibao_TLV *new_tlv;
-	dazibao.content[10];
-	
-	
-	
 	printf("[i] Dazibao file : %s\n", dazibao.file_path);
 	
 	dazibao_open_file(&dazibao);
 	
 	if(!dazibao_check_header(&dazibao)) {
-        printf("[!] File header is not valid!\n");
+            printf("[!] File header is not valid!\n");
 	} else {
 	    printf("[+] Reading...\n");
-	    
-	    while(dazibao.tlv_count < 6) {
-	        /* Read next TLV */
-
-	        printf("%d:\n", dazibao.tlv_count);
-	        new_tlv = malloc(sizeof(Dazibao_TLV));
-	        
-	        /* (*dazibao.content + dazibao.tlv_count) = new_tlv; */
-	        dazibao.tlv_count++;
-	    }
-	    
 	}
 	
 	dazibao_close_file(&dazibao);
