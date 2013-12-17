@@ -3,6 +3,8 @@
 
 #include <sys/types.h>
 
+typedef enum { false, true } bool;
+
 /*
 	Énumération Dazibao_TLV_Type : Type d'un TLV
 */
@@ -59,7 +61,8 @@ typedef struct {
 
 
 typedef struct {
-	int file_desciptor;
+	char *file_path;
+	int file_descriptor;
 	int tlv_count;
 	Dazibao_TLV *content;
 } Dazibao;
