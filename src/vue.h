@@ -16,7 +16,7 @@ typedef struct value{
 
 typedef struct tlv{
   int type_id;
-  //int nb_tlv;
+  int nb_tlv;
   long int position;
   struct value *tlv_val;
   struct tlv *conteneur;
@@ -51,7 +51,7 @@ const char *label_button(struct tlv* current_tlv);
 // add TLV
 void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message);
-gint vue_add_Text(GtkWidget *label, GdkEvent *event, gpointer message);
+gint vue_add_Text(GtkWidget *label, gpointer *message);
 
 //fenetre de saisie
 void vue_fen_make_Text();
@@ -67,6 +67,7 @@ void vue_init_foot(GtkWidget * panel);
 void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut);
 void vue_init_head(GtkWidget * panel);
 int  vue_init();
+
 
 
 GtkWidget* panel;

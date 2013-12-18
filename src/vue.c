@@ -263,7 +263,6 @@ gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message){
   //if the year is a leap year
   if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
     timestamp += 86400 ;
-  
   //day
   p_st = get_active_data ((GtkComboBox * )data[2]);
   timestamp += (p_st.index - 1) * 86400;
@@ -308,12 +307,31 @@ combo_data_st get_active_data (GtkComboBox * p_combo){
   permet de recuperer le texte saisie par l'utilisateur afin de l'ajouter
   dans une TLV de type text
 */
-gint vue_add_Text(GtkWidget *widget, GdkEvent *event, gpointer message){
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
+gint vue_add_Text(GtkWidget *widget, gpointer *message){
+  GtkWidget	*pTextView;
+  GtkTextBuffer *pTextBuffer;
+  GtkTextIter	iStart;
+  GtkTextIter	iEnd;
+  gchar		*sBuffer;
+
+  pTextView = GTK_WIDGET(message);
+
+  /* recupere le buffer */
+  pTextBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(pTextView));
+  /* recupere l'origine du buffer */
+  gtk_text_buffer_get_start_iter(pTextBuffer, &iStart);
+  /* recupere la fin du buffer */
+  gtk_text_buffer_get_end_iter(pTextBuffer, &iEnd);
+
+  /* copie le contenu du buffer dans une variable */
+  sBuffer = gtk_text_buffer_get_text(pTextBuffer, &iStart, &iEnd, TRUE);
+  printf("%s\n", sBuffer);
+  /*
+  GtkTextBuffer *buffer = message;//gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
   GtkTextIter i1, it;
   int k, i;
   gchar *text;
-
+  
   gtk_text_buffer_get_iter_at_mark
     (buffer, &it, gtk_text_buffer_get_insert(buffer));
 
@@ -321,19 +339,17 @@ gint vue_add_Text(GtkWidget *widget, GdkEvent *event, gpointer message){
   gtk_text_buffer_get_iter_at_line(buffer, &it, k);
   gtk_text_buffer_get_end_iter(buffer, &i1);
   text = gtk_text_buffer_get_text(buffer, &it, &i1, FALSE);
-  for(i=0; text[i];i++);
+  for(i=0; text[i];i++){
+  }
   text[i]=0;
-  printf("%s\n", text);
+  printf("%s\n", text);  
+  */
   return FALSE;
 }
-
-/*
-  
-*/
+/*  */
 gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer message){
   return FALSE;
 }
-
 /*
   call by: vue_body_Date
   Permet de creer une sous-fenetre ou l'on permet de remplir 6 champs de dates:
@@ -585,7 +601,6 @@ void vue_fen_make_Text(){
   GtkWidget *ok, *text_panel;
   GtkTextBuffer *buffer;
   GtkWidget* scrollbar;
-
   ok = gtk_button_new_with_label("ok");
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   /* begin config */
@@ -601,12 +616,10 @@ void vue_fen_make_Text(){
   text_panel = gtk_vbox_new(FALSE, 0);
   view = gtk_text_view_new();
   buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
-  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);
-  
+  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);  
   gtk_scrolled_window_add_with_viewport
     (GTK_SCROLLED_WINDOW(scrollbar), vbox);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar),
-				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_box_pack_start(GTK_BOX(text_panel), ok, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(text_panel), scrollbar, TRUE, TRUE, 0);
   /* config text*/
@@ -614,17 +627,11 @@ void vue_fen_make_Text(){
   gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
   gtk_text_buffer_create_tag(buffer, "blue_fg", "foreground", "blue", NULL); 
   gtk_text_buffer_create_tag(buffer, "gray_bg", "background", "gray", NULL); 
-  gtk_text_buffer_create_tag
-    (buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+  gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
   gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
-
   gtk_container_add(GTK_CONTAINER(window), text_panel);
-  g_signal_connect_swapped
-    (G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
-  gtk_signal_connect(GTK_OBJECT(ok), "clicked", 
-		     (GtkSignalFunc)vue_add_Text, 
-		     (gpointer)(view));
-  
+  g_signal_connect_swapped(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), G_OBJECT(window));
+  g_signal_connect(GTK_OBJECT(ok), "clicked", (GtkSignalFunc)vue_add_Text, (gpointer)(view));  
   gtk_widget_show_all(window);
   gtk_main();
 
