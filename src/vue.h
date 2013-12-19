@@ -30,9 +30,11 @@ typedef struct dazibao{
 
 struct dazibao *daz;
 struct tlv *tlv_actuel;
+int pos_tlv_selected;
 
-void test();
-void free_test();
+struct tlv *init_test_random(int n);
+void print_test_random(struct tlv *aux, int p);
+void free_test_random(struct tlv *aux);
 
 
 //struct dazibao *daz;
@@ -50,7 +52,7 @@ const char *label_button(struct tlv* current_tlv);
 
 // add TLV
 void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
-gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message);
+gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Text(GtkWidget *label, gpointer *message);
 
 //fenetre de saisie

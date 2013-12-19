@@ -245,7 +245,7 @@ int isBix(int annee){
   call by: addDateTLV
   recupère les valeurs et calcul le timestamp associé
 */
-gint vue_add_date(GtkWidget *label, GdkEvent *event, gpointer message){
+gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget **data = (GtkWidget **)message;
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
@@ -369,7 +369,7 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
   printf("date = %d\n", (int)(getTLV->position));
   if(getTLV->type_id == 6){
     GtkWidget* window_addDate;
-    gtk_init(NULL, NULL);
+    //gtk_init(NULL, NULL);
     window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     
     gtk_window_set_default_size(GTK_WINDOW(window_addDate), 320, 200);
@@ -396,6 +396,8 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
       gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); // 5 = espacement
       getTLV = getTLV->conteneur;
     }
+    gtk_widget_show_all (window_addDate);
+    gtk_main ();
   } else {
     GtkWidget * p_win  = NULL;
     GtkWidget * p_combo[6];
@@ -500,10 +502,10 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
     g_signal_connect (G_OBJECT (p_win), "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
     gtk_signal_connect(GTK_OBJECT(button), "clicked", 
-		       G_CALLBACK(vue_add_date), 
+		       G_CALLBACK(vue_add_Date), 
 		       (gpointer)p_combo);
-    gtk_widget_show_all (p_win);
-    gtk_main ();
+  gtk_widget_show_all (p_win);
+  gtk_main ();
   }
 }
 
@@ -566,6 +568,7 @@ void vue_body_Date(){
 char* vue_fen_make_Image (){
   GtkWidget *dialog;
   GtkWidget *windowImage;  
+  gint dialog_respond = 0;
   windowImage = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   dialog = gtk_file_chooser_dialog_new 
     ("Save File",
@@ -579,12 +582,16 @@ char* vue_fen_make_Image (){
   gtk_file_chooser_set_do_overwrite_confirmation 
     (GTK_FILE_CHOOSER (dialog), TRUE);
   
-  if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+  dialog_respond = gtk_dialog_run (GTK_DIALOG (dialog));
+  if (dialog_respond == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
     printf("%s\n", filename);
     gtk_widget_destroy (dialog);
     return filename;
+  } else if(dialog_respond == -6){
+    gtk_widget_destroy (dialog);
+    return NULL;
   } else {
     return NULL;
   }
@@ -674,7 +681,7 @@ int insertSpace(char str[]){
   Le texte s'affiche sur des lignes de ~80 chars
 */
 void vue_fen_view_Text(int position_tlv){
-  char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
+  char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
   
   int nb = 0;
   int i = 0, j = 0, k = 0;
@@ -938,6 +945,9 @@ void vue_init_head(GtkWidget * panel){
   jusqu'a ce qu'on arrive sur autre chose qu'une date
 */
 const char *label_button(struct tlv* current_tlv){
+  if(current_tlv == NULL){
+    return "TLV NULLE";
+  }
   switch(current_tlv->type_id){
   case 2:
     return "Text";
@@ -946,7 +956,7 @@ const char *label_button(struct tlv* current_tlv){
   case 4:
     return "JPEG";
   case 5:
-    return "Repertoir";
+    return "Repertoire";
   case 6:
     return label_button(current_tlv->conteneur);
   default:
@@ -1037,7 +1047,7 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
 			 (gpointer)(date));
     }
     curseur = curseur->suivant;
-  }  
+  } 
   
   //on configure le scroll
   gtk_scrolled_window_add_with_viewport

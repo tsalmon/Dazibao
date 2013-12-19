@@ -8,64 +8,81 @@
 #include <time.h>
 #include "vue.h"
 
-void test(){  
-  struct tlv *aux;
-  int i = 0;
+int pos_tlv_selected;
+
+/* RANDOM */
+
+struct tlv *init_test_random(int n){    
+  if(n <= 0){
+    return NULL;
+  }
+  struct tlv * aux = malloc(sizeof(struct tlv));
+  aux->type_id = 2 + rand() % 5;
+  if(aux->type_id == 5){
+    aux->conteneur = init_test_random(n);
+  } else if(aux->type_id == 6){
+    aux->conteneur = init_test_random(1);
+  }
   
-  daz = malloc(sizeof(dazibao));  
-  daz->tlv_debut = malloc(sizeof(tlv));
-  aux = daz->tlv_debut;
-  for(i = 0; i < 10; i++){
-    aux->suivant = malloc(sizeof(tlv));
-    aux->type_id = 2;
+  aux->suivant = init_test_random(n-1);
+  return aux;
+}
+
+void print_test_random(struct tlv *aux, int p){
+  int i = 0;
+  for(; aux != NULL;){
+    for(i = 0; i < p; i++){
+      printf(" ");
+    }
+    switch(aux->type_id){
+    case 2:
+      printf("Text\n");
+      break;
+    case 3:
+      printf("PNG\n");
+      break;
+    case 4:
+      printf("JPEG\n");
+      break;
+    case 5:
+      printf("Rep\n");
+      print_test_random(aux->conteneur, p+1);
+      break;
+    case 6:
+      printf("Date\n");
+      print_test_random(aux->conteneur, p + 1);
+      break;
+    default:
+      printf("autre\n");
+    }
     aux = aux->suivant;
   }
-  aux->type_id = 2;
-  
-  //free(aux);
-  /*
-  //initialisation memoire
-  daz = malloc(sizeof(dazibao));  
-  daz->nb_tlv = 4;
-  daz->tlv_debut = malloc(sizeof(tlv));
-  //il y a maintenant 3 tlv
-  
-  //struct tlv *tlv = daz->tlv_debut; // 2 = text
-  daz->tlv_debut->type_id = 2;
-  daz->tlv_debut->position = 10;
-  daz->tlv_debut->suivant = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->type_id = 3;
-  daz->tlv_debut->suivant->position = 20;
-  daz->tlv_debut->suivant->suivant = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->suivant->type_id = 6;
-  daz->tlv_debut->suivant->suivant->position = 56;
-  daz->tlv_debut->suivant->suivant->conteneur = malloc(sizeof(tlv)); 
-  daz->tlv_debut->suivant->suivant->conteneur->type_id = 6; 
-  daz->tlv_debut->suivant->suivant->conteneur->position = 200;
-  daz->tlv_debut->suivant->suivant->conteneur->conteneur = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->suivant->conteneur->conteneur->type_id = 2;
-  daz->tlv_debut->suivant->suivant->suivant = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->suivant->suivant->type_id = 5;
-  daz->tlv_debut->suivant->suivant->suivant->nb_tlv = 2;
-  daz->tlv_debut->suivant->suivant->suivant->conteneur = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->suivant->suivant->conteneur->type_id = 2;
-  daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant = malloc(sizeof(tlv));
-  daz->tlv_debut->suivant->suivant->suivant->conteneur->suivant->type_id = 2;
-  */
 }
 
-void free_test(){
-  //free(daz->tlv_debut->suivant->suivant);
-  //free(daz->tlv_debut->suivant);
-  //free(daz->tlv_debut);
-  //free(daz);
+void free_test_random(struct tlv *aux){
+  if(aux == NULL){
+    return ;
+  }
+  free_test_random(aux->suivant);
+  if(aux->type_id == 5 || aux->type_id == 6){
+    free_test_random(aux->conteneur);
+  }
+  free(aux);
 }
 
+/* LISTE DATE*/
+struct tlv *init_test_date(struct tlv *aux, int n){
+  
+}
 
 int main(int argc, char *argv[]){
   srand(time(NULL));
-  test();
-  vue_init(argc, argv);
-  free_test();
+  daz = malloc(sizeof(dazibao));  
+  daz->tlv_debut = NULL;
+  daz->tlv_debut = init_test_random(1 + rand() % 5);
+  print_test_random(daz->tlv_debut, 0);
+  vue_init();
+  free_test_random(daz->tlv_debut);
+  free(daz);
   return 0;
 }
