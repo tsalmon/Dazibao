@@ -1,0 +1,8 @@
+
+
+Un TLV qui contiendrais un object du système PGP,
+comme une clé, un message, un certificat, ...
+
+Les champs :
+type : public_key, private_key, certificat, signed_message, crypted_message,
+lentgh :
