@@ -7,7 +7,9 @@
 #define DAZIBAO_MAGIC_NUMBER   53
 #define DAZIBAO_VERSION         0
 
-typedef enum {false, true} bool;
+#define DAZIBAO_BUFFER_SIZE  4096
+
+typedef enum { false, true } bool;
 
 typedef enum {
     UNKNOW=    -1,
@@ -30,18 +32,19 @@ typedef struct {
 typedef struct {
     char *file_path;
     int file_descriptor;
+    int file_size;
     int tlv_count;
-    Dazibao_TLV *content;
+    Dazibao_TLV **elements;
 } Dazibao;
 
 typedef struct {
-    int tlv_count;
-    Dazibao_TLV *content;
+    int count;
+    Dazibao_TLV **elements;
 } Dazibao_TLV_Compound_Value;
 
 typedef struct {
     long timestamp;
-    Dazibao_TLV *content;
+    Dazibao_TLV *element;
 } Dazibao_TLV_Dated_Value;
 
 #endif

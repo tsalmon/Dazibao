@@ -20,7 +20,7 @@ bool dazibao_open_file(Dazibao *dazibao) {
 }
 
 bool dazibao_close_file(Dazibao *dazibao) {
-    if(close(dazibao->file_descriptor) != 0) {
+    if (close(dazibao->file_descriptor) != 0) {
         perror("[!] Error when closing file");
         return false;
     } else {

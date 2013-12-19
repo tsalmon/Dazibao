@@ -13,5 +13,4 @@ bool dazibao_find_next_tlv(Dazibao *dazibao);
 
 bool dazibao_read_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
 
-
 #endif
