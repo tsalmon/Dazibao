@@ -28,7 +28,7 @@ struct tlv *init_test_random(int n){
   return aux;
 }
 
-void print_test_random(struct tlv *aux, int p){
+void print_test(struct tlv *aux, int p){
   int i = 0;
   for(; aux != NULL;){
     for(i = 0; i < p; i++){
@@ -46,11 +46,11 @@ void print_test_random(struct tlv *aux, int p){
       break;
     case 5:
       printf("Rep\n");
-      print_test_random(aux->conteneur, p+1);
+      print_test(aux->conteneur, p+1);
       break;
     case 6:
       printf("Date\n");
-      print_test_random(aux->conteneur, p + 1);
+      print_test(aux->conteneur, p + 1);
       break;
     default:
       printf("autre\n");
@@ -59,30 +59,38 @@ void print_test_random(struct tlv *aux, int p){
   }
 }
 
-void free_test_random(struct tlv *aux){
+void free_test(struct tlv *aux){
   if(aux == NULL){
     return ;
   }
-  free_test_random(aux->suivant);
+  free_test(aux->suivant);
   if(aux->type_id == 5 || aux->type_id == 6){
-    free_test_random(aux->conteneur);
+    free_test(aux->conteneur);
   }
   free(aux);
 }
 
 /* LISTE DATE*/
-struct tlv *init_test_date(struct tlv *aux, int n){
-  
+struct tlv *init_test_date(int n){
+  struct tlv * aux = malloc(sizeof(struct tlv));
+  if(n <= 0){
+    aux->type_id = 2;
+    return aux;
+  }
+  aux->type_id = 6;
+  aux->conteneur = init_test_date(n-1);
+  return aux;
 }
 
 int main(int argc, char *argv[]){
   srand(time(NULL));
   daz = malloc(sizeof(dazibao));  
   daz->tlv_debut = NULL;
-  daz->tlv_debut = init_test_random(1 + rand() % 5);
-  print_test_random(daz->tlv_debut, 0);
+  
+  daz->tlv_debut = init_test_date(5);
+  
+  print_test(daz->tlv_debut, 0);
   vue_init();
-  free_test_random(daz->tlv_debut);
-  free(daz);
+  free_test(daz->tlv_debut);  free(daz);
   return 0;
 }

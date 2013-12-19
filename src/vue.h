@@ -18,7 +18,6 @@ typedef struct tlv{
   int type_id;
   int nb_tlv;
   long int position;
-  struct value *tlv_val;
   struct tlv *conteneur;
   struct tlv *suivant;
 }tlv;
@@ -33,8 +32,8 @@ struct tlv *tlv_actuel;
 int pos_tlv_selected;
 
 struct tlv *init_test_random(int n);
-void print_test_random(struct tlv *aux, int p);
-void free_test_random(struct tlv *aux);
+void print_test(struct tlv *aux, int p);
+void free_test(struct tlv *aux);
 
 
 //struct dazibao *daz;

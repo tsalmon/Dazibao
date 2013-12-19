@@ -358,7 +358,7 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
   le bouton d'ajout
   Apres avoir sur le bouton de confirmation, on appel la fonction vue_add_date
 */
-void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message){
+void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   struct tlv *getTLV = (struct tlv *) message;
   //dans le cas ou la tlv est une date, on recupere le dernier
   GtkWidget* box;
@@ -1034,7 +1034,7 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     //on passe a la prochaine tlv a afficher
     
     if(curseur->type_id != 6){
-      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
+      gtk_signal_connect(GTK_OBJECT(panel_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
     } else {
