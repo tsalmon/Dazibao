@@ -23,7 +23,6 @@ struct tlv *init_test_random(int n){
   } else if(aux->type_id == 6){
     aux->conteneur = init_test_random(1);
   }
-  
   aux->suivant = init_test_random(n-1);
   return aux;
 }
@@ -74,21 +73,21 @@ void free_test(struct tlv *aux){
 struct tlv *init_test_date(int n){
   struct tlv * aux = malloc(sizeof(struct tlv));
   if(n <= 0){
-    aux->type_id = 2;
+    aux->type_id = 3;
+    aux->conteneur = NULL;
+    aux->suivant = NULL;
     return aux;
   }
   aux->type_id = 6;
   aux->conteneur = init_test_date(n-1);
+  aux->suivant = NULL;
   return aux;
 }
 
 int main(int argc, char *argv[]){
   srand(time(NULL));
   daz = malloc(sizeof(dazibao));  
-  daz->tlv_debut = NULL;
-  
-  daz->tlv_debut = init_test_date(5);
-  
+  daz->tlv_debut = init_test_random(5);
   print_test(daz->tlv_debut, 0);
   vue_init();
   free_test(daz->tlv_debut);  free(daz);

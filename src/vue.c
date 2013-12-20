@@ -19,8 +19,7 @@
   body: on modifie corps de la fenetre
   init: initialisation de la page
   gere: gestion des boutons
-  Toutes les fonctions commencent par "vue_" afin de préciser de quel fichier elles proviennent
-  
+  Toutes les fonctions commencent par "vue_" afin de préciser de quel fichier elles proviennent  
   vue_fen_make_Text() : produire une sous fenetre qui permet de saisir du texte 
 */
 
@@ -359,6 +358,7 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
   Apres avoir sur le bouton de confirmation, on appel la fonction vue_add_date
 */
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
+
   struct tlv *getTLV = (struct tlv *) message;
   //dans le cas ou la tlv est une date, on recupere le dernier
   GtkWidget* box;
@@ -366,11 +366,36 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   GtkWidget *label[6];
   GtkWidget *btn_date;
   int i = 0;
-  printf("date = %d\n", (int)(getTLV->position));
+  //printf("date = %d\n", (int)(getTLV->position));
+
+  /*
+  GList *children = gtk_container_get_children(GTK_CONTAINER(panel_tlv));
+  int size = g_list_length(children);
+  GtkWidget *aux;
+  GtkWidget *aux_table;
+  guint i = 0;
+
+  printf("size = %d\n", size);
+  for(i = 0; i < size; i++){ // on parcours le panel_tlv
+    printf("i = %d\n", i);
+    aux = (GtkWidget *) g_list_nth_data (children, i);
+    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+      printf("date\n");
+      GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
+      aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
+      if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
+	
+      }
+    }
+  
+  }
+*/
+  
   if(getTLV->type_id == 6){
     GtkWidget* window_addDate;
     //gtk_init(NULL, NULL);
     window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_position (GTK_WINDOW (window_addDate), GTK_WIN_POS_CENTER);
     
     gtk_window_set_default_size(GTK_WINDOW(window_addDate), 320, 200);
     gtk_window_set_title(GTK_WINDOW(window_addDate), "GtkScrolledWindow_AddDate");
@@ -549,6 +574,13 @@ void vue_body_Date(){
     }
   }
   // FOOT SESSION
+  
+}
+/*
+  call by: vue_gere_menus
+  on remplace le foot par 2 boutons qui permettent de confirmer ou d'annuler l'ajout d'une date
+*/
+void vue_foot_Date(){
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
   gtk_widget_destroy(foot_panel); // on vire tous les boutons  
   foot_panel	= gtk_hbox_new(FALSE,0);
@@ -824,6 +856,7 @@ void vue_fen_view_Image(int position_tlv){
     printf("echec image == NULL\n");
     return;
   }
+  printf("%d * %d\n", image->w, image->h);
   SDL_BlitSurface(image, NULL, ecran, &position);
   SDL_Flip(ecran);
   int continuer = 1;
@@ -879,6 +912,7 @@ void vue_view_rep(struct tlv * rep){
   appropriée
 */
 gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
+  
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
   case 2:
@@ -893,6 +927,7 @@ gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
   default:
     fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
   }
+  
   return FALSE;
 }
 
@@ -974,9 +1009,7 @@ const char *label_button(struct tlv* current_tlv){
 */
 void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
   struct tlv * curseur;
-  //GtkWidget* body_panel;
   GtkWidget* scrollbar;
-  int i;
   
   curseur = tlv_debut;
   /* declaration des variables du corps */
@@ -985,8 +1018,8 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   
   /* affichage des TLV dans la liste body_panel*/
-  for(i = 0 ; curseur != NULL ; ++i){
-    //printf("valeur = %d\n", curseur->type_id);
+  while(curseur != NULL){
+    printf("valeur = %d\n", curseur->type_id);
     /* on prend le 1er tlv */
     
     GtkWidget * panel_tlv;
@@ -1034,18 +1067,23 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     //on passe a la prochaine tlv a afficher
     
     if(curseur->type_id != 6){
-      gtk_signal_connect(GTK_OBJECT(panel_tlv), "clicked", 
+      
+      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
+      
     } else {
       struct tlv *date = curseur;
       while(date->conteneur != NULL){
 	date = date->conteneur;
       }
+      
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
-			 (gpointer)(date));
+			 (gpointer)(curseur));
+      
     }
+    
     curseur = curseur->suivant;
   } 
   
