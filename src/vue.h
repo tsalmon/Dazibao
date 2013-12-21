@@ -76,6 +76,7 @@ GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* foot_panel;
 GtkWidget* window;
+GtkWidget* add_dates_saves;
 
 #endif
 
