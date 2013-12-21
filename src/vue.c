@@ -743,7 +743,7 @@ void vue_fen_view_Text(int position_tlv){
   char *str_lines[80];
   
   nb = insertSpace(str);
-  printf("\nnb = %d\n", nb);
+  //printf("\nnb = %d\n", nb);
   //str_lines = malloc(sizeof(char *) * nb);
   for(i = 0; i < nb; i++){
     str_lines[i]= malloc(sizeof(char) * 80);
@@ -760,7 +760,7 @@ void vue_fen_view_Text(int position_tlv){
     if(str[k] == '\n'){      
       k++;
     }
-    printf("%s\n", str_lines[i]);
+    //printf("%s\n", str_lines[i]);
   }    
   
   GtkWidget* window = NULL;
@@ -948,7 +948,7 @@ gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
     vue_view_rep(recup);
     break;
   default:
-    fprintf(stderr, "TLV non reconnue (pour le moment du moins)\n");
+    fprintf(stderr, "TLV non reconnue (%d)\n", recup->type_id);
   }
   
   return FALSE;
@@ -1087,14 +1087,15 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
     } else {
+      printf("go date look\n");
       struct tlv *date = curseur;
-      while(date->conteneur != NULL){
+      while(date->type_id == 6){
 	date = date->conteneur;
       }
       
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
-			 (gpointer)(curseur));
+			 (gpointer)(date));
       
     }
     
