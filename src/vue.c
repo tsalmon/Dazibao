@@ -66,10 +66,10 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
       printf("rien a back\n");
     } else {
       printf("%ld -> %ld\n", tlv_actuel->position, tlv_actuel->pere->position);
-      //gtk_widget_destroy(body_panel);
-      //tlv_actuel = tlv_actuel->pere;
-      //vue_init_body(panel, tlv_actuel);
-      //gtk_widget_show_all(window);
+      gtk_widget_destroy(body_panel);
+      tlv_actuel = tlv_actuel->pere;
+      vue_init_body(panel, tlv_actuel);
+      gtk_widget_show_all(window);
     }
     break;
   case 6:
@@ -965,16 +965,16 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
 */
 void vue_init_head(GtkWidget * panel){
   GtkWidget *home;
-  GtkWidget *back;
+  //GtkWidget *back;
   GtkWidget *concat;
   GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
   
   home = gtk_button_new_with_label("home");
-  back = gtk_button_new_with_label("Back");
+  //back = gtk_button_new_with_label("Back");
   concat = gtk_button_new_with_label("concat");
 
   gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
-  gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
+  //gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(head_panel), concat, FALSE, FALSE, 0);  
   
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
@@ -982,9 +982,10 @@ void vue_init_head(GtkWidget * panel){
   gtk_signal_connect(GTK_OBJECT(home), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[4]));
-  gtk_signal_connect(GTK_OBJECT(back), "clicked", 
+  /*gtk_signal_connect(GTK_OBJECT(back), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[5]));
+  */
   gtk_signal_connect(GTK_OBJECT(concat), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[6]));

@@ -20,9 +20,10 @@ struct tlv *init_test_random(int n){
   aux->position = c++;
   aux->type_id = 2 + rand() % 5;
   if(aux->type_id == 5){
-    aux->conteneur = init_test_random(n);
-    aux->pere = tlv_actuel;
-    tlv_actuel = aux->conteneur;
+    aux->conteneur = init_test_random(n+1);
+    aux->conteneur->pere = daz->tlv_debut;
+    //printf("act: %ld -> %ld\n", tlv_actuel->position, aux->conteneur->position);
+    //tlv_actuel = aux->conteneur;
   } else if(aux->type_id == 6){
     aux->conteneur = init_test_random(1);
   }
