@@ -9,7 +9,7 @@
 #include "vue.h"
 
 int pos_tlv_selected;
-
+long int c = 0;
 /* RANDOM */
 
 struct tlv *init_test_random(int n){    
@@ -17,9 +17,12 @@ struct tlv *init_test_random(int n){
     return NULL;
   }
   struct tlv * aux = malloc(sizeof(struct tlv));
+  aux->position = c++;
   aux->type_id = 2 + rand() % 5;
   if(aux->type_id == 5){
     aux->conteneur = init_test_random(n);
+    aux->pere = tlv_actuel;
+    tlv_actuel = aux->conteneur;
   } else if(aux->type_id == 6){
     aux->conteneur = init_test_random(1);
   }
@@ -88,6 +91,7 @@ int main(int argc, char *argv[]){
   srand(time(NULL));
   daz = malloc(sizeof(dazibao));  
   daz->tlv_debut = init_test_random(5);
+  tlv_actuel = daz->tlv_debut;
   print_test(daz->tlv_debut, 0);
   vue_init();
   free_test(daz->tlv_debut);  free(daz);

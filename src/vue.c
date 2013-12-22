@@ -54,19 +54,42 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     gtk_widget_show_all(window);
     break;
   case 4: 
+    printf("home\n");
     break;
-  case 5: //Repertoire: Non
-    gtk_widget_destroy(body_panel);
-    gtk_widget_destroy(foot_panel);
-    vue_init_body(panel, daz->tlv_debut);
-    vue_init_foot(panel);
-    gtk_widget_show_all(window);
+  case 5: 
+    printf("back: ");
+    if(tlv_actuel == daz->tlv_debut){
+      printf("rien a back\n");
+    } else {
+      printf("%ld -> %ld\n", tlv_actuel->position, tlv_actuel->pere->position);
+      //gtk_widget_destroy(body_panel);
+      //tlv_actuel = tlv_actuel->pere;
+      //vue_init_body(panel, tlv_actuel);
+      //gtk_widget_show_all(window);
+    }
+    break;
+  case 6:
+    printf("conpacter\n");
     break;
   default:
     printf("non reconnu");
   }
   return FALSE;
 }
+
+/*
+  call_by: traitment_tlv
+  remplacer le contenu du corps de l'ui par les TLV du rep sur lequel
+  l'utilisateur a cliqué
+*/
+void vue_view_rep(struct tlv * rep){
+  printf("passage repertoire: tlv_act = %ld -> %ld\n", tlv_actuel->position, rep->conteneur->position);
+  tlv_actuel = rep->conteneur;
+  vue_init_body(panel, tlv_actuel);
+  gtk_widget_show_all(window);  
+}
+
+
 /*
   (fonction obsolete, non utilise)
   Utiliser pour l'affichage qui permet d'ajouter une tlv de type conteneur
@@ -142,6 +165,7 @@ void makeBody(){
 }
 
 /*
+  OBSOLETE
   Call by: vue_gere_menu
   Apres avoir clique sur le bouton Content: 
   On va remplacer toutes les cases de dates des TLV par une case a cocher afin 
@@ -896,17 +920,6 @@ void vue_fen_view_Image(int position_tlv){
   SDL_Quit();
 }
 
-/*
-  call_by: traitment_tlv
-  remplacer le contenu du corps de l'ui par les TLV du rep sur lequel
-  l'utilisateur a cliqué
-*/
-void vue_view_rep(struct tlv * rep){
-  printf("repertoire\n");
-  tlv_actuel = rep;
-  vue_init_body(panel, rep->conteneur);
-  gtk_widget_show_all(window);  
-}
 
 /*
   call by: vue_init_body:
@@ -1066,7 +1079,6 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
     } else {
-      printf("go date look\n");
       struct tlv *date = curseur;
       while(date->type_id == 6){
 	date = date->conteneur;

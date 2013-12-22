@@ -18,6 +18,7 @@ typedef struct tlv{
   int type_id;
   int nb_tlv;
   long int position;
+  struct tlv *pere;
   struct tlv *conteneur;
   struct tlv *suivant;
 }tlv;
