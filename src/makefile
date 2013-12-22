@@ -3,10 +3,11 @@ CC=gcc
 FILE=vue
 
 dazibao: $(FILE).o test.o
-	$(CC) -g -o $(FILE) test.o $(FILE).o $(LDFLAGS)
+	$(CC) -g -o $(FILE)  test.o $(FILE).o $(LDFLAGS)
+
 
 test.o: test.c $(FILE).h
-	$(CC) -g -o test.o -c test.c   -c $(LDFLAGS)
+	$(CC) -g  test.c   -c $(LDFLAGS)
 
 $(FILE).o: $(FILE).c
 	$(CC) -g -o $(FILE).o -c $(FILE).c $(LDFLAGS)

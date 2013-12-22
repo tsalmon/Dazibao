@@ -32,7 +32,7 @@ int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 */
 gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
-  printf("id bouton = %d\n", *i);
+  //printf("id bouton = %d\n", *i);
   switch(*i){
   case 0: //Add: texte
     vue_fen_make_Text();
@@ -41,14 +41,16 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     vue_fen_make_Image();
     break;
   case 2: //Add: date
-    vue_body_Date();
-    vue_foot_Date();
-    gtk_widget_show_all(window);
+    //vue_body_Date();
+    //vue_foot_Date();
+    addDateTLV(label, event, message);
+    //gtk_widget_show_all(window);
     break;
   case 3: //Add: Repertoire 
     //gtk_widget_destroy(body_panel);
     //gtk_widget_destroy(foot_panel);
-    vue_body_rep();
+    vue_add_rep();
+    //vue_body_rep();
     gtk_widget_show_all(window);
     break;
   case 4: 
@@ -83,31 +85,8 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel){
   cette fonction permet de savoir quelles sont les tlv qui ont été selectionnées
   par l'utilisateur (ie. celles qu'il a coché)
 */
-void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
-  GtkWidget *rec = (GtkWidget *) message;
-  if(GTK_IS_CONTAINER(rec)){
-    GList *children =   gtk_container_get_children(GTK_CONTAINER(rec));
-    int size = g_list_length(children);
-    printf("size = %d\n", size);
-    GtkWidget *aux;
-    guint i = 0;
-    for(i = 0; i < size; i++){ // on parcours le body_panel
-      aux = (GtkWidget *) g_list_nth_data (children, i);
-      if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
-	GList *children_table =   gtk_container_get_children(GTK_CONTAINER(aux));
-	GtkWidget *aux_table;
-	//int size_tab = g_list_length(children);
- 	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);    
-	if(GTK_IS_CHECK_BUTTON(aux_table)){
-	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
-	  printf("check_button %c\n",  (b == FALSE) ? 'F' : 'T');
-	}
-      }
-    }
-  } else {
-    printf("FATAL ERROR\n");
-    exit(1);
-  } 
+void vue_add_rep(){
+  printf("vue_add_rep\n");
 }
 
 /*
@@ -539,6 +518,7 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
 }
 
 /*
+  OBSOLETE
   call by: vue_gere_menus
   on remplace les dates par un bouton d'ajout de dates 
   Si on clique dessus on appel la fonction addDateTLV qui permet d'entrer une
@@ -548,12 +528,12 @@ void vue_body_Date(){
   //BODY SESSION
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  GList *children_scrolled_window = NULL;
+  //GList *children_scrolled_window = NULL;
   int size = g_list_length(children);
-  int size_scrolled_window = 0;
+  //int size_scrolled_window = 0;
   GtkWidget *aux;
   GtkWidget *aux_table;
-  GtkWidget *aux_scrolled_window;
+  //GtkWidget *aux_scrolled_window;
   guint i = 0;
   
   if(tlv_actuel->type_id > 4){
@@ -567,8 +547,8 @@ void vue_body_Date(){
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
       aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
       if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
-	children_scrolled_window = gtk_container_get_children(GTK_CONTAINER(aux_table));
-	aux_scrolled_window = (GtkWidget *)g_list_nth_data(children_scrolled_window, 0); // on recupere un vbox
+	//children_scrolled_window = gtk_container_get_children(GTK_CONTAINER(aux_table));
+	//aux_scrolled_window = (GtkWidget *)g_list_nth_data(children_scrolled_window, 0); // on recupere un vbox
 	
 	/*
 	  if(GTK_IS_VBOX(children_scrolled_window)) {
@@ -934,8 +914,7 @@ void vue_view_rep(struct tlv * rep){
   En fonction de son id, cette fonction utilise la fonction d'affichage
   appropriée
 */
-gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){ 
-  
+gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){   
   struct tlv *recup = (struct tlv*)message;
   switch(recup->type_id){
   case 2:
@@ -1096,9 +1075,7 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(date));
-      
     }
-    
     curseur = curseur->suivant;
   } 
   

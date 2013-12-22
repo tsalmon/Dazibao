@@ -27,9 +27,6 @@ typedef struct dazibao{
   int nb_tlv;
 }dazibao;
 
-struct dazibao *daz;
-struct tlv *tlv_actuel;
-int pos_tlv_selected;
 
 struct tlv *init_test_random(int n);
 void print_test(struct tlv *aux, int p);
@@ -50,7 +47,7 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
 const char *label_button(struct tlv* current_tlv);
 
 // add TLV
-void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
+void vue_add_rep();
 gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Text(GtkWidget *label, gpointer *message);
 
@@ -70,7 +67,13 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut);
 void vue_init_head(GtkWidget * panel);
 int  vue_init();
 
+/*
+  Variables globales
+*/
 
+struct dazibao *daz;
+struct tlv *tlv_actuel;
+int pos_tlv_selected;
 
 GtkWidget* panel;
 GtkWidget* body_panel;
