@@ -55,6 +55,10 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     break;
   case 4: 
     printf("home\n");
+    tlv_actuel = daz->tlv_debut;
+    gtk_widget_destroy(body_panel);
+    vue_init_body(panel, tlv_actuel);
+    gtk_widget_show_all(window);
     break;
   case 5: 
     printf("back: ");
