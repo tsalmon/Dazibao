@@ -1,8 +1,8 @@
 DOCUMENTATION DE L'IMPLANTATION
 
-. Les structures
-. Les fonctions d'accès aux données
-. exemple.dzb en mémoire
+ . Les structures
+ . Les fonctions d'accès aux données
+ . exemple.dzb en mémoire
 
 
 
