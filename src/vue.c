@@ -32,7 +32,7 @@ char *timestamp_to_date(int timestamp) {
   struct tm *tmp; 
   char *output = malloc(sizeof(char) * 18);
   tmp = localtime(&time);
-  strftime(output, 18, "%d/%m/%y %Hh%Mm%Ss", tmp); 
+  strftime(output, 18, "%d/%m/%y\n%Hh:%Mm:%Ss", tmp); 
   return output; 
 }
 
@@ -773,7 +773,7 @@ void vue_fen_view_Text(char *str){
   permet d'ouvrir dans une fenetre - SDL - une image a partir de son pixbuff
   TODO: remplacer SDL par GTK2+
 */
-void vue_fen_view_Image(void *raw_image, int size, int type){
+void vue_fen_view_Image(void *raw_image, int size){
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
   SDL_Rect position;
@@ -781,31 +781,7 @@ void vue_fen_view_Image(void *raw_image, int size, int type){
   SDL_Event evenement;
   int newWidth = 0, newHeight = 0;
   SDL_Init(SDL_INIT_VIDEO);
-  
-  /*
-  int fd, size=0, i=0;
-  char *img_buff, buff;
-  
-  if((fd= open("image.jpg", O_RDONLY)) == -1){
-    printf("impossible d'ouvrir le fichier\n");
-  }
-  
-  while((i = read(fd, &buff, 1)) > 0){
-    size++;
-  }
-  close(fd);
-  img_buff = malloc(sizeof(char) * size);
-  
-  if((fd= open("image.jpg", O_RDONLY)) == -1){
-    printf("impossible d'ouvrir le fichier\n");
-  }
-  
-  size = 0;
-  while((i = read(fd, &buff, 1)) > 0){
-    img_buff[size++] = buff;
-  }
-  close(fd);
-  */
+
   printf("size image = %d\n", size);
   position.x = 0;
   position.y = 0;
@@ -989,8 +965,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
       Dazibao_TLV_Dated_Value *date = tlv[i]->value;
       Dazibao_TLV *curseur_date;
       do{
-	sprintf(texte, "%ld", date->timestamp);
-	label_date = gtk_label_new(texte);
+	label_date = gtk_label_new(timestamp_to_date(date->timestamp));
 	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);
 	curseur_date = date->element;
 	date = curseur_date->value;
