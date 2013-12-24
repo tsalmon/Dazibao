@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "vue.h"
+#include "dazibao.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -32,35 +33,28 @@ int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 */
 gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   int * i =  (int *)message;
-  //printf("id bouton = %d\n", *i);
   switch(*i){
-  case 0: //Add: texte
+  case 0: /*Add: texte*/
     vue_fen_make_Text();
     break;
-  case 1: //Add: image
+  case 1: /*Add: image*/
     vue_fen_make_Image();
     break;
-  case 2: //Add: date
-    //vue_body_Date();
-    //vue_foot_Date();
+  case 2: /*Add: date*/
     addDateTLV(label, event, message);
-    //gtk_widget_show_all(window);
     break;
-  case 3: //Add: Repertoire 
-    //gtk_widget_destroy(body_panel);
-    //gtk_widget_destroy(foot_panel);
+  case 3: /*Add: Repertoire */
     vue_add_rep();
-    //vue_body_rep();
     gtk_widget_show_all(window);
     break;
   case 4: 
-    printf("home\n");
     tlv_actuel = daz->tlv_debut;
     gtk_widget_destroy(body_panel);
     vue_init_body(panel, tlv_actuel);
     gtk_widget_show_all(window);
     break;
   case 5: 
+    /*
     printf("back: ");
     if(tlv_actuel == daz->tlv_debut){
       printf("rien a back\n");
@@ -71,9 +65,9 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
       vue_init_body(panel, tlv_actuel);
       gtk_widget_show_all(window);
     }
+    */
     break;
   case 6:
-    printf("conpacter\n");
     break;
   default:
     printf("non reconnu");
@@ -116,57 +110,6 @@ void vue_add_rep(){
   printf("vue_add_rep\n");
 }
 
-/*
-  fonction obsolete, remplacé par vue_body_rep
-*/
-void makeBody(){
-  struct tlv * curseur;
-  GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  int size = g_list_length(children);
-  GtkWidget *aux;
-  GtkWidget *aux_table;
-  guint i = 0;
-  
-  if(tlv_actuel->type_id > 4){
-    curseur = tlv_actuel->conteneur;
-  } else {
-    curseur = tlv_actuel;  
-  }
-  
-  for(i = 0; i < size; i++){ // on parcours le body_panel
-    aux = (GtkWidget *) g_list_nth_data (children, i);
-    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
-      GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
-      aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
-      if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
-	GtkWidget *check;
-	gtk_widget_destroy(aux_table);
-	check = gtk_check_button_new();
-	gtk_table_attach_defaults(GTK_TABLE(aux), check, 0, 1, 0, 1);	
-      }
-      curseur = curseur->suivant;    
-    }
-  }
-  // FOOT SESSION
-  GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
-  GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  gtk_widget_destroy(foot_panel); // on vire tous les boutons  
-  foot_panel	= gtk_hbox_new(FALSE,0);
-  gtk_box_pack_start(GTK_BOX(foot_panel), btn_ok , FALSE, FALSE, 0);  
-  gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
-  gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
-		     (GtkSignalFunc)vue_gere_menu, 
-		     (gpointer)&id_bouton[5]);
-  gtk_signal_connect(GTK_OBJECT(btn_ok), "clicked", 
-		     (GtkSignalFunc)vue_add_rep, 
-		     (gpointer)body_panel);
-
-
-  gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
-  gtk_widget_show_all(foot_panel);
-  
-
-}
 
 /*
   OBSOLETE
@@ -183,6 +126,8 @@ void vue_body_rep(){
   GtkWidget *aux;
   GtkWidget *aux_table;
   guint i = 0;
+  GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
+  GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
   
   if(tlv_actuel->type_id > 4){
     curseur = tlv_actuel->conteneur;
@@ -190,12 +135,12 @@ void vue_body_rep(){
     curseur = tlv_actuel;  
   }
   
-  for(i = 0; i < size; i++){ // on parcours le body_panel
+  for(i = 0; i < size; i++){ /* on parcours le body_panel*/
     aux = (GtkWidget *) g_list_nth_data (children, i);
-    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+    if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
       aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
-      if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
+      if(GTK_IS_SCROLLED_WINDOW(aux_table)){/* on ne capture que le scroll du date*/
 	GtkWidget *check;
 	gtk_widget_destroy(aux_table);
 	check = gtk_check_button_new();
@@ -204,10 +149,8 @@ void vue_body_rep(){
       curseur = curseur->suivant;    
     }
   }
-  // FOOT SESSION
-  GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
-  GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  gtk_widget_destroy(foot_panel); // on vire tous les boutons  
+  /* FOOT SESSION*/
+  gtk_widget_destroy(foot_panel); /* on vire tous les boutons  */
   foot_panel	= gtk_hbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_ok , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
@@ -217,7 +160,6 @@ void vue_body_rep(){
   gtk_signal_connect(GTK_OBJECT(btn_ok), "clicked", 
 		     (GtkSignalFunc)vue_add_rep, 
 		     (gpointer)body_panel);
-
 
   gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
   gtk_widget_show_all(foot_panel);  
@@ -259,27 +201,24 @@ gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
   int aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   long unsigned int timestamp = 0;
   
-  //year
   aux		= atoi(gtk_entry_get_text(GTK_ENTRY(data[0])));
   timestamp	= (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
   
-  //month
   p_st = get_active_data (p_combo);  
   timestamp += mois[p_st.index - 1] * 86400;
  
-  //if the year is a leap year
   if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
     timestamp += 86400 ;
-  //day
+
   p_st = get_active_data ((GtkComboBox * )data[2]);
   timestamp += (p_st.index - 1) * 86400;
-  //hours
+
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
   timestamp += 3600 * aux;
-  //minutes
+
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[4])));
   timestamp += 60 * aux;
-  //seconds
+
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
   timestamp += aux;
   
@@ -334,7 +273,7 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   sBuffer = gtk_text_buffer_get_text(pTextBuffer, &iStart, &iEnd, TRUE);
   printf("%s\n", sBuffer);
   /*
-  GtkTextBuffer *buffer = message;//gtk_text_view_get_buffer(GTK_TEXT_VIEW(message));
+  GtkTextBuffer *buffer = message;
   GtkTextIter i1, it;
   int k, i;
   gchar *text;
@@ -371,13 +310,12 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
 
   struct tlv *getTLV = (struct tlv *) message;
-  //dans le cas ou la tlv est une date, on recupere le dernier
+  /*dans le cas ou la tlv est une date, on recupere le dernier*/
   GtkWidget* box;
   GtkWidget *scrollbar;
   GtkWidget *label[6];
   GtkWidget *btn_date;
   int i = 0;
-  //printf("date = %d\n", (int)(getTLV->position));
 
   /*
   GList *children = gtk_container_get_children(GTK_CONTAINER(panel_tlv));
@@ -404,7 +342,6 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   
   if(getTLV->type_id == 6){
     GtkWidget* window_addDate;
-    //gtk_init(NULL, NULL);
     window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position (GTK_WINDOW (window_addDate), GTK_WIN_POS_CENTER);
     
@@ -421,15 +358,15 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     
     btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
-    gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); // 5 = espacement
+    gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); /* 5 = espacement*/
     while(getTLV->type_id == 6){
       GtkWidget *label;
       char texte[10];
       sprintf(texte, "%d", i++);
       label = gtk_label_new(texte);
-      gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 5); // 5 = espacement
+      gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 5); 
       btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
-      gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); // 5 = espacement
+      gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5);
       getTLV = getTLV->conteneur;
     }
     gtk_widget_show_all (window_addDate);
@@ -441,7 +378,7 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
     GtkWidget *table = gtk_table_new(7, 2, TRUE);
     char setText[4]; 
     GtkWidget *button;
-    int i = 0, j = 0;//k = 0;
+    int i = 0, j = 0;
     struct tm instant;
     
     gtk_init (NULL, NULL); 
@@ -464,7 +401,7 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
     instant=*localtime(&secondes);      
      
     p_combo[0] = gtk_entry_new();
-    // mois et annee
+    /* mois et annee*/
     for(j = 1; j < 3; j++){
       GtkListStore      *  p_model  = NULL;
       GtkCellRenderer   *  p_cell   = NULL;
@@ -553,15 +490,11 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   nouvelle date
 */
 void vue_body_Date(){
-  //BODY SESSION
   struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  //GList *children_scrolled_window = NULL;
   int size = g_list_length(children);
-  //int size_scrolled_window = 0;
   GtkWidget *aux;
   GtkWidget *aux_table;
-  //GtkWidget *aux_scrolled_window;
   guint i = 0;
   
   if(tlv_actuel->type_id > 4){
@@ -569,15 +502,12 @@ void vue_body_Date(){
   } else {
     curseur = tlv_actuel;  
   }
-  for(i = 0; i < size; i++){ // on parcours le body_panel
+  for(i = 0; i < size; i++){ 
     aux = (GtkWidget *) g_list_nth_data (children, i);
-    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+    if(GTK_IS_TABLE(aux)){ 
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
       aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
-      if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
-	//children_scrolled_window = gtk_container_get_children(GTK_CONTAINER(aux_table));
-	//aux_scrolled_window = (GtkWidget *)g_list_nth_data(children_scrolled_window, 0); // on recupere un vbox
-	
+      if(GTK_IS_SCROLLED_WINDOW(aux_table)){/* on ne capture que le scroll du date*/
 	/*
 	  if(GTK_IS_VBOX(children_scrolled_window)) {
 	  printf("scroll\n");
@@ -591,9 +521,6 @@ void vue_body_Date(){
 	  printf("table\n");
 	  }
 	*/
-	//on garde en memoire les dates de la tlv
-	//gtk_widget_destroy(add_dates_saves);
-	//add_dates_saves = gtk_vbox_new(FALSE,0);
 	
 	gtk_widget_destroy(aux_table);
 	aux_table = gtk_button_new_with_label("+");
@@ -613,7 +540,7 @@ void vue_body_Date(){
 */
 void vue_foot_Date(){
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  gtk_widget_destroy(foot_panel); // on vire tous les boutons  
+  gtk_widget_destroy(foot_panel);
   foot_panel	= gtk_hbox_new(FALSE,0);
   gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
   gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
@@ -716,16 +643,13 @@ int insertSpace(char str[]){
   int i = 0;
   int nb_lignes = 1;
   while(str[cur] != '\0'){
-    //putchar(str[cur]);
     if(str[cur] == '\n'){
       nb_lignes++;
-      //printf(">>>\\N(%d)<<<", i);
       i = 0;
     }
     if(i == 80){
       while(str[cur--] != ' '){
       }
-      //printf("{{{\\N(%d)}}}", i);
       str[cur] = '\n'; 
       nb_lignes++;
       cur++;
@@ -744,15 +668,19 @@ int insertSpace(char str[]){
   Le texte s'affiche sur des lignes de ~80 chars
 */
 void vue_fen_view_Text(int position_tlv){
-  char str[] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin";
-  
+  char str[] = "gateau";
+      /*char str[1059] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin"; test basic*/
   int nb = 0;
   int i = 0, j = 0, k = 0;
   char *str_lines[80];
+
+  GtkWidget* window = NULL;
+  GtkWidget* box;
+  GtkWidget** pLabel = NULL;  
+  GtkWidget* scrollbar = NULL;
+  
   
   nb = insertSpace(str);
-  //printf("\nnb = %d\n", nb);
-  //str_lines = malloc(sizeof(char *) * nb);
   for(i = 0; i < nb; i++){
     str_lines[i]= malloc(sizeof(char) * 80);
     for(j = 0; j < 80; j++){
@@ -768,13 +696,7 @@ void vue_fen_view_Text(int position_tlv){
     if(str[k] == '\n'){      
       k++;
     }
-    //printf("%s\n", str_lines[i]);
   }    
-  
-  GtkWidget* window = NULL;
-  GtkWidget* box;
-  GtkWidget** pLabel = NULL;  
-  GtkWidget* scrollbar = NULL;
   
   pLabel = malloc(sizeof(GtkWidget *) * nb);
 
@@ -794,7 +716,7 @@ void vue_fen_view_Text(int position_tlv){
   
   for(i = 0; i < nb; i++){
     pLabel[i] = gtk_label_new(str_lines[i]);
-    gtk_box_pack_start(GTK_BOX(box), pLabel[i], FALSE, FALSE, 5); // 5 = espacement
+    gtk_box_pack_start(GTK_BOX(box), pLabel[i], FALSE, FALSE, 5); 
   }
   
   gtk_widget_show_all(window); 
@@ -846,20 +768,21 @@ void vue_fen_view_Text(int position_tlv){
   TODO: remplacer SDL par GTK2+
 */
 void vue_fen_view_Image(int position_tlv){
-  SDL_Init(SDL_INIT_VIDEO);
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
   SDL_Rect position;
+  int continuer = 1;
+  SDL_Event evenement;
 
   int fd, size=0, i=0;
   int newWidth = 0, newHeight = 0;
   char *img_buff, buff;
   
+  SDL_Init(SDL_INIT_VIDEO);
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
   }
   
-  //a refaire
   while((i = read(fd, &buff, 1)) > 0){
     size++;
   }
@@ -873,7 +796,6 @@ void vue_fen_view_Image(int position_tlv){
   size = 0;
   while((i = read(fd, &buff, 1)) > 0){
     img_buff[size++] = buff;
-    //write(fd2, &buff, sizeof(buff));
   }
   close(fd);
   
@@ -883,15 +805,13 @@ void vue_fen_view_Image(int position_tlv){
   ecran = SDL_SetVideoMode(400, 400, 32, SDL_HWSURFACE| SDL_RESIZABLE);
   SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
   image = IMG_Load_RW(SDL_RWFromMem( img_buff, size), 1);
-  if(image  == NULL){ //Si le chargement a raté.
+  if(image  == NULL){ 
     printf("echec image == NULL\n");
     return;
   }
   ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE| SDL_RESIZABLE);
   SDL_BlitSurface(image, NULL, ecran, &position);
   SDL_Flip(ecran);
-  int continuer = 1;
-  SDL_Event evenement;
   while(continuer)
     {
       SDL_PollEvent(&evenement);
@@ -965,16 +885,13 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
 */
 void vue_init_head(GtkWidget * panel){
   GtkWidget *home;
-  //GtkWidget *back;
   GtkWidget *concat;
   GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
   
   home = gtk_button_new_with_label("home");
-  //back = gtk_button_new_with_label("Back");
   concat = gtk_button_new_with_label("concat");
 
   gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
-  //gtk_box_pack_start(GTK_BOX(head_panel), back, FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(head_panel), concat, FALSE, FALSE, 0);  
   
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
@@ -1001,7 +918,7 @@ void vue_init_head(GtkWidget * panel){
 */
 const char *label_button(struct tlv* current_tlv){
   if(current_tlv == NULL){
-    return "TLV NULLE";
+      return "TLV NULLE";
   }
   switch(current_tlv->type_id){
   case 2:
@@ -1030,10 +947,13 @@ const char *label_button(struct tlv* current_tlv){
 void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
   struct tlv * curseur;
   GtkWidget* scrollbar;
-  curseur = tlv_debut;
+  char texte[10];
+  GtkWidget* label_date;
+  GtkWidget *more;
+    curseur = tlv_debut;
   /* declaration des variables du corps */
   body_panel	= gtk_vbox_new(FALSE,0);      
-  // on pose un scroll sur la liste des tlv
+  /* on pose un scroll sur la liste des tlv*/
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   /* affichage des TLV dans la liste body_panel*/
   while(curseur != NULL){
@@ -1043,13 +963,13 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     GtkWidget* dates;
     GtkWidget* button_tlv;
     /* definitions des elements de la liste */
-    //une serie de dates sous forme de box
+    /*une serie de dates sous forme de box*/
     dates = gtk_vbox_new(FALSE,0);
-    //le panel du tlv
+    /* le panel du tlv */
     panel_tlv = gtk_table_new(1, 5, TRUE);  
-    //bouton de tlv
+    /*bouton de tlv*/
     button_tlv = gtk_button_new_with_label(label_button(curseur));
-    //le scroll sur la liste de dates
+    /*le scroll sur la liste de dates*/
     scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
     gtk_scrolled_window_add_with_viewport
@@ -1057,8 +977,6 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
        dates);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    char texte[10];
-    GtkWidget* label_date;
     if(curseur->type_id == 6){
       struct tlv *date = curseur->conteneur;
       int j = 1;
@@ -1078,7 +996,7 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), scrollbar_date, 0, 1, 0, 1);
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
-    //on passe a la prochaine tlv a afficher    
+    /* on passe a la prochaine tlv a afficher */    
     if(curseur->type_id != 6){      
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
@@ -1096,15 +1014,14 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     curseur = curseur->suivant;
   } 
   
-  //on configure le scroll
+  /*on configure le scroll*/
   gtk_scrolled_window_add_with_viewport
     (GTK_SCROLLED_WINDOW(scrollbar), body_panel);
   gtk_scrolled_window_set_policy
     (GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);  
-  //on ajout la liste 'scrolle' dans le milieu de la page (8/10e de la fen)
+  /*on ajout la liste 'scrolle' dans le milieu de la page (8/10e de la fen)*/
   gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);
   
-  GtkWidget *more;
   more = gtk_button_new_with_label("MOAR");
   gtk_box_pack_start(GTK_BOX(body_panel), more, FALSE, FALSE, 5);   
   gtk_signal_connect(GTK_OBJECT(more), "clicked", 
@@ -1121,25 +1038,24 @@ void vue_init_foot(GtkWidget * panel){
   GtkWidget *image;
   GtkWidget *date;
   GtkWidget *rep;
-  //GtkWidget *foot_panel;
   
-  //defintions
+  /*defintions*/
   foot_panel	= gtk_hbox_new(FALSE,0);
   texte		= gtk_button_new_with_label("Text");
   image		= gtk_button_new_with_label("Image");
   date		= gtk_button_new_with_label("Date");
   rep		= gtk_button_new_with_label("Content");
 
-  //ajout des boutons au panel head_panel
+  /*ajout des boutons au panel head_panel*/
   gtk_box_pack_start(GTK_BOX(foot_panel), texte  , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), image  , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), date   , FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(foot_panel), rep    , FALSE, FALSE, 0);  
 
-  //ajout de head panel dans le panel principal
+  /*ajout de head panel dans le panel principal*/
   gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
   
-  //activation des signaux sur boutons
+  /*activation des signaux sur boutons*/
   gtk_signal_connect(GTK_OBJECT(texte), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[0]));
@@ -1171,7 +1087,8 @@ int vue_init(){
   add_dates_saves = gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(window),panel);
   tlv_actuel = daz->tlv_debut;
-  vue_init_head(panel);  
+
+  vue_init_head(panel);
   vue_init_body(panel, daz->tlv_debut);
   vue_init_foot(panel);
   

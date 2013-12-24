@@ -12,39 +12,40 @@
 typedef enum { false, true } bool;
 
 typedef enum {
-    UNKNOW=    -1,
-    PADONE=     0,
-    PADN=       1,
-    TEXT=       2,
-    PNG=        3,
-    JPEG=       4,
-    COMPOUND=   5,
-    DATED=      6
+  UNKNOW=    -1,
+  PADONE=     0,
+  PADN=       1,
+  TEXT=       2,
+  PNG=        3,
+  JPEG=       4,
+  COMPOUND=   5,
+  DATED=      6
 } Dazibao_TLV_Type;
 
 typedef struct {
-    Dazibao_TLV_Type type;
-    off_t position;
-    int length;
-    void *value;
+  Dazibao_TLV_Type type;
+  off_t position;
+  int length;
+  void *value;
 } Dazibao_TLV;
 
 typedef struct {
-    char *file_path;
-    int file_descriptor;
-    int file_size;
-    int tlv_count;
-    Dazibao_TLV **elements;
+  char *file_path;
+  int file_descriptor;
+  int file_size;
+  int tlv_count;
+  Dazibao_TLV **elements;
 } Dazibao;
 
 typedef struct {
-    int count;
-    Dazibao_TLV **elements;
+  int count;
+  Dazibao_TLV **elements;
 } Dazibao_TLV_Compound_Value;
 
 typedef struct {
-    long timestamp;
-    Dazibao_TLV *element;
+  long timestamp;
+  Dazibao_TLV *element;
 } Dazibao_TLV_Dated_Value;
+
 
 #endif

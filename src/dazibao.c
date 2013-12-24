@@ -10,6 +10,10 @@
 #include "dazibao_read.h"
 #include "dazibao_write.h"
 
+#include "vue.h"
+
+Dazibao dazibao;
+
 void print_tlv_header(Dazibao_TLV *tlv) {
     printf("[+] TLV | Type %d | at %d | length %d\n", tlv->type, (int)tlv->position, tlv->length);
 }
@@ -71,11 +75,10 @@ Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset
     return new_array;
 }
 
-char *load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv) {
-    char *value = malloc(sizeof(char) * (tlv->length));
+void load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv) {
+    tlv->value = malloc(sizeof(char) * (tlv->length));
     lseek(dazibao->file_descriptor, tlv->position + 4, SEEK_SET);
-    read(dazibao->file_descriptor, value, tlv->length);
-    return value;
+    read(dazibao->file_descriptor, tlv->value, tlv->length);
 }
 
 Dazibao_TLV_Dated_Value *load_tlv_value_dated(Dazibao *dazibao, Dazibao_TLV *tlv) {
@@ -114,8 +117,8 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
         case TEXT   :
         case PNG    :
         case JPEG   :
-            tlv->value = load_tlv_value_raw(dazibao, tlv);
-            break;
+	  load_tlv_value_raw(dazibao, tlv);
+	  break;
         case DATED  :
             tlv->value = load_tlv_value_dated(dazibao, tlv);
             break;
@@ -128,47 +131,44 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
     printf("[-] ok\n");
 }
 
-int main(int argc, char **argv) {
-
-    Dazibao dazibao;
-	dazibao.file_path = argv[1];
-	dazibao.file_descriptor = 0;
-	dazibao.file_size = 0;
-	dazibao.tlv_count = 0;
-	dazibao.elements = NULL;
+int main(int argc, char **argv) {  
+  dazibao.file_path = argv[1];
+  dazibao.file_descriptor = 0;
+  dazibao.file_size = 0;
+  dazibao.tlv_count = 0;
+  dazibao.elements = NULL;
 	
-	if (argc != 2) {
-        printf("!!! ARGS !!!\n");
-        return 0;
-    }
+  if (argc != 2) {
+    printf("!!! ARGS !!!\n");
+    return 0;
+  }
 	
-	printf("[i] Dazibao file : %s\n", dazibao.file_path);
+  printf("[i] Dazibao file : %s\n", dazibao.file_path);
 	
-	dazibao_get_file_size(&dazibao);
-	dazibao_open_file(&dazibao);
+  dazibao_get_file_size(&dazibao);
+  dazibao_open_file(&dazibao);
 	
-	if (!dazibao_check_header(&dazibao)) {
-        printf("[!] File header is not valid!\n");
-    } else {
-        printf("[+] Finding root tlv :\n\n");
+  if (!dazibao_check_header(&dazibao)) {
+    printf("[!] File header is not valid!\n");
+  } else {
+    printf("[+] Finding root tlv :\n\n");
         
-        dazibao.elements = find_next_tlv_array(&dazibao, DAZIBAO_HEADER_LENGTH, dazibao.file_size, &dazibao.tlv_count);
-        
-        printf("\n[+] now loading tlvs one by one :\n");
-        load_tlv_value(&dazibao, dazibao.elements[0]);
-        printf("%s\n", (char *)dazibao.elements[0]->value);
+    dazibao.elements = find_next_tlv_array(&dazibao, DAZIBAO_HEADER_LENGTH, dazibao.file_size, &dazibao.tlv_count);
+    
+    printf("\n[+] now loading tlvs one by one :\n");
+    load_tlv_value(&dazibao, dazibao.elements[0]);
+    /*printf("157 : %s\n", (char *)dazibao.elements[0]->value);*/
 
-        load_tlv_value(&dazibao, dazibao.elements[1]);
-        load_tlv_value(&dazibao, dazibao.elements[2]);
-        load_tlv_value(&dazibao, dazibao.elements[3]);
-        load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element);
+    load_tlv_value(&dazibao, dazibao.elements[1]);
+    load_tlv_value(&dazibao, dazibao.elements[2]);
+    load_tlv_value(&dazibao, dazibao.elements[3]);
+    load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element);
 
-        /* load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]); */
+    /* load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]); */
              
-    } 
+  } 
 
-	dazibao_close_file(&dazibao);
-
-	printf("[i] :)\n");
-	return EXIT_SUCCESS;
+  dazibao_close_file(&dazibao);
+  vue_init();
+  return EXIT_SUCCESS;
 }
