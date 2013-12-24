@@ -47,5 +47,6 @@ typedef struct {
   Dazibao_TLV *element;
 } Dazibao_TLV_Dated_Value;
 
+Dazibao dazibao;
 
 #endif

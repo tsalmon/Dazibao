@@ -1075,6 +1075,9 @@ void vue_init_foot(GtkWidget * panel){
   initialise l'affichage du dazibao
 */
 int vue_init(){
+  printf("\n");
+  printf("vue_init: %d", dazibao.tlv_count);
+  /*
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -1091,8 +1094,8 @@ int vue_init(){
   vue_init_head(panel);
   vue_init_body(panel, daz->tlv_debut);
   vue_init_foot(panel);
-  
   gtk_widget_show_all(window);
   gtk_main();
+  */
   return 0;
 } 

@@ -12,7 +12,6 @@
 
 #include "vue.h"
 
-Dazibao dazibao;
 
 void print_tlv_header(Dazibao_TLV *tlv) {
     printf("[+] TLV | Type %d | at %d | length %d\n", tlv->type, (int)tlv->position, tlv->length);
@@ -132,17 +131,17 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
 }
 
 int main(int argc, char **argv) {  
+  if (argc != 2) {
+    printf("!!! ARGS !!!\n");
+    return 0;
+  }
+  
   dazibao.file_path = argv[1];
   dazibao.file_descriptor = 0;
   dazibao.file_size = 0;
   dazibao.tlv_count = 0;
   dazibao.elements = NULL;
-	
-  if (argc != 2) {
-    printf("!!! ARGS !!!\n");
-    return 0;
-  }
-	
+  
   printf("[i] Dazibao file : %s\n", dazibao.file_path);
 	
   dazibao_get_file_size(&dazibao);
