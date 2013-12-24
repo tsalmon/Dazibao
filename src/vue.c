@@ -50,7 +50,7 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   case 4: 
     tlv_actuel = daz->tlv_debut;
     gtk_widget_destroy(body_panel);
-    vue_init_body(panel, tlv_actuel);
+    /*vue_init_body(panel, tlv_actuel);*/
     gtk_widget_show_all(window);
     break;
   case 5: 
@@ -83,7 +83,7 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
 void vue_view_rep(struct tlv * rep){
   printf("passage repertoire: tlv_act = %ld -> %ld\n", tlv_actuel->position, rep->conteneur->position);
   tlv_actuel = rep->conteneur;
-  vue_init_body(panel, tlv_actuel);
+  /*vue_init_body(panel, tlv_actuel);*/
   gtk_widget_show_all(window);  
 }
 
@@ -944,19 +944,18 @@ const char *label_button(struct tlv* current_tlv){
   Si on a quelque chose comme date_1(date_2(...(date_n(TLV_autre_qu_une_date))))
   on aura comme case : (une case qui contient toutes les dates, last_TLV)  
 */
-void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
-  struct tlv * curseur;
+void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
   GtkWidget* scrollbar;
   char texte[10];
   GtkWidget* label_date;
   GtkWidget *more;
-    curseur = tlv_debut;
+  int i;
   /* declaration des variables du corps */
   body_panel	= gtk_vbox_new(FALSE,0);      
   /* on pose un scroll sur la liste des tlv*/
   scrollbar	= gtk_scrolled_window_new(NULL, NULL); 
   /* affichage des TLV dans la liste body_panel*/
-  while(curseur != NULL){
+  for(i = 0; i < nb_tlv; i++){
     /* on prend le 1er tlv */    
     GtkWidget * panel_tlv;
     GtkWidget* scrollbar_date;
@@ -968,7 +967,7 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     /* le panel du tlv */
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     /*bouton de tlv*/
-    button_tlv = gtk_button_new_with_label(label_button(curseur));
+    button_tlv = gtk_button_new_with_label(label_button(NULL));
     /*le scroll sur la liste de dates*/
     scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
@@ -977,16 +976,16 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
        dates);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    if(curseur->type_id == 6){
-      struct tlv *date = curseur->conteneur;
+    if(tlv[i]->type == DATED){
+      /*struct tlv *date = curseur->conteneur;
       int j = 1;
-      /* on ajoute les dates au box */
+       on ajoute les dates au box 
       while(date != NULL){
 	sprintf(texte, "date %d", j++);
 	label_date = gtk_label_new(texte);
 	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);
 	date = date->conteneur;
-      }
+      }*/
     } else {
       sprintf(texte, "-");
       label_date = gtk_label_new(texte);
@@ -997,12 +996,14 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
     gtk_table_attach_defaults(GTK_TABLE(panel_tlv), button_tlv, 1, 5, 0, 1);    
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
     /* on passe a la prochaine tlv a afficher */    
-    if(curseur->type_id != 6){      
-      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
+    if(tlv[i]->type != DATED){      
+      /*gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur));
+      */
     } else {
-      struct tlv *date = curseur;
+      /*
+      struct tlv *date = tlv[i];
       while(date->type_id == 6){
 	date = date->conteneur;
       }
@@ -1010,8 +1011,8 @@ void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut){
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(date));
+      */
     }
-    curseur = curseur->suivant;
   } 
   
   /*on configure le scroll*/
@@ -1075,9 +1076,11 @@ void vue_init_foot(GtkWidget * panel){
   initialise l'affichage du dazibao
 */
 int vue_init(){
-  printf("\n");
-  printf("vue_init: %d", dazibao.tlv_count);
-  /*
+  int i;
+  for(i = 0; i < dazibao.tlv_count; i++){
+    printf("type = %d\n", dazibao.elements[i]->type);
+  }
+  
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -1089,13 +1092,12 @@ int vue_init(){
   panel = gtk_table_new(10, 1, TRUE);  
   add_dates_saves = gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(window),panel);
-  tlv_actuel = daz->tlv_debut;
-
+  
   vue_init_head(panel);
-  vue_init_body(panel, daz->tlv_debut);
+  vue_init_body(panel, dazibao.elements, dazibao.tlv_count);
   vue_init_foot(panel);
   gtk_widget_show_all(window);
   gtk_main();
-  */
+  
   return 0;
 } 

@@ -1,7 +1,7 @@
 #ifndef VUE_H
 #define VUE_H
 #include <gtk/gtk.h>
-
+#include "dazibao.h"
 
 typedef struct {
   gint     index;
@@ -64,7 +64,7 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel);
 
 /* creation de l'ui*/
 void vue_init_foot(GtkWidget * panel);
-void vue_init_body(GtkWidget * panel, struct tlv *tlv_debut);
+void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv);
 void vue_init_head(GtkWidget * panel);
 int  vue_init();
 

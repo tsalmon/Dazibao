@@ -12,7 +12,6 @@
 
 #include "vue.h"
 
-
 void print_tlv_header(Dazibao_TLV *tlv) {
     printf("[+] TLV | Type %d | at %d | length %d\n", tlv->type, (int)tlv->position, tlv->length);
 }
@@ -55,23 +54,23 @@ Dazibao_TLV *find_next_tlv(Dazibao *dazibao, int offset) {
 }
 
 Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset_max, int *tlv_count) {
-    Dazibao_TLV *new = NULL;
-    Dazibao_TLV **new_array = NULL;
-    int next_position = offset_start;
-
-    while (next_position < offset_max) {
-        if(*(tlv_count) == 0) {
-            new_array = malloc(sizeof(Dazibao_TLV *));
-        } else {
-            new_array = realloc(new_array, sizeof(Dazibao_TLV *) * ( *(tlv_count) + 1 ));
-        }            
-        new = find_next_tlv(dazibao, next_position);
-        print_tlv_header(new);
-        next_position += DAZIBAO_HEADER_LENGTH + new->length;
-        new_array[*(tlv_count)] = new;
-        (*tlv_count)++;
-    }
-    return new_array;
+  Dazibao_TLV *new = NULL;
+  Dazibao_TLV **new_array = NULL;
+  int next_position = offset_start;
+  
+  while (next_position < offset_max) {
+    if(*(tlv_count) == 0) {
+      new_array = malloc(sizeof(Dazibao_TLV *));
+    } else {
+      new_array = realloc(new_array, sizeof(Dazibao_TLV *) * ( *(tlv_count) + 1 ));
+    }            
+    new = find_next_tlv(dazibao, next_position);
+    print_tlv_header(new);
+    next_position += DAZIBAO_HEADER_LENGTH + new->length;
+    new_array[*(tlv_count)] = new;
+    (*tlv_count)++;
+  }
+  return new_array;
 }
 
 void load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv) {
@@ -143,10 +142,10 @@ int main(int argc, char **argv) {
   dazibao.elements = NULL;
   
   printf("[i] Dazibao file : %s\n", dazibao.file_path);
-	
+  
   dazibao_get_file_size(&dazibao);
   dazibao_open_file(&dazibao);
-	
+  
   if (!dazibao_check_header(&dazibao)) {
     printf("[!] File header is not valid!\n");
   } else {
@@ -156,8 +155,6 @@ int main(int argc, char **argv) {
     
     printf("\n[+] now loading tlvs one by one :\n");
     load_tlv_value(&dazibao, dazibao.elements[0]);
-    /*printf("157 : %s\n", (char *)dazibao.elements[0]->value);*/
-
     load_tlv_value(&dazibao, dazibao.elements[1]);
     load_tlv_value(&dazibao, dazibao.elements[2]);
     load_tlv_value(&dazibao, dazibao.elements[3]);
