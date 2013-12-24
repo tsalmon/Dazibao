@@ -956,7 +956,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
   /* affichage des TLV dans la liste body_panel*/
   for(i = 0; i < nb_tlv; i++){
     /* on prend le 1er tlv */    
-    GtkWidget * panel_tlv;
+    GtkWidget* panel_tlv;
     GtkWidget* scrollbar_date;
     GtkWidget* dates;
     GtkWidget* button_tlv;
@@ -976,6 +976,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     if(tlv[i]->type == DATED){
+      printf("(%d)dated\n", i);
       /*struct tlv *date = curseur->conteneur;
       int j = 1;
        on ajoute les dates au box 
@@ -1020,8 +1021,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
   gtk_scrolled_window_set_policy
     (GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);  
   /*on ajout la liste 'scrolle' dans le milieu de la page (8/10e de la fen)*/
-  gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);
-  
+  gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);  
 }
 
 /*
