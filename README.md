@@ -123,7 +123,7 @@ EXEMPLE.DZB EN MÉMOIRE
 ======================
 
 Voici comment est stocké en mémoire le fichier exemple.dzb après que le programme ait parcourue l'arbre.
-
+---------------------------------------------------------------------------------------------
 [ Dazibao
 | file path = "exemple.dzb"
 | file size = 146270
