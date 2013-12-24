@@ -1,5 +1,5 @@
 DOCUMENTATION DE L'IMPLANTATION
-
+===============================
  . Les structures
  . Les fonctions d'accès aux données
  . exemple.dzb en mémoire
@@ -120,59 +120,59 @@ EXEMPLE.DZB EN MÉMOIRE
 
 Voici comment est stocké en mémoire le fichier exemple.dzb après que le programme ait parcourue l'arbre.
 
-[ Dazibao
-| file path = "exemple.dzb"
-| file size = 146270
-| int tlv count = 4
-| elements ->
-    [0] -> [ Dazibao_TLV
-            | type = 2 (TEXT)
-            | position = 4
-            | lenght = 265
-            | *value = "All parts..."
+	[ Dazibao
+	| file path = "exemple.dzb"
+	| file size = 146270
+	| int tlv count = 4
+	| elements ->
+	    [0] -> [ Dazibao_TLV
+	            | type = 2 (TEXT)
+	            | position = 4
+	            | lenght = 265
+	            | *value = "All parts..."
             
-    [1] -> [ Dazibao_TLV
-            | type = 4 (JPEG)
-            | position = 273
-            | lenght = 56993
-            | *value = binary image
-            
-    [2] -> [ Dazibao_TLV
-            | type = 6 (DATED)
-            | position = 57270
-            | lenght = 36998
-            | *value -> [ Dazibao_Dated_Value
-                        | timestamp = 1383709705
-                        | element -> [ Dazibao_TLV
-                                     | type = 4 (JPEG)
-                                     | position = 57278
-                                     | lenght = 36990
-                                     | *value = binary image
-
-    [3] -> [ Dazibao_TLV
-            | type = 6 (DATED)
-            | position = 94272
-            | lenght = 51994
-            | *value -> [ Dazibao_Dated_Value
-                        | timestamp =
-                        | element -> [ Dazibao_TLV
-                                     | type = 5 (COMPOUND)
-                                     | position = 94280
-                                     | lenght =
-                                     | *value -> [ Dazbiao_TLV_Compound_Value
-                                                 | count = 2
-                                                 | **elements ->
-                                                     [0] -> [ Dazibao_TLV
-                                                             | type = 2 (TEXT)
-                                                             | position = 94284
-                                                             | lenght = 31
-                                                             | *value = "..."
+	    [1] -> [ Dazibao_TLV
+	            | type = 4 (JPEG)
+	            | position = 273
+	            | lenght = 56993
+	            | *value = binary image
+	            
+	    [2] -> [ Dazibao_TLV
+	            | type = 6 (DATED)
+	            | position = 57270
+	            | lenght = 36998
+	            | *value -> [ Dazibao_Dated_Value
+	                        | timestamp = 1383709705
+	                        | element -> [ Dazibao_TLV
+	                                     | type = 4 (JPEG)
+	                                     | position = 57278
+	                                     | lenght = 36990
+	                                     | *value = binary image
+	
+	    [3] -> [ Dazibao_TLV
+	            | type = 6 (DATED)
+	            | position = 94272
+	            | lenght = 51994
+	            | *value -> [ Dazibao_Dated_Value
+	                        | timestamp =
+	                        | element -> [ Dazibao_TLV
+	                                     | type = 5 (COMPOUND)
+	                                     | position = 94280
+	                                     | lenght =
+	                                     | *value -> [ Dazbiao_TLV_Compound_Value
+	                                                 | count = 2
+	                                                 | **elements ->
+	                                                     [0] -> [ Dazibao_TLV
+	                                                             | type = 2 (TEXT)
+	                                                             | position = 94284
+        	                                                     | lenght = 31
+        	                                                     | *value = "..."
                                                              
-                                                     [1] -> [ Dazibao_TLV
-                                                             | type = 4 (JPEG)
-                                                             | position = 94319
-                                                             | lenght = 51947
-                                                             | *value = binary_image
+               		                                      [1] -> [ Dazibao_TLV
+               	                                              | type = 4 (JPEG)
+               	                                              | position = 94319
+                	                                      | lenght = 51947
+                        	                              | *value = binary_image
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
