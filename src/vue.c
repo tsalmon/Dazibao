@@ -91,8 +91,6 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   l'utilisateur a cliqué
 */
 void vue_view_rep(Dazibao_TLV* tlv){
-  /*printf("vue_view_rep\n");*/
-  /*printf("passage repertoire: tlv_act = %ld -> %ld\n", tlv_actuel->position, rep->conteneur->position);*/
   Dazibao_TLV_Compound_Value *rep = tlv->value;
   vue_init_body(panel, rep->elements, rep->count);
   gtk_widget_show_all(window);  
@@ -679,16 +677,14 @@ int insertSpace(char str[]){
   Le texte s'affiche sur des lignes de ~80 chars
 */
 void vue_fen_view_Text(char *str){
-  /*char str[1059] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin"; test basic*/
   int nb = 0;
   int i = 0, j = 0, k = 0;
   char *str_lines[80];
-
+  
   GtkWidget* window = NULL;
   GtkWidget* box;
   GtkWidget** pLabel = NULL;  
   GtkWidget* scrollbar = NULL;
-  
   
   nb = insertSpace(str);
   for(i = 0; i < nb; i++){
@@ -777,18 +773,19 @@ void vue_fen_view_Text(char *str){
   permet d'ouvrir dans une fenetre - SDL - une image a partir de son pixbuff
   TODO: remplacer SDL par GTK2+
 */
-void vue_fen_view_Image(void *raw_image, int type){
+void vue_fen_view_Image(void *raw_image, int size, int type){
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
   SDL_Rect position;
   int continuer = 1;
   SDL_Event evenement;
-
-  int fd, size=0, i=0;
   int newWidth = 0, newHeight = 0;
+  SDL_Init(SDL_INIT_VIDEO);
+  
+  /*
+  int fd, size=0, i=0;
   char *img_buff, buff;
   
-  SDL_Init(SDL_INIT_VIDEO);
   if((fd= open("image.jpg", O_RDONLY)) == -1){
     printf("impossible d'ouvrir le fichier\n");
   }
@@ -808,13 +805,14 @@ void vue_fen_view_Image(void *raw_image, int type){
     img_buff[size++] = buff;
   }
   close(fd);
-  
+  */
+  printf("size image = %d\n", size);
   position.x = 0;
   position.y = 0;
   SDL_WM_SetCaption("Dazibao", NULL);
   ecran = SDL_SetVideoMode(400, 400, 32, SDL_HWSURFACE| SDL_RESIZABLE);
   SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
-  image = IMG_Load_RW(SDL_RWFromMem( img_buff, size), 1);
+  image = IMG_Load_RW(SDL_RWFromMem( raw_image, size), 1);
   if(image  == NULL){ 
     printf("echec image == NULL\n");
     return;
@@ -850,7 +848,7 @@ void vue_fen_view_Image(void *raw_image, int type){
             }
 	  break;
         }
-    }
+	}
   SDL_Quit();
 }
 
@@ -868,7 +866,7 @@ gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
     vue_fen_view_Text(recup->value);
     break;
   case 3: case 4:
-    vue_fen_view_Image(recup->value, recup->type);
+    vue_fen_view_Image(recup->value, recup->length);
     break;
   case 5:
     vue_view_rep(recup);

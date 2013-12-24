@@ -29,7 +29,6 @@ typedef struct dazi{
 }dazi;
 
 
-
 struct tlv *init_test_random(int n);
 void print_test(struct tlv *aux, int p);
 void free_test(struct tlv *aux);
@@ -43,7 +42,7 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message);
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
 void vue_fen_view_Text(char * str);
-void vue_fen_view_Image(void *raw_image, int type);
+void vue_fen_view_Image(void *raw_image, int size);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
 const char *label_button(Dazibao_TLV* current_tlv);
 
@@ -75,7 +74,6 @@ int  vue_init();
 struct dazi *daz;
 struct tlv *tlv_actuel;
 int pos_tlv_selected;
-
 
 GtkWidget* panel;
 GtkWidget* body_panel;
