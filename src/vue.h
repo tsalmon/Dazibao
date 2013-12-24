@@ -34,7 +34,7 @@ struct tlv *init_test_random(int n);
 void print_test(struct tlv *aux, int p);
 void free_test(struct tlv *aux);
 
-
+char *timestamp_to_date(int timestamp);
 int nbDateBissextile(int d1, int d2);
 int isBix(int date);
 
@@ -42,8 +42,8 @@ combo_data_st get_active_data (GtkComboBox * p_combo);
 gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message);
 void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
-void vue_fen_view_Text(int position_tlv);
-void vue_fen_view_Image(int position_tlv);
+void vue_fen_view_Text(char * str);
+void vue_fen_view_Image(void *raw_image, int type);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
 const char *label_button(Dazibao_TLV* current_tlv);
 
@@ -54,7 +54,7 @@ gint vue_add_Text(GtkWidget *label, gpointer *message);
 
 /* fenetre de saisie */
 void vue_fen_make_Text();
-void vue_view_rep(struct tlv *rep);
+void vue_view_rep(Dazibao_TLV *rep);
 void vue_body_Date();
 void vue_foot_Date();
 void vue_fen_make_Date();

@@ -26,6 +26,16 @@
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
+
+char *timestamp_to_date(int timestamp) {
+  time_t time = timestamp; 
+  struct tm *tmp; 
+  char *output = malloc(sizeof(char) * 18);
+  tmp = localtime(&time);
+  strftime(output, 18, "%d/%m/%y %Hh%Mm%Ss", tmp); 
+  return output; 
+}
+
 /*
   call by: vue_init_head, vue_init_body, vue_init_foot
   Cette fonction gere les boutons d'ajout de TLV (quand on clique sur les boutons du bas de l'ui),
@@ -80,10 +90,11 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   remplacer le contenu du corps de l'ui par les TLV du rep sur lequel
   l'utilisateur a cliqué
 */
-void vue_view_rep(struct tlv * rep){
-  printf("passage repertoire: tlv_act = %ld -> %ld\n", tlv_actuel->position, rep->conteneur->position);
-  tlv_actuel = rep->conteneur;
-  /*vue_init_body(panel, tlv_actuel);*/
+void vue_view_rep(Dazibao_TLV* tlv){
+  /*printf("vue_view_rep\n");*/
+  /*printf("passage repertoire: tlv_act = %ld -> %ld\n", tlv_actuel->position, rep->conteneur->position);*/
+  Dazibao_TLV_Compound_Value *rep = tlv->value;
+  vue_init_body(panel, rep->elements, rep->count);
   gtk_widget_show_all(window);  
 }
 
@@ -667,9 +678,8 @@ int insertSpace(char str[]){
   permet de lire une tlv de type texte
   Le texte s'affiche sur des lignes de ~80 chars
 */
-void vue_fen_view_Text(int position_tlv){
-  char str[] = "gateau";
-      /*char str[1059] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin"; test basic*/
+void vue_fen_view_Text(char *str){
+  /*char str[1059] = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin\n\nHello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!\n Hello World!\n Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! <> Hello World!< Hello World! >LOL Hello World! super Hello World!O\n fin"; test basic*/
   int nb = 0;
   int i = 0, j = 0, k = 0;
   char *str_lines[80];
@@ -767,7 +777,7 @@ void vue_fen_view_Text(int position_tlv){
   permet d'ouvrir dans une fenetre - SDL - une image a partir de son pixbuff
   TODO: remplacer SDL par GTK2+
 */
-void vue_fen_view_Image(int position_tlv){
+void vue_fen_view_Image(void *raw_image, int type){
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
   SDL_Rect position;
@@ -852,19 +862,19 @@ void vue_fen_view_Image(int position_tlv){
   appropriée
 */
 gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){   
-  struct tlv *recup = (struct tlv*)message;
-  switch(recup->type_id){
+  Dazibao_TLV *recup = (Dazibao_TLV *)message;
+  switch(recup->type){
   case 2:
-    vue_fen_view_Text(recup->position);
+    vue_fen_view_Text(recup->value);
     break;
   case 3: case 4:
-    vue_fen_view_Image(recup->position);
+    vue_fen_view_Image(recup->value, recup->type);
     break;
   case 5:
     vue_view_rep(recup);
     break;
   default:
-    fprintf(stderr, "TLV non reconnue (%d)\n", recup->type_id);
+    fprintf(stderr, "TLV non reconnue (%d)\n", recup->type);
   }
   
   return FALSE;
