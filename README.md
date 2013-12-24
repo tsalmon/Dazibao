@@ -126,9 +126,9 @@ Voici comment est stocké en mémoire le fichier exemple.dzb après que le progr
 
 [ Dazibao
 | file_path = "exemple.dzb"
-| file_size = 146270
-| int tlv_count = 4
-| **elements ->
+| file size = 146270
+| int tlv count = 4
+| elements ->
     [0] -> [ Dazibao_TLV
             | type = 2 (TEXT)
             | position = 4
