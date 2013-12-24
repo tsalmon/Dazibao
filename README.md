@@ -1,12 +1,8 @@
+DOCUMENTATION DE L'IMPLANTATION
 
-                       DOCUMENTATION DE L'IMPLANTATION
-
-
-
-
-            . Les structures
-            . Les fonctions d'accès aux données
-            . exemple.dzb en mémoire
+. Les structures
+. Les fonctions d'accès aux données
+. exemple.dzb en mémoire
 
 
 
@@ -123,7 +119,7 @@ EXEMPLE.DZB EN MÉMOIRE
 ======================
 
 Voici comment est stocké en mémoire le fichier exemple.dzb après que le programme ait parcourue l'arbre.
----------------------------------------------------------------------------------------------
+
 [ Dazibao
 | file path = "exemple.dzb"
 | file size = 146270
