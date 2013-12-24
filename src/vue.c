@@ -916,11 +916,12 @@ void vue_init_head(GtkWidget * panel){
   tant que c'est le cas, on continue de prendre ce qu'elle contient 
   jusqu'a ce qu'on arrive sur autre chose qu'une date
 */
-const char *label_button(struct tlv* current_tlv){
+const char *label_button(Dazibao_TLV* current_tlv){
+  Dazibao_TLV_Dated_Value *d;
   if(current_tlv == NULL){
-      return "TLV NULLE";
+    return "TLV NULLE";
   }
-  switch(current_tlv->type_id){
+  switch(current_tlv->type){
   case 2:
     return "Text";
   case 3:
@@ -930,7 +931,8 @@ const char *label_button(struct tlv* current_tlv){
   case 5:
     return "Repertoire";
   case 6:
-    return label_button(current_tlv->conteneur);
+    d = current_tlv->value;
+    return label_button(d->element);
   default:
     return "????";
   }
@@ -966,7 +968,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     /* le panel du tlv */
     panel_tlv = gtk_table_new(1, 5, TRUE);  
     /*bouton de tlv*/
-    button_tlv = gtk_button_new_with_label(label_button(NULL));
+    button_tlv = gtk_button_new_with_label(label_button(tlv[i]));
     /*le scroll sur la liste de dates*/
     scrollbar_date = gtk_scrolled_window_new(NULL, NULL); 
     /* on pose un scroll sur le box des dates */
@@ -976,16 +978,15 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar_date),
 				   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     if(tlv[i]->type == DATED){
-      printf("(%d)dated\n", i);
-      /*struct tlv *date = curseur->conteneur;
-      int j = 1;
-       on ajoute les dates au box 
-      while(date != NULL){
-	sprintf(texte, "date %d", j++);
+      Dazibao_TLV_Dated_Value *date = tlv[i]->value;
+      Dazibao_TLV *curseur_date;
+      do{
+	sprintf(texte, "%ld", date->timestamp);
 	label_date = gtk_label_new(texte);
 	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);
-	date = date->conteneur;
-      }*/
+	curseur_date = date->element;
+	date = curseur_date->value;
+      }while(curseur_date->type == DATED);
     } else {
       sprintf(texte, "-");
       label_date = gtk_label_new(texte);
@@ -997,21 +998,22 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     gtk_box_pack_start(GTK_BOX(body_panel), panel_tlv, FALSE, FALSE, 5);
     /* on passe a la prochaine tlv a afficher */    
     if(tlv[i]->type != DATED){      
-      /*gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
-			 (GtkSignalFunc)vue_gere_tlv, 
-			 (gpointer)(curseur));
-      */
-    } else {
-      /*
-      struct tlv *date = tlv[i];
-      while(date->type_id == 6){
-	date = date->conteneur;
-      }
-      
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
-			 (gpointer)(date));
-      */
+			 (gpointer)(tlv[i]));
+    } else {
+      
+      Dazibao_TLV_Dated_Value *date = tlv[i]->value;
+      Dazibao_TLV *curseur_date;
+      do{
+	curseur_date = date->element;
+	date = curseur_date->value;
+      }while(curseur_date->type == DATED);
+      gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
+			 (GtkSignalFunc)vue_gere_tlv, 
+			 (gpointer)(curseur_date));
+      
+      	
     }
   } 
   

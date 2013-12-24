@@ -45,7 +45,7 @@ void addDateTLV(GtkWidget *widget, GdkEvent *event, gpointer message);
 void vue_fen_view_Text(int position_tlv);
 void vue_fen_view_Image(int position_tlv);
 gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
-const char *label_button(struct tlv* current_tlv);
+const char *label_button(Dazibao_TLV* current_tlv);
 
 /* add TLV */
 void vue_add_rep();
