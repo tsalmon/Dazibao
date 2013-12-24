@@ -948,7 +948,6 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
   GtkWidget* scrollbar;
   char texte[10];
   GtkWidget* label_date;
-  GtkWidget *more;
   int i;
   /* declaration des variables du corps */
   body_panel	= gtk_vbox_new(FALSE,0);      
@@ -1023,11 +1022,6 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
   /*on ajout la liste 'scrolle' dans le milieu de la page (8/10e de la fen)*/
   gtk_table_attach_defaults(GTK_TABLE(panel), scrollbar, 0, 1, 1, 9);
   
-  more = gtk_button_new_with_label("MOAR");
-  gtk_box_pack_start(GTK_BOX(body_panel), more, FALSE, FALSE, 5);   
-  gtk_signal_connect(GTK_OBJECT(more), "clicked", 
-		     (GtkSignalFunc)vue_gere_menu, 
-		     (gpointer)&(id_bouton[7]));
 }
 
 /*
