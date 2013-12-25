@@ -71,10 +71,6 @@ int  vue_init();
   Variables globales
 */
 
-struct dazi *daz;
-struct tlv *tlv_actuel;
-int pos_tlv_selected;
-
 GtkWidget* panel;
 GtkWidget* body_panel;
 GtkWidget* foot_panel;

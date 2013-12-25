@@ -7,6 +7,7 @@
 #include <time.h>
 #include "vue.h"
 #include "dazibao.h"
+#include "dazibao_utilities.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -25,15 +26,6 @@
 */
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
-
-char *timestamp_to_date(int timestamp) {
-  time_t time = timestamp; 
-  struct tm *tmp; 
-  char *output = malloc(sizeof(char) * 18);
-  tmp = localtime(&time);
-  strftime(output, 18, "%d/%m/%y", tmp); 
-  return output; 
-}
 
 /*
   call by: vue_init_head, vue_init_body, vue_init_foot
@@ -135,13 +127,13 @@ void vue_body_rep(){
   guint i = 0;
   GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  
+  /*
   if(tlv_actuel->type_id > 4){
     curseur = tlv_actuel->conteneur;
   } else {
     curseur = tlv_actuel;  
   }
-  
+  */
   for(i = 0; i < size; i++){ /* on parcours le body_panel*/
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
@@ -503,12 +495,13 @@ void vue_body_Date(){
   GtkWidget *aux;
   GtkWidget *aux_table;
   guint i = 0;
-  
+  /*
   if(tlv_actuel->type_id > 4){
     curseur = tlv_actuel->conteneur;
   } else {
     curseur = tlv_actuel;  
   }
+  */
   for(i = 0; i < size; i++){ 
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ 
@@ -837,10 +830,10 @@ gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
   Dazibao_TLV *recup = (Dazibao_TLV *)message;
   switch(recup->type){
   case 2:
-    printf("text l = %d, p = %ld\n%s\n", recup->length, recup->position, (char *)recup->value);
-    /*vue_fen_view_Text(recup->value);*/
+    vue_fen_view_Text(recup->value);
     break;
   case 3: case 4:
+    printf("image : t = %d, p = %ld, l = %d\n", recup->type, recup->position, recup->length);
     vue_fen_view_Image(recup->value, recup->length);
     break;
   case 5:
