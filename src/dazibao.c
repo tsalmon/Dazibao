@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
     load_tlv_value(&dazibao, dazibao.elements[2]);
     load_tlv_value(&dazibao, dazibao.elements[3]);
     load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element);
-
+    
     /* load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]); */
              
   } 

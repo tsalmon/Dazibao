@@ -26,13 +26,12 @@
 
 int id_bouton[] = {0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
-
 char *timestamp_to_date(int timestamp) {
   time_t time = timestamp; 
   struct tm *tmp; 
   char *output = malloc(sizeof(char) * 18);
   tmp = localtime(&time);
-  strftime(output, 18, "%d/%m/%y\n%Hh:%Mm:%Ss", tmp); 
+  strftime(output, 18, "%d/%m/%y", tmp); 
   return output; 
 }
 
@@ -58,9 +57,8 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     gtk_widget_show_all(window);
     break;
   case 4: 
-    tlv_actuel = daz->tlv_debut;
     gtk_widget_destroy(body_panel);
-    /*vue_init_body(panel, tlv_actuel);*/
+    vue_init_body(panel, dazibao.elements, dazibao.tlv_count);
     gtk_widget_show_all(window);
     break;
   case 5: 
@@ -703,7 +701,7 @@ void vue_fen_view_Text(char *str){
       k++;
     }
   }    
-  
+ 
   pLabel = malloc(sizeof(GtkWidget *) * nb);
 
   gtk_init(NULL, NULL);
@@ -839,7 +837,8 @@ gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){
   Dazibao_TLV *recup = (Dazibao_TLV *)message;
   switch(recup->type){
   case 2:
-    vue_fen_view_Text(recup->value);
+    printf("text l = %d, p = %ld\n%s\n", recup->length, recup->position, (char *)recup->value);
+    /*vue_fen_view_Text(recup->value);*/
     break;
   case 3: case 4:
     vue_fen_view_Image(recup->value, recup->length);
