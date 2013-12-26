@@ -49,7 +49,7 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     /*addDateTLV(label, event, message);*/
     break;
   case 3: /*Add: Repertoire */
-    vue_add_rep();
+    vue_body_rep();
     gtk_widget_show_all(window);
     break;
   case 4: 
@@ -131,9 +131,8 @@ void vue_add_rep(){
   conteneur
 */
 void vue_body_rep(){
-  struct tlv * curseur;
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  int size = g_list_length(children);
+  /*int size = g_list_length(children);*/
   GtkWidget *aux;
   GtkWidget *aux_table;
   int i = 0;
@@ -146,7 +145,7 @@ void vue_body_rep(){
     curseur = tlv_actuel;  
   }
   */
-  for(i = 0; i < size; i++){ /* on parcours le body_panel*/
+  for(i = 0; i < nb_tlv_compound; i++){ /* on parcours le body_panel*/
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
@@ -157,7 +156,6 @@ void vue_body_rep(){
 	check = gtk_check_button_new();
 	gtk_table_attach_defaults(GTK_TABLE(aux), check, 0, 1, 0, 1);	
       }
-      curseur = curseur->suivant;    
     }
   }
   /* FOOT SESSION*/
@@ -202,7 +200,7 @@ int isBix(int annee){
 } 
 
 /*
-  call by: addDateTLV
+ call by: addDateTLV
   recupère les valeurs et calcul le timestamp associé
 */
 gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
@@ -210,20 +208,20 @@ gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkComboBox * p_combo  = (GtkComboBox * )data[1];
   combo_data_st p_st;
   int aux = 0, mois[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
-  long unsigned int timestamp = 0;
-  
+  long int timestamp = 0;
+  Dazibao_TLV *tlv_date;
+
   aux		= atoi(gtk_entry_get_text(GTK_ENTRY(data[0])));
   timestamp	= (aux - 1970) * 31536000 + nbDateBissextile(1970, aux) * 86400 - 3600;
-  
   p_st = get_active_data (p_combo);  
   timestamp += mois[p_st.index - 1] * 86400;
- 
+  
   if(((aux % 4 == 0) && (aux % 100 != 0)) || (aux % 400 == 0))
     timestamp += 86400 ;
-
+  
   p_st = get_active_data ((GtkComboBox * )data[2]);
   timestamp += (p_st.index - 1) * 86400;
-
+  
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[5])));
   timestamp += 3600 * aux;
 
@@ -232,8 +230,10 @@ gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
 
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
   timestamp += aux;
-  
-  printf("timestamp a produire = %lu\n", timestamp);
+  tlv_date = create_dated_tlv(timestamp, tlv_dated_selected);
+  if(dazibao_append_tlv(&dazibao, tlv_date) == false){
+    printf("error\n");
+  }
   return FALSE;
 }
 
@@ -305,8 +305,7 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
   Apres avoir sur le bouton de confirmation, on appel la fonction vue_add_date
 */
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
-  
-  /*struct tlv *getTLV = (struct tlv *) message;*/
+  Dazibao_TLV *getTLV = (Dazibao_TLV *) message;
   /*dans le cas ou la tlv est une date, on recupere le dernier*/
   /*GtkWidget* box;*/
   /*GtkWidget *scrollbar;*/
@@ -380,7 +379,9 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   int i = 0, j = 0;
   struct tm instant;
   
-  printf("addDateTLV\n");
+  /*tlv_dated_selected = getTLV;*/
+  printf("addDateTLV %d\n", getTLV->type);
+  tlv_dated_selected = getTLV;
   
   gtk_init (NULL, NULL); 
   p_win = gtk_window_new           (GTK_WINDOW_TOPLEVEL);
