@@ -43,7 +43,8 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     vue_fen_make_Image();
     break;
   case 2: /*Add: date*/
-    addDateTLV(label, event, message);
+    vue_body_Date();
+    /*addDateTLV(label, event, message);*/
     break;
   case 3: /*Add: Repertoire */
     vue_add_rep();
@@ -56,16 +57,16 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     break;
   case 5: 
     /*
-    printf("back: ");
-    if(tlv_actuel == daz->tlv_debut){
+      printf("back: ");
+      if(tlv_actuel == daz->tlv_debut){
       printf("rien a back\n");
-    } else {
+      } else {
       printf("%ld -> %ld\n", tlv_actuel->position, tlv_actuel->pere->position);
       gtk_widget_destroy(body_panel);
       tlv_actuel = tlv_actuel->pere;
       vue_init_body(panel, tlv_actuel);
       gtk_widget_show_all(window);
-    }
+      }
     */
     break;
   case 6:
@@ -82,8 +83,8 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   l'utilisateur a cliqué
 */
 void vue_view_rep(Dazibao_TLV* tlv){
-  Dazibao_TLV_Compound_Value *rep = tlv->value;
-  vue_init_body(panel, rep->elements, rep->count);
+  compound_actuel = tlv->value;
+  vue_init_body(panel, compound_actuel->elements, compound_actuel->count);
   gtk_widget_show_all(window);  
 }
 
@@ -125,7 +126,7 @@ void vue_body_rep(){
   int size = g_list_length(children);
   GtkWidget *aux;
   GtkWidget *aux_table;
-  guint i = 0;
+  int i = 0;
   GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
   /*
@@ -295,13 +296,13 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
 */
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
 
-  struct tlv *getTLV = (struct tlv *) message;
+  /*struct tlv *getTLV = (struct tlv *) message;*/
   /*dans le cas ou la tlv est une date, on recupere le dernier*/
-  GtkWidget* box;
-  GtkWidget *scrollbar;
+  /*GtkWidget* box;*/
+  /*GtkWidget *scrollbar;*/
   GtkWidget *label[6];
-  GtkWidget *btn_date;
-  int i = 0;
+  /*GtkWidget *btn_date;*/
+  /*int i = 0;*/
 
   /*
   GList *children = gtk_container_get_children(GTK_CONTAINER(panel_tlv));
@@ -321,12 +322,13 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
       if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
 	
       }
-    }
+      }
+      
+      }
+  */
   
-  }
-*/
-  
-  if(getTLV->type_id == 6){
+  /*
+    if(getTLV->type_id == 6){
     GtkWidget* window_addDate;
     window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position (GTK_WINDOW (window_addDate), GTK_WIN_POS_CENTER);
@@ -344,7 +346,7 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
     
     btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
-    gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); /* 5 = espacement*/
+    gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); 
     while(getTLV->type_id == 6){
       GtkWidget *label;
       char texte[10];
@@ -354,129 +356,129 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
       btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
       gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5);
       getTLV = getTLV->conteneur;
-    }
-    gtk_widget_show_all (window_addDate);
-    gtk_main ();
-  } else {
-    GtkWidget * p_win  = NULL;
-    GtkWidget * p_combo[6];
-    time_t secondes;
-    GtkWidget *table = gtk_table_new(7, 2, TRUE);
-    char setText[4]; 
-    GtkWidget *button;
-    int i = 0, j = 0;
-    struct tm instant;
-    
-    gtk_init (NULL, NULL); 
-    p_win = gtk_window_new           (GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title             (GTK_WINDOW (p_win), "GtkComboBox...");
-    gtk_window_set_default_size      (GTK_WINDOW (p_win), 250, 150);
-    gtk_container_set_border_width   (GTK_CONTAINER (p_win), 5);
-    gtk_window_set_position          (GTK_WINDOW (p_win), GTK_WIN_POS_CENTER);
-    
-    label[0] = gtk_label_new("Annee");
-    label[1] = gtk_label_new("Mois");
-    label[2] = gtk_label_new("Jour");
-    label[3] = gtk_label_new("Seconde");
-    label[4] = gtk_label_new("Minute");
-    label[5] = gtk_label_new("Heure");
-    
-    button = gtk_button_new_with_label("OK");
-    
-    time(&secondes);
-    instant=*localtime(&secondes);      
-     
-    p_combo[0] = gtk_entry_new();
-    /* mois et annee*/
-    for(j = 1; j < 3; j++){
-      GtkListStore      *  p_model  = NULL;
-      GtkCellRenderer   *  p_cell   = NULL;
-      GtkTreeIter iter;
-      p_model = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
-      p_combo[j] = gtk_combo_box_new_with_model (GTK_TREE_MODEL (p_model));
-      p_cell = gtk_cell_renderer_text_new ();
-      gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
-      gtk_cell_layout_set_attributes
-	(GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 0, NULL );
-      p_cell = gtk_cell_renderer_text_new ();
-      gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
-      gtk_cell_layout_set_attributes 
-	( GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 1, NULL); 
-      gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[j]), 2);
-      if(j == 1){
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 1, 1, " Janvier", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 2, 1, " Fevrier", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 3, 1, " Mars", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 4, 1, " Avril", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 5, 1, " Mai", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 6, 1, " Juin", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 7, 1, " Juillet", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 8, 1, " Aout", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 9, 1, " Septembre", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 10, 1, " Octobre", -1);
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 11, 1, " Novembre", -1); 
-	gtk_list_store_append (p_model, & iter);
-	gtk_list_store_set (p_model, & iter, 0, 12, 1, " Decembre", -1);
-      } else {
- 	for(i = 1; i < 32; i++){
-	  gtk_list_store_append (p_model, & iter);	  
-	  gtk_list_store_set (p_model, & iter, 0, i, 1, NULL, -1);
-	}
+      }
+      gtk_widget_show_all (window_addDate);
+      gtk_main ();
+      } else { 
+  */
+  GtkWidget * p_win  = NULL;
+  GtkWidget * p_combo[6];
+  time_t secondes;
+  GtkWidget *table = gtk_table_new(7, 2, TRUE);
+  char setText[4]; 
+  GtkWidget *button;
+  int i = 0, j = 0;
+  struct tm instant;
+  
+  gtk_init (NULL, NULL); 
+  p_win = gtk_window_new           (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title             (GTK_WINDOW (p_win), "GtkComboBox...");
+  gtk_window_set_default_size      (GTK_WINDOW (p_win), 250, 150);
+  gtk_container_set_border_width   (GTK_CONTAINER (p_win), 5);
+  gtk_window_set_position          (GTK_WINDOW (p_win), GTK_WIN_POS_CENTER);
+  
+  label[0] = gtk_label_new("Annee");
+  label[1] = gtk_label_new("Mois");
+  label[2] = gtk_label_new("Jour");
+  label[3] = gtk_label_new("Seconde");
+  label[4] = gtk_label_new("Minute");
+  label[5] = gtk_label_new("Heure");
+  
+  button = gtk_button_new_with_label("OK");
+  
+  time(&secondes);
+  instant=*localtime(&secondes);      
+  
+  p_combo[0] = gtk_entry_new();
+  /* mois et annee*/
+  for(j = 1; j < 3; j++){
+    GtkListStore      *  p_model  = NULL;
+    GtkCellRenderer   *  p_cell   = NULL;
+    GtkTreeIter iter;
+    p_model = gtk_list_store_new (2, G_TYPE_INT, G_TYPE_STRING);
+    p_combo[j] = gtk_combo_box_new_with_model (GTK_TREE_MODEL (p_model));
+    p_cell = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
+    gtk_cell_layout_set_attributes
+      (GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 0, NULL );
+    p_cell = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (p_combo[j]), p_cell, FALSE);
+    gtk_cell_layout_set_attributes 
+      ( GTK_CELL_LAYOUT (p_combo[j]), p_cell, "text", 1, NULL); 
+    gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[j]), 2);
+    if(j == 1){
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 1, 1, " Janvier", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 2, 1, " Fevrier", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 3, 1, " Mars", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 4, 1, " Avril", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 5, 1, " Mai", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 6, 1, " Juin", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 7, 1, " Juillet", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 8, 1, " Aout", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 9, 1, " Septembre", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 10, 1, " Octobre", -1);
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 11, 1, " Novembre", -1); 
+      gtk_list_store_append (p_model, & iter);
+      gtk_list_store_set (p_model, & iter, 0, 12, 1, " Decembre", -1);
+    } else {
+      for(i = 1; i < 32; i++){
+	gtk_list_store_append (p_model, & iter);	  
+	gtk_list_store_set (p_model, & iter, 0, i, 1, NULL, -1);
       }
     }
-    for( i = 3; i < 6; i++){
-      p_combo[i] = gtk_entry_new_with_max_length(2);
-    }
-    
-    sprintf(setText, "%d", instant.tm_year + 1900);
-    gtk_entry_set_text(GTK_ENTRY(p_combo[0]), (gchar *)setText);
-
-    gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[1]), instant.tm_mon);
-    gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[2]), instant.tm_mday - 1);     
-
-    sprintf(setText, "%d", instant.tm_sec);
-    gtk_entry_set_text(GTK_ENTRY(p_combo[3]), (gchar *)setText);
-    sprintf(setText, "%d", instant.tm_min);
-    gtk_entry_set_text(GTK_ENTRY(p_combo[4]), (gchar *)setText);
-    sprintf(setText, "%d", instant.tm_hour);
-    gtk_entry_set_text(GTK_ENTRY(p_combo[5]), (gchar *)setText);
-    gtk_container_add(GTK_CONTAINER(p_win), table);
-    
-    for( i=0; i < 6; i++) {
-      gtk_table_attach_defaults(GTK_TABLE(table), label[i], 0, 1, i, i+1 );  
-      gtk_table_attach_defaults(GTK_TABLE(table), p_combo[i], 1, 2, i, i+1 );  
-    }
-    gtk_table_attach_defaults(GTK_TABLE(table), button, 0, 1, 6, 7 );  
-    g_signal_connect (G_OBJECT (p_win), "destroy", G_CALLBACK (gtk_main_quit), NULL);
-
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", 
-		       G_CALLBACK(vue_add_Date), 
-		       (gpointer)p_combo);
+  }
+  for( i = 3; i < 6; i++){
+    p_combo[i] = gtk_entry_new_with_max_length(2);
+  }
+  
+  sprintf(setText, "%d", instant.tm_year + 1900);
+  gtk_entry_set_text(GTK_ENTRY(p_combo[0]), (gchar *)setText);
+  
+  gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[1]), instant.tm_mon);
+  gtk_combo_box_set_active (GTK_COMBO_BOX (p_combo[2]), instant.tm_mday - 1);     
+  
+  sprintf(setText, "%d", instant.tm_sec);
+  gtk_entry_set_text(GTK_ENTRY(p_combo[3]), (gchar *)setText);
+  sprintf(setText, "%d", instant.tm_min);
+  gtk_entry_set_text(GTK_ENTRY(p_combo[4]), (gchar *)setText);
+  sprintf(setText, "%d", instant.tm_hour);
+  gtk_entry_set_text(GTK_ENTRY(p_combo[5]), (gchar *)setText);
+  gtk_container_add(GTK_CONTAINER(p_win), table);
+  
+  for( i=0; i < 6; i++) {
+    gtk_table_attach_defaults(GTK_TABLE(table), label[i], 0, 1, i, i+1 );  
+    gtk_table_attach_defaults(GTK_TABLE(table), p_combo[i], 1, 2, i, i+1 );  
+  }
+  gtk_table_attach_defaults(GTK_TABLE(table), button, 0, 1, 6, 7 );  
+  g_signal_connect (G_OBJECT (p_win), "destroy", G_CALLBACK (gtk_main_quit), NULL);
+  
+  gtk_signal_connect(GTK_OBJECT(button), "clicked", 
+		     G_CALLBACK(vue_add_Date), 
+		     (gpointer)p_combo);
   gtk_widget_show_all (p_win);
   gtk_main ();
-  }
 }
 
+
 /*
-  OBSOLETE
   call by: vue_gere_menus
   on remplace les dates par un bouton d'ajout de dates 
   Si on clique dessus on appel la fonction addDateTLV qui permet d'entrer une
   nouvelle date
 */
 void vue_body_Date(){
-  struct tlv * curseur;
+  /*struct tlv * curseur;*/
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
   int size = g_list_length(children);
   GtkWidget *aux;
