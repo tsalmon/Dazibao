@@ -44,6 +44,8 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     break;
   case 2: /*Add: date*/
     vue_body_Date();
+    vue_foot_Date();
+    gtk_widget_show_all(window);
     /*addDateTLV(label, event, message);*/
     break;
   case 3: /*Add: Repertoire */
@@ -56,6 +58,12 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     gtk_widget_show_all(window);
     break;
   case 5: 
+    gtk_widget_destroy(body_panel);
+    gtk_widget_destroy(foot_panel);
+    vue_init_body(panel, tlv_compound, nb_tlv_compound);
+    vue_init_foot(panel);
+    gtk_widget_show_all(window);
+    
     /*
       printf("back: ");
       if(tlv_actuel == daz->tlv_debut){
@@ -83,8 +91,10 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
   l'utilisateur a cliqué
 */
 void vue_view_rep(Dazibao_TLV* tlv){
-  compound_actuel = tlv->value;
-  vue_init_body(panel, compound_actuel->elements, compound_actuel->count);
+  Dazibao_TLV_Compound_Value *aux = tlv->value;
+  tlv_compound = aux->elements;
+  nb_tlv_compound = aux->count;
+  vue_init_body(panel, tlv_compound, nb_tlv_compound);
   gtk_widget_show_all(window);  
 }
 
@@ -295,7 +305,7 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
   Apres avoir sur le bouton de confirmation, on appel la fonction vue_add_date
 */
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
-
+  
   /*struct tlv *getTLV = (struct tlv *) message;*/
   /*dans le cas ou la tlv est une date, on recupere le dernier*/
   /*GtkWidget* box;*/
@@ -369,6 +379,8 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   GtkWidget *button;
   int i = 0, j = 0;
   struct tm instant;
+  
+  printf("addDateTLV\n");
   
   gtk_init (NULL, NULL); 
   p_win = gtk_window_new           (GTK_WINDOW_TOPLEVEL);
@@ -480,10 +492,13 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
 void vue_body_Date(){
   /*struct tlv * curseur;*/
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  int size = g_list_length(children);
+  /*int size = g_list_length(children);*/
   GtkWidget *aux;
   GtkWidget *aux_table;
-  guint i = 0;
+  int i = 0;
+
+  
+  
   /*
   if(tlv_actuel->type_id > 4){
     curseur = tlv_actuel->conteneur;
@@ -491,7 +506,7 @@ void vue_body_Date(){
     curseur = tlv_actuel;  
   }
   */
-  for(i = 0; i < size; i++){ 
+  for(i = 0; i < nb_tlv_compound; i++){ 
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ 
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
@@ -516,9 +531,9 @@ void vue_body_Date(){
 	gtk_table_attach_defaults(GTK_TABLE(aux), aux_table, 0, 1, 0, 1);
 	gtk_signal_connect(GTK_OBJECT(aux_table), "clicked", 
 			   (GtkSignalFunc)addDateTLV, 
-			   (gpointer)(curseur));
+			   (gpointer)(tlv_compound[i]));
       }
-      curseur = curseur->suivant;    
+      /*curseur = curseur->suivant;    */
     }
   }
 }
@@ -1040,7 +1055,7 @@ int vue_init(){
   for(i = 0; i < dazibao.tlv_count; i++){
     printf("type = %d\n", dazibao.elements[i]->type);
   }
-  
+
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
@@ -1048,6 +1063,9 @@ int vue_init(){
   gtk_window_set_default_size(GTK_WINDOW(window), 520, 700);
   gtk_window_set_title(GTK_WINDOW(window), "Dazibao");
   g_signal_connect(G_OBJECT(window),"destroy",G_CALLBACK(traitement_quitter),0);
+  
+  tlv_compound = dazibao.elements;
+  nb_tlv_compound = dazibao.tlv_count;
   
   panel = gtk_table_new(10, 1, TRUE);  
   add_dates_saves = gtk_vbox_new(FALSE,0);
