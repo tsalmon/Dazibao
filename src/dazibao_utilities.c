@@ -41,14 +41,15 @@ void dazibao_write(int file_descriptor, void *buffer, size_t count) {
 
 /* Converti un timestamp en date lisible */
 char *timestamp_to_date(int timestamp) {
+  printf("timestamp = %d\n", timestamp);
     time_t time = timestamp;
     struct tm *tmp;
-
+    
     char *output = malloc(sizeof(char) * DATE_LENGTH);
-
+    
     tmp = localtime(&time);
     strftime(output, DATE_LENGTH, DATE_FORMAT, tmp);
-
+    printf("f = %s\n", output);
     return output;
 }
 
