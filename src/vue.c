@@ -7,6 +7,7 @@
 #include <time.h>
 #include "vue.h"
 #include "dazibao.h"
+#include "dazibao_write.h"
 #include "dazibao_utilities.h"
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -257,8 +258,8 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   GtkTextBuffer *pTextBuffer;
   GtkTextIter	iStart;
   GtkTextIter	iEnd;
-  gchar		*sBuffer;
-
+  char		*sBuffer;
+  Dazibao_TLV   *txt;
   pTextView = GTK_WIDGET(message);
 
   /* recupere le buffer */
@@ -267,28 +268,14 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   gtk_text_buffer_get_start_iter(pTextBuffer, &iStart);
   /* recupere la fin du buffer */
   gtk_text_buffer_get_end_iter(pTextBuffer, &iEnd);
-
+  
   /* copie le contenu du buffer dans une variable */
   sBuffer = gtk_text_buffer_get_text(pTextBuffer, &iStart, &iEnd, TRUE);
   printf("%s\n", sBuffer);
-  /*
-  GtkTextBuffer *buffer = message;
-  GtkTextIter i1, it;
-  int k, i;
-  gchar *text;
-  
-  gtk_text_buffer_get_iter_at_mark
-    (buffer, &it, gtk_text_buffer_get_insert(buffer));
-
-  k = gtk_text_iter_get_line(&it);
-  gtk_text_buffer_get_iter_at_line(buffer, &it, k);
-  gtk_text_buffer_get_end_iter(buffer, &i1);
-  text = gtk_text_buffer_get_text(buffer, &it, &i1, FALSE);
-  for(i=0; text[i];i++){
+  txt = create_raw_tlv(TEXT, sBuffer);
+  if(dazibao_append_tlv(&dazibao, txt) == false){
+    printf("error\n");
   }
-  text[i]=0;
-  printf("%s\n", text);  
-  */
   return FALSE;
 }
 
@@ -957,7 +944,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
       Dazibao_TLV_Dated_Value *date = tlv[i]->value;
       Dazibao_TLV *curseur_date;
       do{
-	label_date = gtk_label_new(timestamp_to_date(date->timestamp));
+	label_date = gtk_label_new(timestamp_to_date_short(date->timestamp));
 	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);
 	curseur_date = date->element;
 	date = curseur_date->value;
