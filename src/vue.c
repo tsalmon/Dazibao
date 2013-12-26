@@ -103,7 +103,7 @@ void vue_view_rep(Dazibao_TLV* tlv){
   (fonction obsolete, non utilise)
   Utiliser pour l'affichage qui permet d'ajouter une tlv de type conteneur
 */
-GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel){
+   GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel){
   GtkWidget *check;
   check = gtk_check_button_new_with_label (szLabel);
   gtk_box_pack_start (GTK_BOX (box), check, FALSE, FALSE, 10);
@@ -117,8 +117,31 @@ GtkWidget *CreateCheckBox (GtkWidget *box, char *szLabel){
   cette fonction permet de savoir quelles sont les tlv qui ont été selectionnées
   par l'utilisateur (ie. celles qu'il a coché)
 */
-void vue_add_rep(){
-  printf("vue_add_rep\n");
+void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
+  GtkWidget *rec = (GtkWidget *) message;
+  if(GTK_IS_CONTAINER(rec)){
+    GList *children = gtk_container_get_children(GTK_CONTAINER(rec));
+    int size = g_list_length(children);
+    printf("size = %d\n", size);
+    GtkWidget *aux;
+    guint i = 0;
+    for(i = 0; i < size; i++){ // on parcours le body_panel
+      aux = (GtkWidget *) g_list_nth_data (children, i);
+      if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+        GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
+        GtkWidget *aux_table;
+        //int size_tab = g_list_length(children);
+	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);
+        if(GTK_IS_CHECK_BUTTON(aux_table)){
+	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
+	  printf("check_button %c\n", (b == FALSE) ? 'F' : 'T');
+        }
+      }
+    }
+  } else {
+    printf("FATAL ERROR\n");
+    exit(1);
+  } 
 }
 
 

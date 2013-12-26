@@ -26,7 +26,7 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message);
 const char *label_button(Dazibao_TLV* current_tlv);
 
 /* add TLV */
-void vue_add_rep();
+void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Text(GtkWidget *label, gpointer *message);
 
