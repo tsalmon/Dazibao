@@ -57,7 +57,7 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     vue_init_body(panel, dazibao.elements, dazibao.tlv_count);
     gtk_widget_show_all(window);
     break;
-  case 5: 
+  case 5: /* annule date OU annule rep*/
     gtk_widget_destroy(body_panel);
     gtk_widget_destroy(foot_panel);
     vue_init_body(panel, tlv_compound, nb_tlv_compound);

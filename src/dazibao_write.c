@@ -79,6 +79,5 @@ bool dazibao_append_tlv(Dazibao *dazibao, Dazibao_TLV *tlv) {
     
     /* update file size */
     dazibao_get_file_size(dazibao);
-    
     return true;
 }

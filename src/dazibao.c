@@ -46,21 +46,18 @@ int main(int argc, char **argv) {
     newtlv.value = "Bonjour Monsieur................";
     newtlv.length = strlen(newtlv.value);        
     
-         
-      printf("\n[+] now loading tlvs one by one :\n");
+    printf("\n[+] now loading tlvs one by one :\n");
       load_tlv_value(&dazibao, dazibao.elements[0]);
-      printf("%s\n", (char *)dazibao.elements[0]->value);
-
       load_tlv_value(&dazibao, dazibao.elements[1]);
       load_tlv_value(&dazibao, dazibao.elements[2]);
       load_tlv_value(&dazibao, dazibao.elements[3]);
       load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element);
-      
-      /* load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]); */      
+    
+    /* load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]); */      
   } 
-
-  dazibao_close_file(&dazibao);
+  
   vue_init();
   printf("[i] :)\n");
+  dazibao_close_file(&dazibao);
   return EXIT_SUCCESS;
 }

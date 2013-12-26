@@ -48,5 +48,6 @@ typedef struct {
 } Dazibao_TLV_Dated_Value;
 
 Dazibao dazibao;
-
+Dazibao_TLV **tlv_compound;
+int nb_tlv_compound;
 #endif

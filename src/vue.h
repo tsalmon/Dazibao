@@ -33,7 +33,7 @@ struct tlv *init_test_random(int n);
 void print_test(struct tlv *aux, int p);
 void free_test(struct tlv *aux);
 
-char *timestamp_to_date(int timestamp);
+/*char *timestamp_to_date(int timestamp);*/
 int nbDateBissextile(int d1, int d2);
 int isBix(int date);
 

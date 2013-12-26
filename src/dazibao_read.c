@@ -159,6 +159,7 @@ Dazibao_TLV_Compound_Value *load_tlv_value_compound(Dazibao *dazibao, Dazibao_TL
 /* FONCTIONS À GARDER ? */
 void print_tlv_header(Dazibao_TLV *tlv) {
    printf("[+] TLV | Type %d | at %d | length %d\n", tlv->type, (int)tlv->position, tlv->length);
+   
 }
 
 /* TODO */
