@@ -13,6 +13,9 @@
 #define DATE_FORMAT "%d/%m/%y %Hh%Mm%Ss"
 #define DATE_LENGTH strlen(DATE_FORMAT) /* 18 */
 
+#define SHORT_DATE_FORMAT "%d/%m/%y"
+#define SHORT_DATE_LENGTH strlen(DATE_FORMAT) /* 8 */
+
 /* -------------------------------------------------------------------------- */
 
 /* Retourne la taille d'un fichier */
@@ -29,7 +32,7 @@ int get_file_size(char *path) {
 /* read(2) wrapper */
 /* TODO */
 
-/* write(2) wrapper */
+/* write(2) wrapper TODO TODO TODO */
 void dazibao_write(int file_descriptor, void *buffer, size_t count) {
     if(write(file_descriptor, buffer, count) == -1) {
         perror("error while writing");
@@ -39,7 +42,7 @@ void dazibao_write(int file_descriptor, void *buffer, size_t count) {
 
 /* -------------------------------------------------------------------------- */
 
-/* Converti un timestamp en date lisible */
+/* Converti un timestamp en date lisible format long */
 char *timestamp_to_date(int timestamp) {
     time_t time = timestamp;
     struct tm *tmp;
@@ -51,6 +54,20 @@ char *timestamp_to_date(int timestamp) {
 
     return output;
 }
+
+/* Converti un timestamp en date lisible format court */
+char *timestamp_to_date_short(int timestamp) {
+    time_t time = timestamp;
+    struct tm *tmp;
+
+    char *output = malloc(sizeof(char) * DATE_LENGTH);
+
+    tmp = localtime(&time);
+    strftime(output, SHORT_DATE_LENGTH, SHORT_DATE_FORMAT, tmp);
+
+    return output;
+}
+
 
 /* -------------------------------------------------------------------------- */
 
