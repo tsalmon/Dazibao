@@ -8,27 +8,6 @@ typedef struct {
   gchar *  p_text;
 } combo_data_st;
 
-typedef struct value{
-  int date;
-  char *str;
-}value;
-
-
-typedef struct tlv{
-  int type_id;
-  int nb_tlv;
-  long int position;
-  struct tlv *pere;
-  struct tlv *conteneur;
-  struct tlv *suivant;
-}tlv;
-
-typedef struct dazi{
-  struct tlv *tlv_debut;
-  int nb_tlv;
-}dazi;
-
-
 struct tlv *init_test_random(int n);
 void print_test(struct tlv *aux, int p);
 void free_test(struct tlv *aux);
