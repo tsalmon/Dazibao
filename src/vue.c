@@ -119,6 +119,9 @@ void vue_view_rep(Dazibao_TLV* tlv){
 */
 void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget *rec = (GtkWidget *) message;
+  Dazibao_TLV ** tlv_selected = NULL;
+  Dazibao_TLV *tlv_retour = NULL;
+  int nb_tlv_selected = 0;
   if(GTK_IS_CONTAINER(rec)){
     GList *children = gtk_container_get_children(GTK_CONTAINER(rec));
     int size = g_list_length(children);
@@ -134,15 +137,27 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
 	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);
         if(GTK_IS_CHECK_BUTTON(aux_table)){
 	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
-	  printf("check_button %c\n", (b == FALSE) ? 'F' : 'T');
+	  if(b == TRUE){
+	    tlv_selected = realloc(tlv_selected, (1+nb_tlv_selected) * sizeof(Dazibao_TLV *));
+	    tlv_selected[nb_tlv_selected++] = tlv_compound[i];
+	  }
         }
       }
     }
   } else {
     printf("FATAL ERROR\n");
-    exit(1);
+    return ;
   } 
-}
+  if(nb_tlv_selected == 0){
+    return ;
+  }
+  tlv_retour = create_compound_tlv(nb_tlv_selected, tlv_selected);  
+    if(dazibao_append_tlv(&dazibao, tlv_retour) == false){
+    printf("error\n");
+    }
+  free(tlv_selected);
+  vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
+} 
 
 
 /*
@@ -1075,11 +1090,12 @@ void vue_init_foot(GtkWidget * panel){
   initialise l'affichage du dazibao
 */
 int vue_init(){
+  /*
   int i;
   for(i = 0; i < dazibao.tlv_count; i++){
     printf("type = %d\n", dazibao.elements[i]->type);
   }
-
+  */
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
