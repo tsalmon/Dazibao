@@ -122,15 +122,15 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
   if(GTK_IS_CONTAINER(rec)){
     GList *children = gtk_container_get_children(GTK_CONTAINER(rec));
     int size = g_list_length(children);
-    printf("size = %d\n", size);
     GtkWidget *aux;
-    guint i = 0;
-    for(i = 0; i < size; i++){ // on parcours le body_panel
+    int i = 0;
+    printf("size = %d\n", size);
+    for(i = 0; i < size; i++){ /* on parcours le body_panel*/
       aux = (GtkWidget *) g_list_nth_data (children, i);
-      if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
+      if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
         GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
         GtkWidget *aux_table;
-        //int size_tab = g_list_length(children);
+        /*int size_tab = g_list_length(children);*/
 	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);
         if(GTK_IS_CHECK_BUTTON(aux_table)){
 	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
