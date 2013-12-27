@@ -10,6 +10,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
+#include "dazibao_utilities.h"
+
 unsigned char* convertIntSizeToCharSize(int size) { /* Convertie la taille d'un int sur 3 octets */
 
 	int nombre = size;
@@ -41,22 +43,25 @@ unsigned char* convertIntSizeToCharSize(int size) { /* Convertie la taille d'un 
 
 }
 
-int sizeFile(char *file) {
+void callDeletePad(int f, char *file) {
 
-	int fs;
-	struct stat fileStat;
-	char *msg_error_size  = "Erreur taille fichier\n";
-	
-	if(( fs = stat(file, &fileStat)) != 0 ) {
-		write(STDIN_FILENO, msg_error_size, strlen(msg_error_size));
+	int shift;
+
+	if(flock(f, LOCK_EX) < 0) { /* Verrou sur le fichier */
 		exit(EXIT_FAILURE);
 	}
 
-	return fileStat.st_size;
-	
+	lseek(f, 4, SEEK_SET); /* Ignore l'entête */
+	shift = deletePad(f, get_file_size(file), 0); /* Supprime les pad */
+	truncate(file, get_file_size(file) - shift); /* Tronque le fichier */
+
+	if(flock(f, LOCK_UN) < 0) { /* Déverrouillage fichier */
+		exit(EXIT_FAILURE);
+	}
+
 }
 
-int deletePad(int f, int taille, int val) {
+int deletePad(int f, int sizeLoop, int val) {
 
 	off_t tmpPos;
 	off_t curRead;
@@ -73,7 +78,7 @@ int deletePad(int f, int taille, int val) {
 	unsigned char length[3];
 	unsigned char *newLength;
 
-	while (((fr = read(f, &buff, 1)) > 0) && (lseek(f,0,SEEK_CUR) <= taille)) {
+	while (((fr = read(f, &buff, 1)) > 0) && (lseek(f,0,SEEK_CUR) <= sizeLoop)) {
 
 		if (buff == 0) { /* TLV PAD1 */
 			
@@ -119,7 +124,7 @@ int deletePad(int f, int taille, int val) {
 
 				if(tmpVal != 0) {
 
-					lseek(f, tmpPos-(shift+4), SEEK_SET);
+					lseek(f, tmpPos - (shift + 4), SEEK_SET);
 					shift_end = tmpVal - shift_start; /* calcul du décalage dans un dated */
 					newLength = convertIntSizeToCharSize(size - shift_end); /* nouvelle taille convertie */
 					write(f, &buff, 1);
@@ -130,7 +135,7 @@ int deletePad(int f, int taille, int val) {
 					
 				}
 
-				lseek(f, (tmpPos+size), SEEK_SET);
+				lseek(f, (tmpPos + size), SEEK_SET);
 				shift = tmpVal; /* affectation de la nouvelle valeur de décalage */
 
 			} else { /* AUTRES TLV */
@@ -158,72 +163,5 @@ int deletePad(int f, int taille, int val) {
 	}
 
 	return(shift);
-
-}
-
-void compacteDazibao(char *argv) {
-
-	int fd;
-	int shift;
-	char *msg_error = "Erreur du fichier dzb\n";
-  char *msg_open  = "Ouverture du fichier dzb\n";
-  char *msg_close = "Fermeture du fichier dzb\n";
-
-	char *msg_error_lock   = "Erreur lock\n";
-	char *msg_lock         = "Verrou acquis\n";
-	char *msg_error_unlock = "Erreur unlock\n";
-	char *msg_unlock       = "Verrou supprime\n";
-
-	/* Ouverture du fichier */
-
-	if(( fd = open(argv, O_RDWR)) < 0 ) {
-    write(STDIN_FILENO, msg_error, strlen(msg_error));
-    exit(EXIT_FAILURE);
-  } else {
-    write(STDIN_FILENO, msg_open, strlen(msg_open));
-  }
-
-	/* Verrou sur le fichier */
-
-	if(flock(fd, LOCK_EX) < 0) {
-		write(STDIN_FILENO, msg_error_lock, strlen(msg_error_lock));
-		exit(EXIT_FAILURE);
-	} else {
-		write(STDIN_FILENO, msg_lock, strlen(msg_lock));
-	}
-
-	/* Suppression des pad1 et padN*/
-	lseek(fd, 4, SEEK_SET);
-	shift = deletePad(fd, sizeFile(argv), 0);
-	truncate(argv, sizeFile(argv) - shift);
-
-	/* Déverrouillage fichier */
-
-	if(flock(fd, LOCK_UN) < 0) {
-		write(STDIN_FILENO, msg_error_unlock, strlen(msg_error_unlock));
-	} else {
-		write(STDIN_FILENO, msg_unlock, strlen(msg_unlock));
-	}
-
-	/* Fermeture du fichier */
-	
-	write(STDIN_FILENO, msg_close, strlen(msg_close));
-  close(fd);
-
-}
-
-
-int main(int argc, char *argv[]) {
-
-	char *msg_error_arg = "Erreur argument";
-
-	if( argc != 2 ) {
-		write(STDIN_FILENO, msg_error_arg, strlen(msg_error_arg));
-		exit(EXIT_FAILURE);
-	}
-
-  compacteDazibao(argv[1]);
-
-  return(0);
 
 }
