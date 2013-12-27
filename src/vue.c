@@ -154,7 +154,6 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
 
 
 /*
-  OBSOLETE
   Call by: vue_gere_menu
   Apres avoir clique sur le bouton Content: 
   On va remplacer toutes les cases de dates des TLV par une case a cocher afin 
@@ -163,19 +162,11 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
 */
 void vue_body_rep(){
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  /*int size = g_list_length(children);*/
   GtkWidget *aux;
   GtkWidget *aux_table;
   int i = 0;
   GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  /*
-  if(tlv_actuel->type_id > 4){
-    curseur = tlv_actuel->conteneur;
-  } else {
-    curseur = tlv_actuel;  
-  }
-  */
   for(i = 0; i < nb_tlv_compound; i++){ /* on parcours le body_panel*/
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
@@ -207,10 +198,6 @@ void vue_body_rep(){
 
 gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
   GtkWidget *rec = (GtkWidget *) message;
-  /*
-  Dazibao_TLV ** tlv_selected = NULL;
-  Dazibao_TLV *tlv_retour = NULL;
-  */
   int nb_tlv_selected = 0;
   if(GTK_IS_CONTAINER(rec)){
     GList *children = gtk_container_get_children(GTK_CONTAINER(rec));
@@ -229,10 +216,6 @@ gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
 	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
 	  if(b == TRUE){
 	    dazibao_remove_tlv(&dazibao, tlv_compound[i]);
-	    /*
-	      tlv_selected = realloc(tlv_selected, (1+nb_tlv_selected) * sizeof(Dazibao_TLV *));
-	      tlv_selected[nb_tlv_selected++] = tlv_compound[i];
-	    */
 	  }
         }
       }
@@ -244,12 +227,6 @@ gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
   if(nb_tlv_selected == 0){
     return FALSE;
   }
-  /*
-  tlv_retour = create_compound_tlv(nb_tlv_selected, tlv_selected);  
-  dazibao_append_tlv(&dazibao, tlv_retour);
-  free(tlv_selected);
-  vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
-  */
   return FALSE;
 }
 
@@ -267,13 +244,6 @@ void vue_body_suppr(){
   int i = 0;
   GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
   GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
-  /*
-    if(tlv_actuel->type_id > 4){
-    curseur = tlv_actuel->conteneur;
-    } else {
-    curseur = tlv_actuel;  
-    }
-  */
   for(i = 0; i < nb_tlv_compound; i++){ /* on parcours le body_panel*/
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
@@ -432,70 +402,7 @@ gint traitement_addDateTLV(GtkWidget *btn_date, GdkEvent *event, gpointer messag
 */
 void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   Dazibao_TLV *getTLV = (Dazibao_TLV *) message;
-  /*dans le cas ou la tlv est une date, on recupere le dernier*/
-  /*GtkWidget* box;*/
-  /*GtkWidget *scrollbar;*/
   GtkWidget *label[6];
-  /*GtkWidget *btn_date;*/
-  /*int i = 0;*/
-
-  /*
-  GList *children = gtk_container_get_children(GTK_CONTAINER(panel_tlv));
-  int size = g_list_length(children);
-  GtkWidget *aux;
-  GtkWidget *aux_table;
-  guint i = 0;
-
-  printf("size = %d\n", size);
-  for(i = 0; i < size; i++){ // on parcours le panel_tlv
-    printf("i = %d\n", i);
-    aux = (GtkWidget *) g_list_nth_data (children, i);
-    if(GTK_IS_TABLE(aux)){ // cette condition est la pour eviter de capturer le bouton More
-      printf("date\n");
-      GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
-      aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
-      if(GTK_IS_SCROLLED_WINDOW(aux_table)){// on ne capture que le scroll du date
-	
-      }
-      }
-      
-      }
-  */
-  
-  /*
-    if(getTLV->type_id == 6){
-    GtkWidget* window_addDate;
-    window_addDate = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_position (GTK_WINDOW (window_addDate), GTK_WIN_POS_CENTER);
-    
-    gtk_window_set_default_size(GTK_WINDOW(window_addDate), 320, 200);
-    gtk_window_set_title(GTK_WINDOW(window_addDate), "GtkScrolledWindow_AddDate");
-    g_signal_connect(G_OBJECT(window_addDate),"destroy",G_CALLBACK(gtk_main_quit),0);
-    
-    scrollbar = gtk_scrolled_window_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER(window_addDate),scrollbar);
-    
-    box=gtk_vbox_new(FALSE,5);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollbar), box);
-    
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    
-    btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
-    gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5); 
-    while(getTLV->type_id == 6){
-      GtkWidget *label;
-      char texte[10];
-      sprintf(texte, "%d", i++);
-      label = gtk_label_new(texte);
-      gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 5); 
-      btn_date = gtk_button_new_with_label("ajouter une nouvelle date");
-      gtk_box_pack_start(GTK_BOX(box), btn_date, FALSE, FALSE, 5);
-      getTLV = getTLV->conteneur;
-      }
-      gtk_widget_show_all (window_addDate);
-      gtk_main ();
-      } else { 
-  */
   GtkWidget * p_win  = NULL;
   GtkWidget * p_combo[6];
   time_t secondes;
@@ -505,8 +412,6 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   int i = 0, j = 0;
   struct tm instant;
   
-  /*tlv_dated_selected = getTLV;*/
-  printf("addDateTLV %d\n", getTLV->type);
   tlv_dated_selected = getTLV;
   
   gtk_init (NULL, NULL); 
@@ -617,42 +522,17 @@ void addDateTLV(GtkWidget *panel_tlv, GdkEvent *event, gpointer message){
   nouvelle date
 */
 void vue_body_Date(){
-  /*struct tlv * curseur;*/
   GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
-  /*int size = g_list_length(children);*/
   GtkWidget *aux;
   GtkWidget *aux_table;
   int i = 0;
 
-  
-  
-  /*
-  if(tlv_actuel->type_id > 4){
-    curseur = tlv_actuel->conteneur;
-  } else {
-    curseur = tlv_actuel;  
-  }
-  */
   for(i = 0; i < nb_tlv_compound; i++){ 
     aux = (GtkWidget *) g_list_nth_data (children, i);
     if(GTK_IS_TABLE(aux)){ 
       GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
       aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
       if(GTK_IS_SCROLLED_WINDOW(aux_table)){/* on ne capture que le scroll du date*/
-	/*
-	  if(GTK_IS_VBOX(children_scrolled_window)) {
-	  printf("scroll\n");
-	  } else if(GTK_IS_VBOX(aux_scrolled_window)){
-	  printf("vbox\n");
-	  } else if(GTK_IS_LABEL(aux_scrolled_window)) {
-	  printf("label\n");
-	  } else if(GTK_IS_BUTTON(aux_scrolled_window)) {
-	  printf ("%s\n",);("button\n");
-	  } else else if(GTK_IS_TABLE(aux_scrolled_window)) {
-	  printf("table\n");
-	  }
-	*/
-	
 	gtk_widget_destroy(aux_table);
 	aux_table = gtk_button_new_with_label("+");
 	gtk_table_attach_defaults(GTK_TABLE(aux), aux_table, 0, 1, 0, 1);
@@ -660,7 +540,6 @@ void vue_body_Date(){
 			   (GtkSignalFunc)addDateTLV, 
 			   (gpointer)(tlv_compound[i]));
       }
-      /*curseur = curseur->suivant;    */
     }
   }
 }
@@ -766,8 +645,8 @@ void vue_fen_make_Text(){
 }
 
 /*
-  Cette fonction ne devrait pas etre ici car ne concerne pas directement l'ui,
-  je m'en sert seulement pour tester l'affichage de textes
+  insert des sauts de lignes pour eviter qu'une lignes 
+  depasse les 80 caracteres de long
  */
 int insertSpace(char str[]){
   int cur = 0;
@@ -802,7 +681,6 @@ void vue_fen_view_Text(char *str){
   int nb = 0;
   int i = 0, j = 0, k = 0;
   char *str_lines[80];
-  
   GtkWidget* window = NULL;
   GtkWidget* box;
   GtkWidget** pLabel = NULL;  
@@ -849,45 +727,6 @@ void vue_fen_view_Text(char *str){
   
   gtk_widget_show_all(window); 
   gtk_main();
-
-  /*
-  for(i = 0; i < nb; i++){
-    free(str_lines[i]);
-  }
-  free(str_lines);
-  */
-
-/*
-  GtkWidget *fenetre;
-  GtkWidget *text;
-  GtkWidget *panel;
-  GtkWidget * scrollbar;
-  int i = 0;
-  
-  gtk_init(&i, NULL);
-  fenetre = gtk_window_new(GTK_WINDOW_TOPLEVEL); 
-  gtk_window_set_title (GTK_WINDOW(fenetre), "Hello World !");
-  gtk_window_set_default_size(GTK_WINDOW(fenetre), 400, 400);
-  g_signal_connect(G_OBJECT(fenetre),"destroy",G_CALLBACK(gtk_main_quit),0); 
-  gtk_window_set_resizable(GTK_WINDOW(fenetre), FALSE);        
-  
-  scrollbar = gtk_scrolled_window_new(NULL, NULL);
-  panel = gtk_hbox_new(FALSE, 5);  
-  
-  text = gtk_label_new ("This is an example of a line-wrapped, filled label. It should be taking up the entire width allocated to it. Here is a sentence to prove my point.  Here is another sentence. Here comes the sun, do de do de do.\n This is a new paragraph.\nThis is another newer, longer, better paragraph.  It is coming to an end, ufortunately.");
-  
-  gtk_container_add(GTK_CONTAINER(fenetre), scrollbar);
-  gtk_scrolled_window_add_with_viewport
-    (GTK_SCROLLED_WINDOW(scrollbar), panel);
-  gtk_scrolled_window_set_policy
-    (GTK_SCROLLED_WINDOW(scrollbar), 
-     GTK_POLICY_NEVER,
-     GTK_POLICY_ALWAYS);    
-
-  gtk_box_pack_start(GTK_BOX(panel), text, FALSE, FALSE, 0);
-  gtk_widget_show_all(fenetre);
-  gtk_main();
-*/
 }
 
 /*
@@ -1185,12 +1024,6 @@ void vue_init_foot(GtkWidget * panel){
   initialise l'affichage du dazibao
 */
 int vue_init(){
-  /*
-  int i;
-  for(i = 0; i < dazibao.tlv_count; i++){
-    printf("type = %d\n", dazibao.elements[i]->type);
-  }
-  */
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
