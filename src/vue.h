@@ -30,10 +30,15 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message);
 gint vue_add_Text(GtkWidget *label, gpointer *message);
 
+
+gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message);
+
+
 /* fenetre de saisie */
 void vue_fen_make_Text();
 void vue_view_rep(Dazibao_TLV *rep);
 void vue_body_Date();
+void vue_body_suppr();
 void vue_foot_Date();
 void vue_fen_make_Date();
 void vue_body_rep();

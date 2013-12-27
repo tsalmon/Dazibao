@@ -63,21 +63,14 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     vue_init_body(panel, tlv_compound, nb_tlv_compound);
     vue_init_foot(panel);
     gtk_widget_show_all(window);
-    
-    /*
-      printf("back: ");
-      if(tlv_actuel == daz->tlv_debut){
-      printf("rien a back\n");
-      } else {
-      printf("%ld -> %ld\n", tlv_actuel->position, tlv_actuel->pere->position);
-      gtk_widget_destroy(body_panel);
-      tlv_actuel = tlv_actuel->pere;
-      vue_init_body(panel, tlv_actuel);
-      gtk_widget_show_all(window);
-      }
-    */
     break;
   case 6:
+    printf("compaction\n");
+    break;
+  case 7:
+    printf("suppression\n");
+    vue_body_suppr();
+    gtk_widget_show_all(window);
     break;
   default:
     printf("non reconnu");
@@ -152,9 +145,7 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
     return ;
   }
   tlv_retour = create_compound_tlv(nb_tlv_selected, tlv_selected);  
-    if(dazibao_append_tlv(&dazibao, tlv_retour) == false){
-    printf("error\n");
-    }
+  dazibao_append_tlv(&dazibao, tlv_retour);
   free(tlv_selected);
   vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
 } 
@@ -211,6 +202,105 @@ void vue_body_rep(){
   gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
   gtk_widget_show_all(foot_panel);  
 }
+
+gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
+  GtkWidget *rec = (GtkWidget *) message;
+  /*
+  Dazibao_TLV ** tlv_selected = NULL;
+  Dazibao_TLV *tlv_retour = NULL;
+  */
+  int nb_tlv_selected = 0;
+  if(GTK_IS_CONTAINER(rec)){
+    GList *children = gtk_container_get_children(GTK_CONTAINER(rec));
+    int size = g_list_length(children);
+    GtkWidget *aux;
+    int i = 0;
+    printf("size = %d\n", size);
+    for(i = 0; i < size; i++){ /* on parcours le body_panel*/
+      aux = (GtkWidget *) g_list_nth_data (children, i);
+      if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
+        GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
+        GtkWidget *aux_table;
+        /*int size_tab = g_list_length(children);*/
+	aux_table = (GtkWidget *) g_list_nth_data (children_table, 0);
+        if(GTK_IS_CHECK_BUTTON(aux_table)){
+	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
+	  if(b == TRUE){
+	    printf("%d selected\n", i);
+	    /*
+	      tlv_selected = realloc(tlv_selected, (1+nb_tlv_selected) * sizeof(Dazibao_TLV *));
+	      tlv_selected[nb_tlv_selected++] = tlv_compound[i];
+	    */
+	  }
+        }
+      }
+    }
+  } else {
+    printf("FATAL ERROR\n");
+    return FALSE;
+  } 
+  if(nb_tlv_selected == 0){
+    return FALSE;
+  }
+  /*
+  tlv_retour = create_compound_tlv(nb_tlv_selected, tlv_selected);  
+  dazibao_append_tlv(&dazibao, tlv_retour);
+  free(tlv_selected);
+  vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
+  */
+  return FALSE;
+}
+
+/*
+  call by: vue_gere_menu
+  cette fonction permet de selectionner une ou des tlv a supprimer, 
+  on appelle ensuite la fonction vue_suppr_tlv si on a confirmer la suppression
+  ou vue_gere_menu si on a decider de l'annuler
+*/
+void vue_body_suppr(){
+  GList *children = gtk_container_get_children(GTK_CONTAINER(body_panel));
+  /*int size = g_list_length(children);*/
+  GtkWidget *aux;
+  GtkWidget *aux_table;
+  int i = 0;
+  GtkWidget *btn_ok = gtk_button_new_with_label("Ok");
+  GtkWidget *btn_cancel = gtk_button_new_with_label("Cancel");
+  /*
+    if(tlv_actuel->type_id > 4){
+    curseur = tlv_actuel->conteneur;
+    } else {
+    curseur = tlv_actuel;  
+    }
+  */
+  for(i = 0; i < nb_tlv_compound; i++){ /* on parcours le body_panel*/
+    aux = (GtkWidget *) g_list_nth_data (children, i);
+    if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
+      GList *children_table = gtk_container_get_children(GTK_CONTAINER(aux));
+      aux_table = (GtkWidget *) g_list_nth_data (children_table, 1);    
+      if(GTK_IS_SCROLLED_WINDOW(aux_table)){/* on ne capture que le scroll du date*/
+	GtkWidget *check;
+	gtk_widget_destroy(aux_table);
+	check = gtk_check_button_new();
+	gtk_table_attach_defaults(GTK_TABLE(aux), check, 0, 1, 0, 1);
+      }
+    }
+  }
+  /* FOOT SESSION*/
+  gtk_widget_destroy(foot_panel); /* on vire tous les boutons  */
+  foot_panel	= gtk_hbox_new(FALSE,0);
+  gtk_box_pack_start(GTK_BOX(foot_panel), btn_ok , FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(foot_panel), btn_cancel , FALSE, FALSE, 0);  
+  gtk_signal_connect(GTK_OBJECT(btn_cancel), "clicked", 
+		     (GtkSignalFunc)vue_gere_menu, 
+		     (gpointer)&id_bouton[5]);
+  gtk_signal_connect(GTK_OBJECT(btn_ok), "clicked",
+		     (GtkSignalFunc)vue_suppr_tlv,
+		     (gpointer)body_panel);
+
+  gtk_table_attach_defaults(GTK_TABLE(panel), foot_panel, 0, 1, 9, 10);
+  gtk_widget_show_all(foot_panel);  
+}
+
 
 /*
   Callby: newTLVDate
@@ -269,9 +359,7 @@ gint vue_add_Date(GtkWidget *label, GdkEvent *event, gpointer message){
   aux = atoi(gtk_entry_get_text(GTK_ENTRY(data[3])));
   timestamp += aux;
   tlv_date = create_dated_tlv(timestamp, tlv_dated_selected);
-  if(dazibao_append_tlv(&dazibao, tlv_date) == false){
-    printf("error\n");
-  }
+  dazibao_append_tlv(&dazibao, tlv_date);  
   return FALSE;
 }
 
@@ -322,9 +410,7 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   sBuffer = gtk_text_buffer_get_text(pTextBuffer, &iStart, &iEnd, TRUE);
   printf("%s\n", sBuffer);
   txt = create_raw_tlv(TEXT, sBuffer);
-  if(dazibao_append_tlv(&dazibao, txt) == false){
-    printf("error\n");
-  }
+  dazibao_append_tlv(&dazibao, txt);
   return FALSE;
 }
 
@@ -905,12 +991,15 @@ gint traitement_quitter(GtkWidget *label, GdkEvent *event, gpointer message){
 void vue_init_head(GtkWidget * panel){
   GtkWidget *home;
   GtkWidget *concat;
+  GtkWidget *suppression;
   GtkWidget *head_panel = gtk_hbox_new(FALSE,0);
   
-  home = gtk_button_new_with_label("home");
+  home = gtk_button_new_with_label("home"); 
+  suppression = gtk_button_new_with_label("supprimer");
   concat = gtk_button_new_with_label("concat");
 
   gtk_box_pack_start(GTK_BOX(head_panel), home, FALSE, FALSE, 0);  
+  gtk_box_pack_start(GTK_BOX(head_panel), suppression, FALSE, FALSE, 0);  
   gtk_box_pack_start(GTK_BOX(head_panel), concat, FALSE, FALSE, 0);  
   
   gtk_table_attach_defaults(GTK_TABLE(panel), head_panel, 0, 1, 0, 1);
@@ -918,10 +1007,9 @@ void vue_init_head(GtkWidget * panel){
   gtk_signal_connect(GTK_OBJECT(home), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[4]));
-  /*gtk_signal_connect(GTK_OBJECT(back), "clicked", 
+  gtk_signal_connect(GTK_OBJECT(suppression), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
-		     (gpointer)&(id_bouton[5]));
-  */
+		     (gpointer)&(id_bouton[7]));
   gtk_signal_connect(GTK_OBJECT(concat), "clicked", 
 		     (GtkSignalFunc)vue_gere_menu, 
 		     (gpointer)&(id_bouton[6]));
@@ -1020,7 +1108,6 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(tlv[i]));
     } else {
-      
       Dazibao_TLV_Dated_Value *date = tlv[i]->value;
       Dazibao_TLV *curseur_date;
       do{
