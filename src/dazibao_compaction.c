@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <errno.h>
 
+#include "dazibao.h"
 #include "dazibao_utilities.h"
 
 unsigned char* convertIntSizeToCharSize(int size) { /* Convertie la taille d'un int sur 3 octets */
@@ -54,7 +55,7 @@ void callDeletePad(int f, char *file) {
 	lseek(f, 4, SEEK_SET); /* Ignore l'entête */
 	shift = deletePad(f, get_file_size(file), 0); /* Supprime les pad */
 	truncate(file, get_file_size(file) - shift); /* Tronque le fichier */
-
+	
 	if(flock(f, LOCK_UN) < 0) { /* Déverrouillage fichier */
 		exit(EXIT_FAILURE);
 	}

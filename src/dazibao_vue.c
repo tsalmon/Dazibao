@@ -9,6 +9,7 @@
 #include "dazibao.h"
 #include "dazibao_write.h"
 #include "dazibao_utilities.h"
+#include "dazibao_compaction.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -65,10 +66,9 @@ gint vue_gere_menu(GtkWidget *label, GdkEvent *event, gpointer message){
     gtk_widget_show_all(window);
     break;
   case 6:
-    printf("compaction\n");
+    callDeletePad(dazibao.file_descriptor, dazibao.file_path);
     break;
   case 7:
-    printf("suppression\n");
     vue_body_suppr();
     gtk_widget_show_all(window);
     break;
@@ -884,11 +884,11 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     GtkWidget* scrollbar_date;
     GtkWidget* dates;
     GtkWidget* button_tlv;
-
+    
     if(tlv[i]->type < 2){
       continue;
     }
-
+    
 
     /* definitions des elements de la liste */
     /*une serie de dates sous forme de box*/
