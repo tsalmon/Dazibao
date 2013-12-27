@@ -10,13 +10,16 @@
 
 #include "dazibao.h"
 
+/* À supprimer ! */
+#include "dazibao_read.h"
+
 #define DATE_FORMAT "%d/%m/%y %Hh%Mm%Ss"
 #define DATE_LENGTH strlen(DATE_FORMAT) /* 18 */
 
 #define SHORT_DATE_FORMAT "%d/%m/%y"
-#define SHORT_DATE_LENGTH strlen(DATE_FORMAT) /* 8 */
+#define SHORT_DATE_LENGTH strlen(SHORT_DATE_FORMAT) /* 8 */
 
-/* -------------------------------------------------------------------------- */
+#define TAB "    "
 
 /* Retourne la taille d'un fichier */
 int get_file_size(char *path) {
@@ -28,29 +31,16 @@ int get_file_size(char *path) {
     return stats.st_size;
 }
 
-
-/* read(2) wrapper */
-/* TODO */
-
-/* write(2) wrapper TODO TODO TODO */
-void dazibao_write(int file_descriptor, void *buffer, size_t count) {
-    if(write(file_descriptor, buffer, count) == -1) {
-        perror("error while writing");
-        exit(55);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
 /* Converti un timestamp en date lisible format long */
 char *timestamp_to_date(int timestamp) {
     time_t time = timestamp;
     struct tm *tmp;
-    
+
     char *output = malloc(sizeof(char) * DATE_LENGTH);
-    
+
     tmp = localtime(&time);
     strftime(output, DATE_LENGTH, DATE_FORMAT, tmp);
+
     return output;
 }
 
@@ -67,16 +57,25 @@ char *timestamp_to_date_short(int timestamp) {
     return output;
 }
 
-
-/* -------------------------------------------------------------------------- */
-
 /* Crée un TLV de type "commun" */
-Dazibao_TLV *create_raw_tlv(Dazibao_TLV_Type type, char *value) {
+Dazibao_TLV *create_raw_tlv(Dazibao_TLV_Type type, void *value) {
     Dazibao_TLV *output = malloc(sizeof(Dazibao_TLV));
 
     output->length = strlen(value);
     output->position = -1;
     output->type = type;
+    output->value = value;
+
+    return output;
+}
+
+/* Crée un TLV de type TEXT */
+Dazibao_TLV *create_text_tlv(char *value) {
+    Dazibao_TLV *output = malloc(sizeof(Dazibao_TLV));
+
+    output->length = strlen(value);
+    output->position = -1;
+    output->type = TEXT;
     output->value = value;
 
     return output;
@@ -126,17 +125,15 @@ Dazibao_TLV *create_compound_tlv(int count, Dazibao_TLV **elements) {
     return output;
 }
 
-/* -------------------------------------------------------------------------- */
-
 long get_tlv_dated_timestamp(Dazibao_TLV *tlv) {
-    if(tlv->type == DATED) {
+    if(tlv->type == DATED && tlv->value != NULL) {
         return ((Dazibao_TLV_Dated_Value *)tlv->value)->timestamp;
     } else {
-        return -1;
+        return 0;
     }
 }
 
-Dazibao_TLV *get_tlv_dated_value(Dazibao_TLV *tlv) {
+Dazibao_TLV *get_tlv_dated_element(Dazibao_TLV *tlv) {
     if(tlv->type == DATED) {
         return ((Dazibao_TLV_Dated_Value *)tlv->value)->element;
     } else {
@@ -160,21 +157,50 @@ Dazibao_TLV **get_tlv_compound_elements(Dazibao_TLV *tlv) {
     }
 }
 
-/* -------------------------------------------------------------------------- */
+char *tlv_type_to_text(Dazibao_TLV_Type type) {
+    char *strings[] = {"PADONE", "PADN", "TEXT", "PNG", "JPEG", "COMPOUND", "DATED"};
+    return (type < 0 || type > 7) ? "UNKNOW" : strings[type];
+}
 
+char *get_tlv_header(Dazibao_TLV *tlv) {
+    char *output = malloc(sizeof(char) * DAZIBAO_BUFFER_SIZE);
+    sprintf(output, ". %s | at %d | length %d", tlv_type_to_text(tlv->type), (int)tlv->position, tlv->length);
+    return output;
+}
 
+char *string_repeat(int n, const char *s) {
+    size_t slen = strlen(s);
+    char *dest = malloc(n * slen + 1);
 
+    int i;
+    char *p;
+    for (i = 0, p = dest; i < n; ++i, p += slen) {
+        memcpy(p, s, slen);
+    }
+    *p = '\0';
+    return dest;
+}
 
+void dazibao_print_tree(Dazibao *dazibao, Dazibao_TLV **elements, int count, int deepness) {
+    int i;
+    
+    /* TODO Comment faire sans allouer une tmp ici ??? */
+    Dazibao_TLV *tmp;
 
+    for (i = 0; i < count; i++) {
+        printf("%s%d)%s\n", string_repeat(deepness, TAB), i ,get_tlv_header(elements[i]));
 
-
-
-
-
-
-
-
-
-
-
-
+        switch(elements[i]->type) {
+        case DATED:
+            load_tlv_value(dazibao, elements[i]);
+            tmp = get_tlv_dated_element(elements[i]);
+            dazibao_print_tree(dazibao, &tmp, 1, deepness + 1);
+            break;
+        case COMPOUND:
+            load_tlv_value(dazibao, elements[i]);
+            dazibao_print_tree(dazibao, get_tlv_compound_elements(elements[i]), get_tlv_compound_count(elements[i]), deepness + 1);
+            break;
+        default:;
+        }
+    }
+}

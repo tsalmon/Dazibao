@@ -3,6 +3,18 @@
 
 #include "dazibao.h"
 
-bool dazibao_append_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
+bool safe_write(int fd, void *buffer, size_t count);
+
+void dazibao_write_tlv_header(Dazibao *dazibao, Dazibao_TLV *tlv);
+
+void dazibao_write_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
+
+void dazibao_write_raw_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
+
+void dazibao_write_dated_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
+
+void dazibao_append_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
+
+void dazibao_remove_tlv(Dazibao *dazibao, Dazibao_TLV *tlv);
 
 #endif

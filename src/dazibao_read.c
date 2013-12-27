@@ -10,6 +10,15 @@
 #include "dazibao_read.h"
 #include "dazibao_utilities.h"
 
+bool safe_read(int fd, void *buffer, size_t count) {
+    if(read(fd, buffer, count) == -1) {
+        perror("Read Error:");
+        return false;
+    } else {
+        return true;
+    }
+}
+
 bool dazibao_open_file(Dazibao *dazibao) {
     if ((dazibao->file_descriptor = open(dazibao->file_path, O_RDWR)) < 0) {
         perror("[!] Error when opening file");
@@ -51,30 +60,38 @@ bool dazibao_check_header(Dazibao *dazibao) {
     }
 }
 
+/* TODO FONCTIONNNN À REFAIRE !!! TODO */
 Dazibao_TLV *find_next_tlv(Dazibao *dazibao, int offset) {
-   unsigned char header[4];
+   unsigned char buffer[4096];
+
+   int i;
+
+   /*printf("find_next_tlv at %d\n", (int)offset);
+   */
    
    lseek(dazibao->file_descriptor, offset, SEEK_SET);
-   
-   if (read(dazibao->file_descriptor, header, DAZIBAO_HEADER_LENGTH) == -1) {
+
+   if (read(dazibao->file_descriptor, buffer, 4096) == -1) {
        perror("[!] Error while reading TLV");
        exit(55);
        return NULL;
    } else {
        Dazibao_TLV *new = malloc(sizeof(Dazibao_TLV));
-       
-       new->type =     header[0];
-       new->length =   header[1] * 256 * 256 + header[2] * 256 + header[3];
+
+       new->type =     buffer[0];
+       new->length =   buffer[1] * 256 * 256 + buffer[2] * 256 + buffer[3];
        new->position = offset;
-       
-       /* TODO */
-       if(new->type == PADN || new->type == PADONE) {
-           printf("PADN | PADONE !!!");
-           exit(56);
+       new->value =    NULL;
+
+       if(new->type == PADONE) {
+           for(i = 0; i < 4096; i++) {
+               if(buffer[i] != PADONE) {
+                   return find_next_tlv(dazibao, offset + i);
+               }
+           }
+       } else {
+           return new;
        }
-       /* TODO */
-       
-       return new;
    }
 }
 
@@ -88,18 +105,17 @@ Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset
            new_array = malloc(sizeof(Dazibao_TLV *));
        } else {
            new_array = realloc(new_array, sizeof(Dazibao_TLV *) * ( *(tlv_count) + 1 ));
-       }            
-       new = find_next_tlv(dazibao, next_position);
-       print_tlv_header(new);
-       next_position += DAZIBAO_HEADER_LENGTH + new->length;
-       new_array[*(tlv_count)] = new;
-       (*tlv_count)++;
+       }
+       new_array[(*(tlv_count))++] = new = find_next_tlv(dazibao, next_position);
+
+       next_position = new->position + DAZIBAO_HEADER_LENGTH + new->length;
    }
    return new_array;
 }
 
 void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
-   printf("[-] Loading tlv type %d at %d\n", tlv->type, (int)tlv->position);
+    /*printf("[-] Loading tlv type %d at %d\n", tlv->type, (int)tlv->position);
+   */
    switch(tlv->type) {
        case TEXT   :
        case PNG    :
@@ -115,7 +131,8 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
        default     :
            printf("CANT LOAD VALUE !!!\n");
    }
-   printf("[-] ok\n");
+   /*printf("[-] ok\n");
+    */
 }
 
 char *load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv) {
@@ -136,30 +153,36 @@ Dazibao_TLV_Dated_Value *load_tlv_value_dated(Dazibao *dazibao, Dazibao_TLV *tlv
    dated->timestamp = buffer[0] * 256 * 256 * 256 + buffer[1] * 255 * 256 + buffer[2] * 256 + buffer[3];
    dated->element = find_next_tlv(dazibao, tlv->position + 8);
 
-   printf("[d] Dated : Timestamp %ld\n[d] Element : ", dated->timestamp);
+   /*printf("[d] Dated : Timestamp %ld\n[d] Element : ", dated->timestamp);
+   
    print_tlv_header(dated->element);
-
+*/
    return dated;
 }
 
 Dazibao_TLV_Compound_Value *load_tlv_value_compound(Dazibao *dazibao, Dazibao_TLV *tlv) {
    
    Dazibao_TLV_Compound_Value *compound = malloc(sizeof(Dazibao_TLV_Compound_Value));
+   int count = 0;
+
+   compound->elements = find_next_tlv_array(dazibao, tlv->position + 4, tlv->position + tlv->length + 4, &count);
+
+   compound->count = count;
    
-   compound->elements = find_next_tlv_array(dazibao, tlv->position + 4, tlv->position + tlv->length + 4, &compound->count);
-   
+   /*
    printf("[c] Compound contains %d elements.\n", compound->count);
-   
+   */
    return compound;
    
 }
+
+
 
 /* TODO */
 
 /* FONCTIONS À GARDER ? */
 void print_tlv_header(Dazibao_TLV *tlv) {
-   printf("[+] TLV | Type %d | at %d | length %d\n", tlv->type, (int)tlv->position, tlv->length);
-   
+    printf("[+] TLV | Type %s | at %d | length %d\n", tlv_type_to_text(tlv->type), (int)tlv->position, tlv->length);
 }
 
 /* TODO */
