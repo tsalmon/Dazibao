@@ -31,6 +31,8 @@ char *get_tlv_header(Dazibao_TLV *tlv);
 
 char *string_repeat(int n, const char *s);
 
+int insertSpace(char str[]);
+
 void dazibao_print_tree(Dazibao *dazibao, Dazibao_TLV **elements, int count, int deepness);
  
 #endif

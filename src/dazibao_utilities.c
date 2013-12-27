@@ -181,6 +181,35 @@ char *string_repeat(int n, const char *s) {
     return dest;
 }
 
+/*
+  insert des sauts de lignes pour eviter qu'une lignes 
+  depasse les 80 caracteres de long
+*/
+int insertSpace(char str[]){
+  int cur = 0;
+  int i = 0;
+  int nb_lignes = 1;
+  while(str[cur] != '\0'){
+    if(str[cur] == '\n'){
+      nb_lignes++;
+      i = 0;
+    }
+    if(i == 80){
+      while(str[cur--] != ' '){
+      }
+      str[cur] = '\n'; 
+      nb_lignes++;
+      cur++;
+      i = 0;
+    } else {
+      i++;
+      cur++;
+    }
+  } 
+  return nb_lignes;
+}
+
+
 void dazibao_print_tree(Dazibao *dazibao, Dazibao_TLV **elements, int count, int deepness) {
     int i;
     
