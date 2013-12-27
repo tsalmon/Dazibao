@@ -226,7 +226,7 @@ gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
         if(GTK_IS_CHECK_BUTTON(aux_table)){
 	  gboolean b = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(aux_table));
 	  if(b == TRUE){
-	    printf("%d selected\n", i);
+	    dazibao_remove_tlv(&dazibao, tlv_compound[i]);
 	    /*
 	      tlv_selected = realloc(tlv_selected, (1+nb_tlv_selected) * sizeof(Dazibao_TLV *));
 	      tlv_selected[nb_tlv_selected++] = tlv_compound[i];
