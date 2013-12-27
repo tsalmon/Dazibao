@@ -139,9 +139,11 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
     }
   } else {
     printf("FATAL ERROR\n");
+    vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
     return ;
   } 
   if(nb_tlv_selected == 0){
+    vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
     return ;
   }
   tlv_retour = create_compound_tlv(nb_tlv_selected, tlv_selected);  
@@ -1069,6 +1071,12 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
     GtkWidget* scrollbar_date;
     GtkWidget* dates;
     GtkWidget* button_tlv;
+
+    if(tlv[i]->type < 2){
+      continue;
+    }
+
+
     /* definitions des elements de la liste */
     /*une serie de dates sous forme de box*/
     dates = gtk_vbox_new(FALSE,0);
