@@ -12,7 +12,7 @@
 #include "dazibao.h"
 #include "dazibao_read.h"
 #include "dazibao_write.h"
-#include "vue.h"
+#include "dazibao_vue.h"
 
 int main(int argc, char **argv) {
   Dazibao_TLV newtlv;

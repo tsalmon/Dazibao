@@ -5,8 +5,8 @@ SDL=`sdl-config --libs` -lSDLmain -lSDL -lSDL_image
 
 all: dazibao
 
-dazibao: dazibao.o dazibao_safe.o dazibao_read.o dazibao_write.o dazibao_utilities.o vue.o
-	$(CC) $(CFLAGS) dazibao.o dazibao_safe.o dazibao_read.o dazibao_write.o dazibao_utilities.o vue.o $(GTK) $(SDL) -o dazibao
+dazibao: dazibao.o dazibao_safe.o dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_vue.o
+	$(CC) $(CFLAGS) dazibao.o dazibao_safe.o dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_vue.o $(GTK) $(SDL) -o dazibao
 
 dazibao.o: dazibao.h dazibao.c
 	$(CC) $(CFLAGS) -c dazibao.c $(GTK) -o dazibao.o
@@ -23,8 +23,8 @@ dazibao_write.o: dazibao_write.h dazibao_write.c
 dazibao_utilities.o: dazibao_utilities.h dazibao_utilities.c
 	$(CC) $(CFLAGS) -c dazibao_utilities.c -o dazibao_utilities.o
 
-vue.o: vue.h vue.c
-	$(CC) $(CFLAGS) -c vue.c $(GTK) $(SDL) -o vue.o
+dazibao_vue.o: dazibao_vue.h dazibao_vue.c
+	$(CC) $(CFLAGS) -c dazibao_vue.c $(GTK) $(SDL) -o dazibao_vue.o
 
 clean:
 	rm *.o dazibao

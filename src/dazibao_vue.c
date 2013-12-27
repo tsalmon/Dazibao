@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#include "vue.h"
+#include "dazibao_vue.h"
 #include "dazibao.h"
 #include "dazibao_write.h"
 #include "dazibao_utilities.h"
