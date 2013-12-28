@@ -120,7 +120,6 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
     int size = g_list_length(children);
     GtkWidget *aux;
     int i = 0;
-    printf("size = %d\n", size);
     for(i = 0; i < size; i++){ /* on parcours le body_panel*/
       aux = (GtkWidget *) g_list_nth_data (children, i);
       if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
@@ -138,7 +137,7 @@ void vue_add_rep(GtkWidget *label, GdkEvent *event, gpointer message){
       }
     }
   } else {
-    printf("FATAL ERROR\n");
+    printf("FATAL ERROR");
     vue_gere_menu(NULL, NULL, (gpointer)&id_bouton[5]);
     return ;
   } 
@@ -204,7 +203,6 @@ gint vue_suppr_tlv(GtkWidget *label, GdkEvent *event, gpointer message){
     int size = g_list_length(children);
     GtkWidget *aux;
     int i = 0;
-    printf("size = %d\n", size);
     for(i = 0; i < size; i++){ /* on parcours le body_panel*/
       aux = (GtkWidget *) g_list_nth_data (children, i);
       if(GTK_IS_TABLE(aux)){ /* cette condition est la pour eviter de capturer le bouton More*/
@@ -370,7 +368,7 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   char		*sBuffer;
   Dazibao_TLV   *txt;
   pTextView = GTK_WIDGET(message);
-
+  
   /* recupere le buffer */
   pTextBuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(pTextView));
   /* recupere l'origine du buffer */
@@ -380,7 +378,6 @@ gint vue_add_Text(GtkWidget *widget, gpointer *message){
   
   /* copie le contenu du buffer dans une variable */
   sBuffer = gtk_text_buffer_get_text(pTextBuffer, &iStart, &iEnd, TRUE);
-  printf("%s\n", sBuffer);
   txt = create_raw_tlv(TEXT, sBuffer);
   dazibao_append_tlv(&dazibao, txt);
   return FALSE;
@@ -586,7 +583,6 @@ char* vue_fen_make_Image (){
   if (dialog_respond == GTK_RESPONSE_ACCEPT) {
     char *filename;
     filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-    printf("%s\n", filename);
     gtk_widget_destroy (dialog);
     return filename;
   } else if(dialog_respond == -6){
@@ -717,7 +713,6 @@ void vue_fen_view_Image(void *raw_image, int size){
   int newWidth = 0, newHeight = 0;
   SDL_Init(SDL_INIT_VIDEO);
 
-  printf("size image = %d\n", size);
   position.x = 0;
   position.y = 0;
   SDL_WM_SetCaption("Dazibao", NULL);
@@ -725,7 +720,7 @@ void vue_fen_view_Image(void *raw_image, int size){
   SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
   image = IMG_Load_RW(SDL_RWFromMem( raw_image, size), 1);
   if(image  == NULL){ 
-    printf("echec image == NULL\n");
+    printf("echec image nulle\n");
     return;
   }
   ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE| SDL_RESIZABLE);
@@ -772,12 +767,15 @@ void vue_fen_view_Image(void *raw_image, int size){
 */
 gint vue_gere_tlv(GtkWidget *tlv_btn, GdkEvent *event, gpointer message){   
   Dazibao_TLV *recup = (Dazibao_TLV *)message;
+  if(recup->value == NULL){
+    printf("attention pas de valeur\n");
+    return FALSE;
+  }
   switch(recup->type){
   case 2:
     vue_fen_view_Text(recup->value);
     break;
   case 3: case 4:
-    printf("image : t = %d, p = %ld, l = %d\n", recup->type, recup->position, recup->length);
     vue_fen_view_Image(recup->value, recup->length);
     break;
   case 5:
@@ -935,6 +933,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
 	curseur_date = date->element;
 	date = curseur_date->value;
       }while(curseur_date->type == DATED);
+     
       gtk_signal_connect(GTK_OBJECT(button_tlv), "clicked", 
 			 (GtkSignalFunc)vue_gere_tlv, 
 			 (gpointer)(curseur_date));

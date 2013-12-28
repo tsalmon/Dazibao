@@ -64,37 +64,38 @@ bool dazibao_check_header(Dazibao *dazibao) {
 
 /* TODO FONCTIONNNN À REFAIRE !!! TODO */
 Dazibao_TLV *find_next_tlv(Dazibao *dazibao, int offset) {
-   unsigned char buffer[4096];
-
+  unsigned char buffer[4096];
+  
    int i;
-
+   
    /*printf("find_next_tlv at %d\n", (int)offset);
-   */
+    */
    
    lseek(dazibao->file_descriptor, offset, SEEK_SET);
-
+   
    if (read(dazibao->file_descriptor, buffer, 4096) == -1) {
-       perror("[!] Error while reading TLV");
-       exit(55);
-       return NULL;
+     perror("[!] Error while reading TLV");
+     exit(55);
+     return NULL;
    } else {
-       Dazibao_TLV *new = malloc(sizeof(Dazibao_TLV));
-
-       new->type =     buffer[0];
-       new->length =   buffer[1] * 256 * 256 + buffer[2] * 256 + buffer[3];
-       new->position = offset;
-       new->value =    NULL;
-
-       if(new->type == PADONE) {
-           for(i = 0; i < 4096; i++) {
-               if(buffer[i] != PADONE) {
-                   return find_next_tlv(dazibao, offset + i);
-               }
-           }
-       } else {
-           return new;
+     Dazibao_TLV *new = malloc(sizeof(Dazibao_TLV));
+     
+     new->type =     buffer[0];
+     new->length =   buffer[1] * 256 * 256 + buffer[2] * 256 + buffer[3];
+     new->position = offset;
+     new->value =    NULL;
+     
+     if(new->type == PADONE) {
+       for(i = 0; i < 4096; i++) {
+	 if(buffer[i] != PADONE) {
+	   return find_next_tlv(dazibao, offset + i);
+	 }
        }
+     } else {
+       return new;
+     }
    }
+   return NULL;
 }
 
 Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset_max, int *tlv_count) {
@@ -103,16 +104,59 @@ Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset
    int next_position = offset_start;
 
    while (next_position < offset_max) {
-       if(*(tlv_count) == 0) {
+       if(*tlv_count == 0) {
            new_array = malloc(sizeof(Dazibao_TLV *));
        } else {
-           new_array = realloc(new_array, sizeof(Dazibao_TLV *) * ( *(tlv_count) + 1 ));
+	 new_array = realloc(new_array, sizeof(Dazibao_TLV *) * (*tlv_count + 1 ));
        }
-       new_array[(*(tlv_count))++] = new = find_next_tlv(dazibao, next_position);
-
+       new_array[(*tlv_count)++] = new = find_next_tlv(dazibao, next_position);
        next_position = new->position + DAZIBAO_HEADER_LENGTH + new->length;
    }
    return new_array;
+}
+
+/*
+  call by: main
+  on va lire l'arbre des tlv, et associer a chacune d'entre elle une valeur
+*/
+void load_tlv_init(Dazibao_TLV **element, int nb_elem){
+  int i			= 0;
+  Dazibao_TLV *aux	= NULL;
+  Dazibao_TLV **aux_tab = NULL;
+  for(; i < nb_elem; i++){
+    /*on initialise la tlv*/
+    load_tlv_value(&dazibao, element[i]);
+    /*on suis l'arborescence*/
+    switch(element[i]->type){
+    case DATED:
+      do{
+	aux = get_tlv_dated_element(element[i]);
+	load_tlv_value(&dazibao, aux);
+	if(aux->type == COMPOUND){
+	  aux_tab = get_tlv_compound_elements(aux);
+	  load_tlv_init(aux_tab, ((Dazibao_TLV_Compound_Value *)aux->value)->count);
+	}
+      }while(aux->type == DATED); /*  cas de dates successives  */
+      /*
+	while(aux->type == DATED){
+	aux = get_tlv_dated_element(aux);
+	load_tlv_value(&dazibao, aux);
+	if(aux->type == COMPOUND){
+	printf("compound dans un dated\n");
+	aux_tab = get_tlv_compound_elements(aux);
+	load_tlv_init(aux_tab, ((Dazibao_TLV_Compound_Value *)aux->value)->count);
+	}
+      */
+      break;
+    case COMPOUND: 
+      aux_tab = get_tlv_compound_elements(element[i]);
+      load_tlv_init(aux_tab, ((Dazibao_TLV_Compound_Value *)element[i]->value)->count);
+      break;
+    default:; /*les autres tlv ne nous interesse pas*/
+      
+    }
+    
+  }
 }
 
 void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
@@ -136,6 +180,8 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
    /*printf("[-] ok\n");
     */
 }
+
+
 
 char *load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv) {
    char *value = malloc(sizeof(char) * (tlv->length));
@@ -166,7 +212,7 @@ Dazibao_TLV_Compound_Value *load_tlv_value_compound(Dazibao *dazibao, Dazibao_TL
    
    Dazibao_TLV_Compound_Value *compound = malloc(sizeof(Dazibao_TLV_Compound_Value));
    int count = 0;
-
+   
    compound->elements = find_next_tlv_array(dazibao, tlv->position + 4, tlv->position + tlv->length + 4, &count);
 
    compound->count = count;

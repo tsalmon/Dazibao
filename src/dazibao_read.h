@@ -17,6 +17,8 @@ Dazibao_TLV *find_next_tlv(Dazibao *dazibao, int offset);
 
 Dazibao_TLV **find_next_tlv_array(Dazibao *dazibao, int offset_start, int offset_max, int *tlv_count) ;
 
+void load_tlv_init(Dazibao_TLV **elements, int nb_elem);
+
 void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv);
 
 char *load_tlv_value_raw(Dazibao *dazibao, Dazibao_TLV *tlv);
