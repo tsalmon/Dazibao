@@ -40,6 +40,14 @@ void safe_free(void *p) {
     }
 }
 
+bool safe_lseek(int fd, off_t offset, int whence) {
+    if(lseek(fd, offset, whence) == -1) {
+        perror("Lseek Error:");
+        return false;
+    }
+    return true;
+}
+
 bool safe_read(int fd, void *buffer, size_t count) {
     if(read(fd, buffer, count) == -1) {
         perror("Read Error:");
