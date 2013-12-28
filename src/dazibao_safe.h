@@ -9,6 +9,8 @@ void *safe_realloc(void *p, int n);
 
 void safe_free(void *p);
 
+bool safe_lseek(int fd, off_t offset, int whence);
+
 bool safe_read(int fd, void *buffer, size_t count);
 
 bool safe_write(int fd, void *buffer, size_t count);
