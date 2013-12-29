@@ -233,3 +233,15 @@ void dazibao_print_tree(Dazibao *dazibao, Dazibao_TLV **elements, int count, int
         }
     }
 }
+
+unsigned char* convert_int_to_char(int size) {
+    
+    unsigned char *length = (unsigned char *) safe_malloc (3);
+
+    length[0] = (size >> 16) & 0xFF;
+    length[1] = (size >> 8) & 0xFF;
+    length[2] = size & 0xFF;
+    
+    return (length);
+
+}
