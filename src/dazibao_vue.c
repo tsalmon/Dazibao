@@ -871,7 +871,7 @@ void vue_init_body(GtkWidget * panel, Dazibao_TLV **tlv, int nb_tlv){
       Dazibao_TLV_Dated_Value *date = tlv[i]->value;
       Dazibao_TLV *curseur_date;
       do{
-	label_date = gtk_label_new(timestamp_to_date_short(date->timestamp));
+	label_date = gtk_label_new(timestamp_to_date(date->timestamp));
 	gtk_box_pack_start(GTK_BOX(dates), label_date, FALSE, FALSE, 5);
 	curseur_date = date->element;
 	date = curseur_date->value;
