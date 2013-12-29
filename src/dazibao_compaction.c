@@ -154,7 +154,7 @@ int deletePad(int f, int sizeLoop, int val) {
 					lseek(f, (lseek(f, 0, SEEK_CUR)) - (shift + size + 4), SEEK_SET); /* repositionnement en avant */ 
 					write(f, &buff, 1);   /* type */
 					write(f, &length, 3); /* taille */
-					write(f, buf_copy, size/*strlen(buf_copy)*/); /* corps */
+					write(f, buf_copy, size); /* corps */
 					lseek(f, curRead, SEEK_SET); /* repositionnement au bon emplacement pour lire les TLV suivant */
 					free(buf_copy);
 
