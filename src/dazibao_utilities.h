@@ -34,5 +34,7 @@ char *string_repeat(int n, const char *s);
 int insertSpace(char str[]);
 
 void dazibao_print_tree(Dazibao *dazibao, Dazibao_TLV **elements, int count, int deepness);
+
+unsigned char* convert_int_to_char(int size);
  
 #endif
