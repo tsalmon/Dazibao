@@ -1,6 +1,4 @@
 #include <gtk/gtk.h>  
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -705,88 +703,23 @@ void vue_fen_view_Text(char *str){
   TODO: remplacer SDL par GTK2+
 */
 void vue_fen_view_Image(void *raw_image, int size){
-  GtkWidget *window = NULL;
-  GtkWidget *image = NULL;
-  GdkPixbuf *pixbuf = NULL;
-  GError *error = NULL;
- 
-  gtk_init(NULL, NULL);
- 
-  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  GdkPixbufLoader *loader;
+  GdkPixbuf *pixbuf;
+  GtkWidget *Img_window;
+  GtkWidget *image;
   
-  if (!error)
-    {
-      GdkPixbuf *pixbuf_mini = NULL;
-      
-      pixbuf_mini = gdk_pixbuf_scale_simple (pixbuf,
-					     gdk_pixbuf_get_width (pixbuf) / 2,
-					     gdk_pixbuf_get_height (pixbuf) / 2,
-					     GDK_INTERP_NEAREST);
-      
-      image = gtk_image_new_from_pixbuf (pixbuf_mini);
-      gtk_container_add (GTK_CONTAINER (window), image);
- 
-      gtk_widget_show_all (window);
-      gtk_main ();
-    }
-  else
-    {
-      g_critical (error->message);
-    }
+  gtk_init (NULL, NULL);
+  
+  loader = gdk_pixbuf_loader_new ();
+  gdk_pixbuf_loader_write (loader, raw_image, size, NULL);
+  pixbuf = gdk_pixbuf_loader_get_pixbuf (loader);
 
-  /*
-  SDL_Surface *ecran = NULL;
-  SDL_Surface *image = NULL;
-  SDL_Rect position;
-  int continuer = 1;
-  SDL_Event evenement;
-  int newWidth = 0, newHeight = 0;
-  SDL_Init(SDL_INIT_VIDEO);
-
-  position.x = 0;
-  position.y = 0;
-  SDL_WM_SetCaption("Dazibao", NULL);
-  ecran = SDL_SetVideoMode(400, 400, 32, SDL_HWSURFACE| SDL_RESIZABLE);
-  SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
-  image = IMG_Load_RW(SDL_RWFromMem( raw_image, size), 1);
-  if(image  == NULL){ 
-    printf("echec image nulle\n");
-    return;
-  }
-  ecran = SDL_SetVideoMode(image->w, image->h, 32, SDL_HWSURFACE| SDL_RESIZABLE);
-  SDL_BlitSurface(image, NULL, ecran, &position);
-  SDL_Flip(ecran);
-  while(continuer)
-    {
-      SDL_PollEvent(&evenement);
-      switch(evenement.type)
-        {
-	case SDL_VIDEORESIZE:
-	  newWidth = evenement.resize.w;
-	  newHeight = evenement.resize.h;
-	  SDL_FreeSurface(ecran);
-	  ecran = SDL_SetVideoMode
-	    (newWidth, newHeight, 32, SDL_HWSURFACE | SDL_RESIZABLE);
-	  SDL_BlitSurface(image, NULL, ecran, &position);
-	  SDL_Flip(ecran);
-	  break;
-	case SDL_QUIT:
-	  continuer = 0;
-	  break;
-	case SDL_KEYDOWN:
-	  switch(evenement.key.keysym.sym)
-            {
-	    case SDLK_ESCAPE:
-	      continuer = 0;
-	      break;
-	    default:
-	      break;
-            }
-	  break;
-        }
-	}
-  SDL_Quit();
-  */
+  Img_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  image = gtk_image_new_from_pixbuf (pixbuf);
+  gtk_container_add (GTK_CONTAINER (Img_window), image);
+  gtk_widget_show_all (GTK_WIDGET (Img_window));
+  g_signal_connect (Img_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+  gtk_main ();
 }
 
 

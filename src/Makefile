@@ -6,7 +6,7 @@ SDL=`sdl-config --libs` -lSDLmain -lSDL -lSDL_image
 all: dazibao
 
 dazibao: dazibao.o dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o
-	$(CC) $(CFLAGS) dazibao.o  dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o $(GTK) $(SDL) -o dazibao
+	$(CC) $(CFLAGS) dazibao.o  dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o $(GTK) -o dazibao
 
 dazibao_compaction.o: dazibao_compaction.c
 	$(CC) $(CFLAGS) -c dazibao_compaction.c -o dazibao_compaction.o
@@ -27,7 +27,7 @@ dazibao_utilities.o: dazibao_utilities.h dazibao_utilities.c
 	$(CC) $(CFLAGS) -c dazibao_utilities.c -o dazibao_utilities.o
 
 dazibao_vue.o: dazibao_vue.h dazibao_vue.c
-	$(CC) $(CFLAGS) -c dazibao_vue.c $(GTK) $(SDL) -o dazibao_vue.o
+	$(CC) $(CFLAGS) -c dazibao_vue.c $(GTK) -o dazibao_vue.o
 
 clean:
 	rm *.o dazibao
