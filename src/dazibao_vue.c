@@ -705,6 +705,36 @@ void vue_fen_view_Text(char *str){
   TODO: remplacer SDL par GTK2+
 */
 void vue_fen_view_Image(void *raw_image, int size){
+  GtkWidget *window = NULL;
+  GtkWidget *image = NULL;
+  GdkPixbuf *pixbuf = NULL;
+  GError *error = NULL;
+ 
+  gtk_init(NULL, NULL);
+ 
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  
+  if (!error)
+    {
+      GdkPixbuf *pixbuf_mini = NULL;
+      
+      pixbuf_mini = gdk_pixbuf_scale_simple (pixbuf,
+					     gdk_pixbuf_get_width (pixbuf) / 2,
+					     gdk_pixbuf_get_height (pixbuf) / 2,
+					     GDK_INTERP_NEAREST);
+      
+      image = gtk_image_new_from_pixbuf (pixbuf_mini);
+      gtk_container_add (GTK_CONTAINER (window), image);
+ 
+      gtk_widget_show_all (window);
+      gtk_main ();
+    }
+  else
+    {
+      g_critical (error->message);
+    }
+
+  /*
   SDL_Surface *ecran = NULL;
   SDL_Surface *image = NULL;
   SDL_Rect position;
@@ -756,6 +786,7 @@ void vue_fen_view_Image(void *raw_image, int size){
         }
 	}
   SDL_Quit();
+  */
 }
 
 
@@ -999,9 +1030,8 @@ void vue_init_foot(GtkWidget * panel){
 int vue_init(){
   gtk_init(NULL, NULL);
   window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
-  gtk_window_set_default_size(GTK_WINDOW(window), 520, 700);
+  gtk_window_set_default_size(GTK_WINDOW(window), 120,50);
   gtk_window_set_title(GTK_WINDOW(window), "Dazibao");
   g_signal_connect(G_OBJECT(window),"destroy",G_CALLBACK(traitement_quitter),0);
   
