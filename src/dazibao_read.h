@@ -3,8 +3,6 @@
 
 #include "dazibao.h"
 
-bool safe_read(int fd, void *buffer, size_t count);
-
 bool dazibao_open_file(Dazibao *dazibao);
 
 bool dazibao_close_file(Dazibao *dazibao);

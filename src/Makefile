@@ -1,12 +1,11 @@
 CC=gcc
 CFLAGS=-g -ansi -pedantic -Wall -Wextra -Wno-unused-parameter
 GTK=`pkg-config --cflags --libs gtk+-2.0`
-SDL=`sdl-config --libs` -lSDLmain -lSDL -lSDL_image 
 
 all: dazibao
 
-dazibao: dazibao.o dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o
-	$(CC) $(CFLAGS) dazibao.o  dazibao_read.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o $(GTK) -o dazibao
+dazibao: dazibao.o dazibao_read.o dazibao_safe.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o
+	$(CC) $(CFLAGS) dazibao.o dazibao_read.o dazibao_safe.o dazibao_write.o dazibao_utilities.o dazibao_compaction.o dazibao_vue.o $(GTK) -o dazibao
 
 dazibao_compaction.o: dazibao_compaction.c
 	$(CC) $(CFLAGS) -c dazibao_compaction.c -o dazibao_compaction.o

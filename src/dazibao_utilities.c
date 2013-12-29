@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "dazibao.h"
+#include "dazibao_safe.h"
 
 /* À supprimer ! */
 #include "dazibao_read.h"

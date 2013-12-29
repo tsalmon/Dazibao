@@ -8,15 +8,7 @@
 #include "dazibao_read.h"
 #include "dazibao_write.h"
 #include "dazibao_utilities.h"
-
-bool safe_write(int fd, void *buffer, size_t count) {
-    if(write(fd, buffer, count) != (ssize_t)count) {
-        perror("Write Error:");
-        return false;
-    } else {
-        return true;
-    }
-}
+#include "dazibao_safe.h"
 
 /* Écrit le header d'un TLV */
 void dazibao_write_tlv_header(Dazibao *dazibao, Dazibao_TLV *tlv) {
@@ -25,7 +17,7 @@ void dazibao_write_tlv_header(Dazibao *dazibao, Dazibao_TLV *tlv) {
     header[0] = tlv->type;
 
     header[1] = (tlv->length >> 16) & 0xFF;
-    header[2] = (tlv->length >> 8) & 0xFF;
+    header[2] = (tlv->length >>  8) & 0xFF;
     header[3] = tlv->length & 0xFF;
 
     safe_write(dazibao->file_descriptor, header, DAZIBAO_HEADER_LENGTH);
@@ -53,7 +45,7 @@ void dazibao_write_dated_tlv(Dazibao *dazibao, Dazibao_TLV *tlv) {
     date[1] = (timestamp >> 16) & 0xFF;
     date[2] = (timestamp >> 8)  & 0xFF;
     date[3] =  timestamp        & 0xFF;
-    
+
     dazibao_write_tlv_header(dazibao, tlv);
     safe_write(dazibao->file_descriptor, date, 4);
     dazibao_write_tlv(dazibao, element);

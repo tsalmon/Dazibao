@@ -11,16 +11,6 @@
 #include "dazibao_read.h"
 #include "dazibao_utilities.h"
 
-
-bool safe_read(int fd, void *buffer, size_t count) {
-    if(read(fd, buffer, count) == -1) {
-        perror("Read Error:");
-        return false;
-    } else {
-        return true;
-    }
-}
-
 bool dazibao_open_file(Dazibao *dazibao) {
     if ((dazibao->file_descriptor = open(dazibao->file_path, O_RDWR)) < 0) {
         perror("[!] Error when opening file");
