@@ -67,13 +67,12 @@ int deletePad(int f, int sizeLoop, int val) {
 	off_t tmpPos;
 	off_t curRead;
 	int fr;
-	int fw;
 	int size;
 	int tmpVal;
 	int shift_start;
 	int shift_end;
 	int shift = val;
-	char buf_copy[4096];
+	char *buf_copy;
 	unsigned char date[4];
 	unsigned char buff;
 	unsigned char length[3];
@@ -110,6 +109,7 @@ int deletePad(int f, int sizeLoop, int val) {
 					write(f, &newLength[0], 1);
 					write(f, &newLength[1], 1);
 					write(f, &newLength[2], 1);
+					free(newLength);
 
 				}
 
@@ -133,6 +133,7 @@ int deletePad(int f, int sizeLoop, int val) {
 					write(f, &newLength[1], 1);
 					write(f, &newLength[2], 1);
 					write(f, &date, 4);
+					free(newLength);
 					
 				}
 
@@ -147,13 +148,15 @@ int deletePad(int f, int sizeLoop, int val) {
 
 				} else {   /* Sinon on recopie la TLV à la bonne place */
 
-					read(f, &buf_copy, size);
-					curRead = lseek(f, 0, SEEK_CUR); /* sauvegarde de la position courante de lecture */ 
-					lseek(f, (lseek(f, 0, SEEK_CUR)) - (shift + size + 4), SEEK_SET); /* repositionnement en avant */
+					buf_copy = malloc (size * sizeof(char)); /* allocation mémoire pour stocket le contenu de la TLV */
+					read(f, buf_copy, size);
+					curRead = lseek(f, 0, SEEK_CUR); /* sauvegarde de la position courante de lecture */
+					lseek(f, (lseek(f, 0, SEEK_CUR)) - (shift + size + 4), SEEK_SET); /* repositionnement en avant */ 
 					write(f, &buff, 1);   /* type */
 					write(f, &length, 3); /* taille */
-					while( (fw = write(f, &buf_copy, strlen(buf_copy))) < size); /* corps */
+					write(f, buf_copy, size/*strlen(buf_copy)*/); /* corps */
 					lseek(f, curRead, SEEK_SET); /* repositionnement au bon emplacement pour lire les TLV suivant */
+					free(buf_copy);
 
 				}
 
