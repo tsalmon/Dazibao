@@ -137,16 +137,6 @@ void load_tlv_init(Dazibao_TLV **element, int nb_elem){
 	  load_tlv_init(aux_tab, ((Dazibao_TLV_Compound_Value *)aux->value)->count);
 	}
       }while(aux->type == DATED); /*  cas de dates successives  */
-      /*
-	while(aux->type == DATED){
-	aux = get_tlv_dated_element(aux);
-	load_tlv_value(&dazibao, aux);
-	if(aux->type == COMPOUND){
-	printf("compound dans un dated\n");
-	aux_tab = get_tlv_compound_elements(aux);
-	load_tlv_init(aux_tab, ((Dazibao_TLV_Compound_Value *)aux->value)->count);
-	}
-      */
       break;
     case COMPOUND: 
       aux_tab = get_tlv_compound_elements(element[i]);
@@ -177,8 +167,6 @@ void load_tlv_value(Dazibao *dazibao, Dazibao_TLV *tlv) {
        default     :
            printf("CANT LOAD VALUE !!!\n");
    }
-   /*printf("[-] ok\n");
-    */
 }
 
 
@@ -201,10 +189,6 @@ Dazibao_TLV_Dated_Value *load_tlv_value_dated(Dazibao *dazibao, Dazibao_TLV *tlv
    dated->timestamp = buffer[0] * 256 * 256 * 256 + buffer[1] * 255 * 256 + buffer[2] * 256 + buffer[3];
    dated->element = find_next_tlv(dazibao, tlv->position + 8);
 
-   /*printf("[d] Dated : Timestamp %ld\n[d] Element : ", dated->timestamp);
-   
-   print_tlv_header(dated->element);
-*/
    return dated;
 }
 

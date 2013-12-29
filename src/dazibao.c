@@ -15,7 +15,6 @@
 #include "dazibao_vue.h"
 
 int main(int argc, char **argv) {
-  
   dazibao.file_path = argv[1];
   dazibao.file_descriptor = 0;
   dazibao.file_size = 0;
@@ -39,23 +38,6 @@ int main(int argc, char **argv) {
     
     dazibao.elements = find_next_tlv_array(&dazibao, DAZIBAO_HEADER_LENGTH, dazibao.file_size, &dazibao.tlv_count);
     load_tlv_init(dazibao.elements, dazibao.tlv_count);
-    
-    /*
-    newtlv.type = TEXT;
-    newtlv.position = -1;
-    newtlv.value = "Bonjour Monsieur................";
-    newtlv.length = strlen(newtlv.value);        
-    
-    printf("\n[+] now loading tlvs one by one :\n");
-    load_tlv_value(&dazibao, dazibao.elements[0]);
-    load_tlv_value(&dazibao, dazibao.elements[1]);
-    load_tlv_value(&dazibao, dazibao.elements[2]);
-    load_tlv_value(&dazibao, dazibao.elements[3]);
-    load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element);
-    load_tlv_value(&dazibao, ((Dazibao_TLV_Dated_Value *)dazibao.elements[2]->value)->element);
-    
-      load_tlv_value(&dazibao, (Dazibao_TLV_Compound_Value *)((Dazibao_TLV_Dated_Value *)dazibao.elements[3]->value)->element->elements[0]);
-    */
   } 
   
   
